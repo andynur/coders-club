@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#46178f" />
+  <title>Coders Club — HSI Boarding School Purworejo</title>
+  <meta name="description" content="Landing page interaktif Coders Club HSI Boarding School Purworejo." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&amp;display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="page-glow"></div>
+  <header class="site-header">
+    <div class="container nav-wrap">
+      <a href="#hero" class="brand">
+        <img src="logo-color.png" alt="Logo HSI Boarding School" class="brand-logo" data-theme-logo />
+        <div>
+          <div class="brand-title">Coders Club</div>
+          <div class="brand-subtitle">HSI Boarding School Purworejo</div>
+        </div>
+      </a>
+
+      <nav class="site-nav" id="siteNav">
+        <a href="#tentang">Tentang</a>
+        <a href="#program">Program</a>
+        <a href="#track">Track</a>
+        <a href="#mentor">Mentor</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button id="themeToggle" class="theme-toggle" aria-label="Aktifkan mode gelap" aria-pressed="false">
+          <span class="theme-icon">🌙</span>
+          <span class="theme-label">Dark Mode</span>
+        </button>
+        <button id="menuToggle" class="menu-toggle" aria-label="Toggle menu">☰</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="hero">
+      <div class="hero-shape shape-circle" aria-hidden="true"></div>
+      <div class="hero-shape shape-diamond" aria-hidden="true"></div>
+      <div class="hero-shape shape-triangle" aria-hidden="true"></div>
+      <div class="hero-shape shape-squiggle" aria-hidden="true">⌁</div>
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <span class="eyebrow eyebrow-light">🚀 Learn • Build • Compete • Teach</span>
+          <h1>Belajar coding.<br><span>Serunya bareng!</span></h1>
+          <p class="hero-text">
+            Wadah siswa HSI Boarding School Purworejo untuk belajar coding, membuat project,
+            melatih problem solving, dan mempersiapkan diri menuju kompetisi IT seperti
+            <strong>OSN Informatika</strong> dan lomba <strong>Web Development</strong>.
+          </p>
+
+          <div class="cta-row">
+            <a href="#program" class="btn btn-primary">💻 Jelajahi Program</a>
+            <a href="#mentor" class="btn btn-secondary">👋 Kenalan dengan Mentor</a>
+          </div>
+
+          <div class="emoji-cloud" aria-label="Emoji Interaktif">
+            <button class="emoji-chip" data-emoji="💻">💻 Code!</button>
+            <button class="emoji-chip" data-emoji="🧠">🧠 Logic!</button>
+            <button class="emoji-chip" data-emoji="🚀">🚀 Launch!</button>
+            <button class="emoji-chip" data-emoji="🏆">🏆 Compete!</button>
+            <button class="emoji-chip" data-emoji="🤝">🤝 Mentor!</button>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-emoji">🛣️</span>
+              <span><strong>2 Jalur</strong><small>OSN &amp; Web/Product</small></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-emoji">📅</span>
+              <span><strong>Weekly</strong><small>Sabtu / Minggu</small></span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-emoji">🧑‍💻</span>
+              <span><strong>3 Peran</strong><small>Explorer, Builder, Mentor</small></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="game-card" aria-labelledby="gameQuestion">
+          <div class="game-topbar">
+            <span class="game-pin"><span></span> LIVE CHALLENGE</span>
+            <span class="game-count">01 / 04</span>
+          </div>
+          <div class="game-logo-wrap">
+            <img src="logo-white.png" alt="Logo HSI Boarding School" class="hero-logo" data-hero-logo />
+          </div>
+          <div class="game-question">
+            <span class="question-label">PILIH MISIMU</span>
+            <h2 id="gameQuestion">Kamu mau mulai dari mana?</h2>
+          </div>
+          <div class="answer-grid">
+            <button class="answer-card answer-red" data-answer="logic" data-emoji="🧠">
+              <span class="answer-shape">▲</span><span>Asah logika</span>
+            </button>
+            <button class="answer-card answer-blue" data-answer="build" data-emoji="💻">
+              <span class="answer-shape">◆</span><span>Build project</span>
+            </button>
+            <button class="answer-card answer-yellow" data-answer="compete" data-emoji="🏆">
+              <span class="answer-shape">●</span><span>Ikut lomba</span>
+            </button>
+            <button class="answer-card answer-green" data-answer="mentor" data-emoji="🤝">
+              <span class="answer-shape">■</span><span>Belajar bareng</span>
+            </button>
+          </div>
+          <p class="game-feedback" id="gameFeedback" aria-live="polite">Pilih satu kartu untuk melihat misimu ✨</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="learning-strip" aria-hidden="true">
+      <div class="learning-strip-track">
+        <span>⚡ CODE</span><span>✦ CREATE</span><span>🧠 SOLVE</span><span>✦ SHARE</span><span>🏆 COMPETE</span><span>✦ GROW</span>
+        <span>⚡ CODE</span><span>✦ CREATE</span><span>🧠 SOLVE</span><span>✦ SHARE</span><span>🏆 COMPETE</span><span>✦ GROW</span>
+      </div>
+    </div>
+
+    <section class="section" id="tentang">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">✨ Tentang Club</span>
+          <h2>Apa itu Coders Club?</h2>
+          <p>
+            Coders Club adalah komunitas belajar dan berkarya di bidang teknologi untuk siswa yang tertarik pada
+            coding, web development, problem solving, portofolio, dan kompetisi IT.
+          </p>
+        </div>
+
+        <div class="card-grid three">
+          <article class="info-card">
+            <div class="card-icon">🟢</div>
+            <h3>Explorer</h3>
+            <p>
+              Untuk siswa kelas X yang ingin belajar coding lebih awal, walau belum pernah programming sebelumnya.
+            </p>
+          </article>
+          <article class="info-card">
+            <div class="card-icon">🔵</div>
+            <h3>Builder</h3>
+            <p>
+              Untuk siswa kelas XI yang ingin memperkuat kembali dasar HTML, CSS, JavaScript, dan latihan project.
+            </p>
+          </article>
+          <article class="info-card">
+            <div class="card-icon">🟡</div>
+            <h3>Student Mentor</h3>
+            <p>
+              Untuk siswa kelas XI yang siap membantu junior belajar sekaligus naik level ke materi yang lebih lanjut.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="program">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">🛠️ Program Belajar</span>
+          <h2>Belajar bukan cuma teori — kita akan build sesuatu</h2>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <span class="timeline-step">1</span>
+            <div>
+              <h3>Challenge &amp; Logic</h3>
+              <p>Mulai dengan puzzle ringan, computational thinking, dan latihan logika.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-step">2</span>
+            <div>
+              <h3>Mini Lesson</h3>
+              <p>Belajar konsep baru seperti HTML, CSS, JavaScript, DOM, API, atau Git.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-step">3</span>
+            <div>
+              <h3>Build Session</h3>
+              <p>Membangun fitur atau mini project secara langsung.</p>
+            </div>
+          </div>
+          <div class="timeline-item">
+            <span class="timeline-step">4</span>
+            <div>
+              <h3>Showcase</h3>
+              <p>Menampilkan hasil, presentasi singkat, dan menerima feedback untuk berkembang.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="project-grid">
+          <div class="project-card">
+            <h3>🌐 Personal Website</h3>
+            <p>Belajar HTML dan CSS sambil membuat halaman profil sendiri.</p>
+          </div>
+          <div class="project-card">
+            <h3>🗳️ Mini Voting App</h3>
+            <p>Belajar event, array, dan localStorage melalui project voting sederhana.</p>
+          </div>
+          <div class="project-card">
+            <h3>🎮 Quiz App</h3>
+            <p>Membuat kuis interaktif dengan score system dan tampilan menarik.</p>
+          </div>
+          <div class="project-card">
+            <h3>📊 Dashboard</h3>
+            <p>Mengenal API dan data display melalui tampilan dashboard sederhana.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="track">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">🏁 Competition Track</span>
+          <h2>Dua jalur pengembangan</h2>
+          <p>Pilih jalur sesuai minat, bakat, dan tujuan belajarmu.</p>
+        </div>
+
+        <div class="track-grid">
+          <article class="track-card highlight-blue">
+            <div class="track-badge">🧠 Olympiad Track</div>
+            <h3>OSN Informatika &amp; Competitive Programming</h3>
+            <p>
+              Cocok untuk siswa yang suka logika, puzzle, algoritma, dan tantangan problem solving.
+            </p>
+            <ul>
+              <li>C++ Fundamental</li>
+              <li>Algorithm &amp; Data Structure</li>
+              <li>Past Problem Practice</li>
+              <li>Simulation &amp; Internal Contest</li>
+            </ul>
+          </article>
+          <article class="track-card highlight-gold">
+            <div class="track-badge">🌐 Product Track</div>
+            <h3>Web Development &amp; Software Project</h3>
+            <p>
+              Cocok untuk siswa yang suka membuat website, aplikasi, UI/UX, dan karya digital yang nyata.
+            </p>
+            <ul>
+              <li>HTML, CSS, JavaScript</li>
+              <li>Git &amp; GitHub</li>
+              <li>API, Backend, Database</li>
+              <li>Team Project &amp; Demo Day</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="benefit">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">🎁 Benefit</span>
+          <h2>Apa yang didapat?</h2>
+        </div>
+
+        <div class="benefit-grid">
+          <div class="benefit-card">💻 Belajar coding lebih awal</div>
+          <div class="benefit-card">🧠 Problem solving &amp; logical thinking</div>
+          <div class="benefit-card">🤝 Peer mentoring &amp; teamwork</div>
+          <div class="benefit-card">🚀 Portofolio project &amp; GitHub</div>
+          <div class="benefit-card">🏆 Persiapan kompetisi IT</div>
+          <div class="benefit-card">📚 Akselerasi ke materi advanced</div>
+          <div class="benefit-card">💡 Belajar pakai AI secara bijak</div>
+          <div class="benefit-card">🎤 Demo day &amp; public speaking</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="mentor">
+      <div class="container mentor-wrap">
+        <div class="mentor-card">
+          <div class="mentor-avatar">👨‍🏫</div>
+          <div>
+            <span class="eyebrow">Mentor Club</span>
+            <h2>Kak Andy</h2>
+            <p>
+              Sebagai mentor, <strong>Kak Andy</strong> akan mendampingi perjalanan belajar anggota Coders Club,
+              mulai dari dasar web development, project building, hingga pembinaan menuju kompetisi IT.
+            </p>
+            <p>
+              Fokus pembinaan: <strong>learn, build, compete, and grow together</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="faq">
+      <div class="container">
+        <div class="section-heading">
+          <span class="eyebrow">❓ FAQ</span>
+          <h2>Pertanyaan yang sering muncul</h2>
+        </div>
+
+        <div class="faq-list">
+          <details>
+            <summary>Apakah harus sudah bisa coding?</summary>
+            <p>Tidak. Coders Club terbuka untuk pemula yang punya minat belajar.</p>
+          </details>
+          <details>
+            <summary>Apakah hanya untuk siswa yang ingin ikut lomba?</summary>
+            <p>Tidak. Kamu bisa ikut untuk belajar, memperkuat dasar, membuat project, atau mempersiapkan kompetisi.</p>
+          </details>
+          <details>
+            <summary>Kapan pelaksanaannya?</summary>
+            <p>Direncanakan setiap pekan pada hari Sabtu atau Minggu, menyesuaikan agenda sekolah.</p>
+          </details>
+          <details>
+            <summary>Apakah boleh menggunakan AI?</summary>
+            <p>Boleh, selama tetap dipakai untuk belajar dan kamu bisa menjelaskan code yang digunakan.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section cta-section" id="join">
+      <div class="container cta-box">
+        <div>
+          <span class="eyebrow">🔥 Ready to Join?</span>
+          <h2>Jangan cuma jadi pengguna teknologi — belajarlah untuk membangunnya.</h2>
+          <p>
+            Coders Club hadir untuk siswa yang ingin bertumbuh, berkarya, dan melangkah lebih jauh di dunia IT.
+          </p>
+        </div>
+        <a href="#hero" class="btn btn-primary">✨ Back to Top</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-wrap">
+      <p>© 2026 Coders Club — HSI Boarding School</p>
+      <p>Madw with 💙 in <strong>Purworejo</strong></p>
+      
+    </div>
+  </footer>
+
+  <div id="emojiBurstContainer" aria-hidden="true"></div>
+  <script src="script.js"></script>
+</body>
+</html>
