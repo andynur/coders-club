@@ -121,7 +121,7 @@ answerButtons.forEach((button) => {
 });
 
 const revealTargets = document.querySelectorAll(
-  '.section-heading, .info-card, .timeline-item, .project-card, .track-card, .benefit-card, .mentor-card, .faq-list details, .cta-box'
+  '.section-heading, .info-card, .timeline-item, .project-card, .track-card, .radar-card, .radar-note, .benefit-card, .ai-manifesto, .ai-rule-card, .ai-principles, .mentor-card, .faq-list details, .cta-box'
 );
 
 if ('IntersectionObserver' in window) {
