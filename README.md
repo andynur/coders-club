@@ -10,6 +10,8 @@ Tampilan website menggunakan pendekatan visual yang ceria dan *game-like*: warna
 - Tema terang dan gelap dengan preferensi yang tersimpan di browser.
 - Logo berwarna untuk tema terang dan logo putih untuk tema gelap.
 - Hero interaktif dengan pilihan misi belajar.
+- Competition Radar berisi referensi OSN, latihan competitive programming, dan contoh lomba web.
+- Panduan penggunaan AI dengan kategori boleh, wajib diperiksa, dan tidak boleh.
 - Efek emoji ketika tombol dan kartu misi dipilih.
 - Animasi elemen saat masuk ke area pandang.
 - Navigasi aktif berdasarkan bagian halaman yang sedang dibaca.
@@ -23,9 +25,11 @@ Tampilan website menggunakan pendekatan visual yang ceria dan *game-like*: warna
 3. Program dan alur belajar.
 4. Pilihan proyek latihan.
 5. Competition Track.
-6. Benefit untuk anggota.
-7. Profil mentor.
-8. FAQ dan ajakan bergabung.
+6. Competition Radar dan referensi belajar.
+7. Benefit untuk anggota.
+8. Panduan belajar menggunakan AI.
+9. Profil mentor.
+10. FAQ dan ajakan bergabung.
 
 ## Teknologi
 
