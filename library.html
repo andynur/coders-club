@@ -1,0 +1,860 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12 Library Vanilla JS 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ECEFFB; --bg2:#F6F1FF; --ink:#2B2D42; --muted:#6B6F8E; --card:#F8F9FF;
+  --shadow-dark:rgba(116,124,188,.28); --shadow-light:rgba(255,255,255,.95);
+  --accent:#7C6CFF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Nunito',system-ui,sans-serif;color:var(--ink);
+  background:radial-gradient(1200px 700px at 10% 0%,#FFE9F1 0%,transparent 60%),
+             radial-gradient(1000px 700px at 100% 100%,#E3F4FF 0%,transparent 60%),
+             linear-gradient(160deg,var(--bg2),var(--bg));
+  overflow:hidden;-webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer}
+
+/* ===== Clay primitives ===== */
+.clay-card{
+  background:var(--card);border-radius:32px;
+  box-shadow:16px 16px 32px var(--shadow-dark),-10px -10px 24px var(--shadow-light),
+             inset 4px 4px 10px rgba(255,255,255,.9),inset -4px -4px 10px rgba(116,124,188,.12);
+}
+.clay{
+  --s:64px;--c:#7C6CFF;
+  width:var(--s);height:var(--s);flex:0 0 var(--s);
+  border-radius:calc(var(--s)*.34);position:relative;display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--c) 45%,#fff) 0%,var(--c) 55%,color-mix(in srgb,var(--c) 82%,#000) 125%);
+  box-shadow:
+    inset calc(var(--s)*-.07) calc(var(--s)*-.09) calc(var(--s)*.16) rgba(0,0,0,.2),
+    inset calc(var(--s)*.07) calc(var(--s)*.07) calc(var(--s)*.14) rgba(255,255,255,.6),
+    0 calc(var(--s)*.2) calc(var(--s)*.34) calc(var(--s)*-.1) color-mix(in srgb,var(--c) 75%,transparent);
+}
+.clay::after{
+  content:"";position:absolute;top:11%;left:15%;width:34%;height:17%;border-radius:50%;
+  background:rgba(255,255,255,.6);filter:blur(1.5px);transform:rotate(-22deg);
+}
+.clay svg{width:52%;height:52%;color:#fff;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 calc(var(--s)*.03) 0 rgba(0,0,0,.16));position:relative;z-index:1}
+.clay.sm{--s:44px}.clay.md{--s:58px}.clay.lg{--s:84px}.clay.xl{--s:110px}
+.clay.btn{border:0;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.clay.btn:hover{transform:translateY(-6px) rotate(-6deg) scale(1.06)}
+
+.cbtn{
+  --c:var(--accent);border:0;border-radius:18px;padding:12px 22px;font-weight:800;font-size:15px;color:#fff;
+  background:radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--c) 55%,#fff),var(--c) 70%);
+  box-shadow:inset -3px -4px 8px rgba(0,0,0,.18),inset 3px 3px 8px rgba(255,255,255,.5),0 10px 18px -8px color-mix(in srgb,var(--c) 80%,transparent);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+.cbtn:hover{transform:translateY(-2px)}.cbtn:active{transform:scale(.95)}
+.cbtn.sm{padding:8px 14px;font-size:13px;border-radius:14px}
+.cbtn.ghost{--c:#DDE1F7;color:var(--ink)}
+
+.chip{
+  --c:#7C6CFF;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-weight:800;font-size:13px;
+  color:color-mix(in srgb,var(--c) 60%,#000);background:color-mix(in srgb,var(--c) 22%,#fff);
+  box-shadow:inset 2px 2px 4px rgba(255,255,255,.8),inset -2px -2px 4px color-mix(in srgb,var(--c) 25%,transparent);
+  border:0;
+}
+button.chip{transition:transform .2s}button.chip:hover{transform:translateY(-2px)}
+.pill{display:inline-flex;gap:6px;align-items:center;padding:8px 14px;border-radius:14px;background:#fff;font-weight:700;font-size:13px;color:var(--muted);
+  box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light)}
+
+/* ===== Deck ===== */
+.progress{position:fixed;top:0;left:0;height:6px;background:linear-gradient(90deg,#FF8FA3,#FFC24B,#5FD3B5,#7FB2FF,#B48CFF);
+  border-radius:0 6px 6px 0;transition:width .5s cubic-bezier(.22,1,.36,1);z-index:60}
+.deck{position:fixed;inset:0}
+.slide{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:56px 24px 120px;
+  opacity:0;visibility:hidden;transform:translateX(60px) scale(.98);
+  transition:opacity .45s ease,transform .55s cubic-bezier(.22,1,.36,1),visibility .45s;
+}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.slide.left{transform:translateX(-60px) scale(.98)}
+.wrap{max-width:1120px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:28px}
+h1{font-size:clamp(36px,6vw,68px);font-weight:900;line-height:1.05;letter-spacing:-.02em}
+h2{font-size:clamp(28px,4vw,44px);font-weight:900;line-height:1.1;letter-spacing:-.01em}
+h3{font-size:21px;font-weight:900}
+h4{font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:6px}
+p{font-size:18px;line-height:1.6;color:var(--muted)}
+.grad{background:linear-gradient(90deg,#FF6F91,#FF9F43 40%,#7C6CFF);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{font-weight:900;color:var(--accent);letter-spacing:.12em;text-transform:uppercase;font-size:14px}
+
+/* cover */
+.cover{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.cloud{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;justify-items:center;padding:30px}
+.cloud .clay{animation:bob 4s ease-in-out infinite}
+.cloud .clay:nth-child(3n){animation-delay:-1.3s}.cloud .clay:nth-child(3n+1){animation-delay:-2.6s}
+@keyframes bob{50%{translate:0 -10px}}
+
+/* grids */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.cats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:22px}
+.cat{padding:24px;display:flex;flex-direction:column;gap:14px}
+.cat .libs{display:flex;flex-wrap:wrap;gap:8px}
+.box{padding:28px;display:flex;flex-direction:column;gap:14px}
+.box ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+.box li{font-size:16px;line-height:1.5;color:var(--muted);padding-left:26px;position:relative}
+.box li::before{content:"";position:absolute;left:4px;top:7px;width:12px;height:12px;border-radius:50%;
+  background:var(--dot,#7C6CFF);box-shadow:inset -2px -2px 3px rgba(0,0,0,.2),inset 2px 2px 3px rgba(255,255,255,.6)}
+.row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+
+/* library slide */
+.lib{display:grid;grid-template-columns:1fr 1.08fr;gap:32px;align-items:start}
+.lib-info{display:flex;flex-direction:column;gap:16px;padding-top:8px}
+.lib-head{display:flex;gap:22px;align-items:center}
+.lib-head .tag{font-size:17px;font-weight:700;color:var(--muted);margin-top:4px}
+.lib-num{font-weight:900;color:var(--muted);font-size:14px;letter-spacing:.1em}
+.desc{font-size:18px}
+.uses{list-style:none;display:flex;flex-direction:column;gap:10px}
+.uses li{display:flex;gap:12px;align-items:center;font-weight:700;font-size:16px;background:#fff;padding:12px 16px;border-radius:18px;
+  box-shadow:6px 6px 14px var(--shadow-dark),-6px -6px 14px var(--shadow-light)}
+.uses li::before{content:"";width:12px;height:12px;border-radius:50%;flex:0 0 12px;background:var(--c);
+  box-shadow:inset -2px -2px 3px rgba(0,0,0,.2),inset 2px 2px 3px rgba(255,255,255,.6)}
+.meta{display:flex;gap:10px;flex-wrap:wrap}
+.lib-side{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+.code-card{background:#2B2D42;border-radius:26px;overflow:hidden;
+  box-shadow:14px 14px 30px rgba(43,45,66,.35),inset 3px 3px 8px rgba(255,255,255,.08),inset -3px -3px 8px rgba(0,0,0,.4)}
+.code-top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0 20px;color:#A9ACD0;font:600 13px 'JetBrains Mono',monospace}
+.dots{display:flex;gap:6px;margin-right:10px}.dots i{width:11px;height:11px;border-radius:50%;background:#FF7A7A}
+.dots i:nth-child(2){background:#FFCF4A}.dots i:nth-child(3){background:#7BDB7E}
+.code-card pre{padding:14px 20px 20px;overflow:auto;max-height:280px}
+.code-card code{font:400 13.5px/1.65 'JetBrains Mono',monospace;color:#E8E9FF;white-space:pre}
+.copy{background:#3D4060;color:#E8E9FF;border:0;border-radius:10px;padding:6px 12px;font-weight:800;font-size:12px}
+
+.stage{position:relative;padding:22px;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.stage small{color:var(--muted);font-weight:700}
+.stage .err{color:#D64560;font-weight:800}
+.stage-label{position:absolute;top:14px;left:20px;font-weight:900;font-size:12px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.spinner{width:42px;height:42px;border-radius:50%;border:5px solid #DDE1F7;border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* demo bits */
+.demo-row{display:flex;gap:16px;align-items:flex-end;justify-content:center;min-height:120px;padding-top:40px}
+.demo-box{--c:#7C6CFF;width:48px;height:48px;border-radius:16px;
+  background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--c) 45%,#fff),var(--c) 60%);
+  box-shadow:inset -4px -5px 9px rgba(0,0,0,.2),inset 4px 4px 9px rgba(255,255,255,.6),0 10px 16px -8px var(--c)}
+.demo-box.round{border-radius:50%}
+.tip{position:absolute;top:0;left:0;background:#2B2D42;color:#fff;padding:8px 14px;border-radius:12px;font-weight:800;font-size:14px;
+  pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;z-index:5}
+.demo-input{width:100%;max-width:340px;padding:12px 16px;border-radius:16px;border:0;font:700 15px 'Nunito';background:#fff;color:var(--ink);
+  box-shadow:inset 3px 3px 8px var(--shadow-dark),inset -3px -3px 8px var(--shadow-light)}
+.lenis-box{width:100%;height:220px;overflow:auto;border-radius:22px;background:#fff;box-shadow:inset 4px 4px 10px var(--shadow-dark),inset -4px -4px 10px var(--shadow-light)}
+.lenis-box .item{margin:12px;padding:16px;border-radius:16px;font-weight:800;color:#fff;text-align:left}
+.swiper-demo{width:100%;max-width:440px;border-radius:22px;overflow:hidden}
+.swiper-demo .swiper-slide{height:170px;display:grid;place-items:center;font-size:24px;font-weight:900;color:#fff;border-radius:22px}
+.chart-wrap{position:relative;width:100%;height:220px}
+.tab-wrap{width:100%;text-align:left}
+.three-wrap{width:100%;height:240px;cursor:grab}
+.tomsel-wrap{width:100%;max-width:380px;text-align:left}
+
+/* recipes & quiz */
+.recipe{padding:24px;display:flex;flex-direction:column;gap:14px}
+.stack{display:flex;gap:-8px}
+.stack .clay{margin-right:-10px;border:3px solid var(--card)}
+.quiz{padding:30px;display:flex;flex-direction:column;gap:18px;max-width:760px;width:100%;margin:0 auto}
+.qtext{font-size:22px;font-weight:900;color:var(--ink)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:0;border-radius:20px;background:#fff;font-weight:800;font-size:16px;color:var(--ink);text-align:left;
+  box-shadow:6px 6px 14px var(--shadow-dark),-6px -6px 14px var(--shadow-light);transition:transform .2s}
+.opt:hover{transform:translateY(-3px)}
+.opt.right{background:#DFF8E6;box-shadow:inset 3px 3px 8px rgba(80,180,110,.35)}
+.opt.wrong{background:#FFE3E8;box-shadow:inset 3px 3px 8px rgba(214,69,96,.3)}
+.qfoot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.qfeedback{font-weight:800;min-height:24px}
+
+/* nav */
+.nav{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:26px;z-index:50;
+  background:rgba(248,249,255,.92);backdrop-filter:blur(10px)}
+.nav .nbtn{width:46px;height:46px;border-radius:16px;border:0;display:grid;place-items:center;color:var(--ink);background:var(--card);
+  box-shadow:5px 5px 12px var(--shadow-dark),-5px -5px 12px var(--shadow-light);transition:transform .2s}
+.nav .nbtn:active{transform:scale(.92);box-shadow:inset 3px 3px 8px var(--shadow-dark),inset -3px -3px 8px var(--shadow-light)}
+.nav .nbtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.nav .nbtn.primary{background:var(--accent);color:#fff;box-shadow:inset -3px -4px 8px rgba(0,0,0,.2),inset 3px 3px 8px rgba(255,255,255,.4),0 8px 16px -6px var(--accent)}
+.counter{font-weight:900;min-width:70px;text-align:center;font-size:15px}
+
+.overview{position:fixed;inset:0;z-index:70;background:rgba(236,239,251,.96);backdrop-filter:blur(6px);padding:40px 24px;overflow:auto;display:none}
+.overview.open{display:block}
+.ov-grid{max-width:1120px;margin:20px auto 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+.ov-item{border:0;padding:18px;text-align:left;display:flex;gap:12px;align-items:center;font-weight:800;font-size:15px;color:var(--ink);border-radius:24px}
+.ov-item.cur{outline:3px solid var(--accent)}
+.ov-head{max-width:1120px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+
+.hint{color:var(--muted);font-weight:700;font-size:14px}
+kbd{font:700 12px 'JetBrains Mono';background:#fff;padding:3px 8px;border-radius:8px;box-shadow:2px 2px 5px var(--shadow-dark)}
+
+@media (max-width:860px){
+  .cover,.two,.lib{grid-template-columns:1fr}
+  .cloud{grid-template-columns:repeat(4,1fr);gap:14px;padding:10px}
+  .cloud .clay{--s:56px}
+  .slide{padding:40px 16px 120px}
+  .lib-head .clay.xl{--s:84px}
+  .wrap{justify-content:flex-start}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<main class="deck" id="deck"></main>
+
+<nav class="nav clay-card" aria-label="Navigasi slide">
+  <button class="nbtn" id="btnOverview" title="Daftar slide (O)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></button>
+  <button class="nbtn" id="btnPrev" title="Sebelumnya (←)"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+  <span class="counter" id="counter">1 / 1</span>
+  <button class="nbtn primary" id="btnNext" title="Berikutnya (→)"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+  <button class="nbtn" id="btnFull" title="Layar penuh (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</nav>
+
+<div class="overview" id="overview">
+  <div class="ov-head"><h2>Daftar Slide</h2><button class="cbtn ghost" id="ovClose">Tutup ✕</button></div>
+  <div class="ov-grid" id="ovGrid"></div>
+</div>
+
+<script>
+/* ===================== IKON (SVG glyph) ===================== */
+const ICONS = {
+  bell:'<path d="M6 9a6 6 0 0 1 12 0c0 6.5 3 8.5 3 8.5H3S6 15.5 6 9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  tooltip:'<rect x="3" y="3" width="18" height="12" rx="3.5"/><path d="M9 15l3 4 3-4"/><path d="M8 9h8"/>',
+  slides:'<rect x="6.5" y="5" width="11" height="14" rx="2.5"/><path d="M3 8.5v7M21 8.5v7"/>',
+  select:'<rect x="3" y="4" width="18" height="7" rx="2.5"/><path d="M14.5 6.8l1.7 1.6 1.7-1.6"/><path d="M6 15.5h9M6 19.5h6"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="3.5"/><path d="M8 3v4M16 3v4M3 10.5h18"/><path d="M8 15h.01M12 15h.01M16 15h.01"/>',
+  zap:'<path d="M13 2.5L4.5 13.5H11l-1 8 8.5-11H12z"/>',
+  wave:'<path d="M2 13c2.5-6 5-6 7.5 0s5 6 7.5 0 3.5-3 5-3"/><circle cx="5.5" cy="7" r="1.2"/>',
+  orbit:'<circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-25 12 12)"/>',
+  mouse:'<rect x="6.5" y="2.5" width="11" height="19" rx="5.5"/><path d="M12 6.5v3.5"/>',
+  chart:'<path d="M3 21h18"/><path d="M6 17v-6M11 17V5M16 17v-9M20.5 17v-4"/>',
+  table:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9.5h18M3 14.8h18M9.5 9.5V20"/>',
+  cube:'<path d="M12 2.5l8.5 4.8v9.4L12 21.5l-8.5-4.8V7.3z"/><path d="M3.5 7.3L12 12l8.5-4.7M12 12v9.5"/>',
+  puzzle:'<path d="M5 8h3.2a2.3 2.3 0 1 1 4.6 0H16v3.2a2.3 2.3 0 1 1 0 4.6V19h-3.2a2.3 2.3 0 1 0-4.6 0H5z"/>',
+  sparkles:'<path d="M11 3l1.9 5 5 1.9-5 1.9-1.9 5-1.9-5-5-1.9 5-1.9z"/><path d="M18.5 14.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9z"/>',
+  layers:'<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12.5l9 5 9-5"/><path d="M3 16.5l9 5 9-5"/>',
+  code:'<path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/>',
+  frame:'<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M3 9h18M9 21V9"/>',
+  cdn:'<path d="M7 18a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5z"/><path d="M12 11v6M9.5 14.5L12 17l2.5-2.5"/>',
+  npm:'<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 16V8h8v8M12 8v6"/>',
+  question:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 1 1 3.7 2.4c-.7.3-1.2 1-1.2 1.8v.3"/><path d="M12 17.3h.01"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H4.5a3 3 0 0 0 3.5 4M16 6h3.5a3 3 0 0 1-3.5 4"/><path d="M12 13v4M8.5 20.5h7M10 17h4v3.5h-4z"/>',
+  rocket:'<path d="M5 15c-1.5 1.3-2 5-2 5s3.7-.5 5-2"/><path d="M9 15l-3-3c1.5-4.5 5.5-8.5 13-9-.5 7.5-4.5 11.5-9 13z"/><circle cx="14.5" cy="9.5" r="1.6"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>'
+};
+const clay = (icon,color,size='md',extra='') =>
+  `<span class="clay ${size} ${extra}" style="--c:${color}"><svg viewBox="0 0 24 24">${ICONS[icon]}</svg></span>`;
+
+/* ===================== DATA ===================== */
+const CATS = {
+  notif:{name:'Notifikasi & Dialog',icon:'bell',color:'#FF8FA3'},
+  ui:{name:'Komponen UI & Form',icon:'puzzle',color:'#7FB2FF'},
+  anim:{name:'Animasi & Scroll',icon:'sparkles',color:'#FFC24B'},
+  data:{name:'Data & Visualisasi',icon:'chart',color:'#4FC9A8'},
+  g3d:{name:'3D & Grafis',icon:'cube',color:'#B48CFF'}
+};
+
+const LIBS = [
+ {id:'sweetalert',name:'SweetAlert2',cat:'notif',color:'#FF8FA3',icon:'bell',
+  tagline:'Alert, confirm & toast yang cantik',
+  desc:'Pengganti alert(), confirm() dan prompt() bawaan browser. Tampilannya modern, responsif, aksesibel, dan tanpa dependency.',
+  uses:['Konfirmasi sebelum menghapus data','Notifikasi sukses/gagal setelah submit form','Toast kecil di pojok layar'],
+  lic:'MIT',site:'sweetalert2.github.io',
+  code:`<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"><\/script>
+
+Swal.fire({
+  title: 'Yakin hapus data?',
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonText: 'Ya, hapus!'
+}).then((res) => {
+  if (res.isConfirmed) {
+    Swal.fire('Terhapus!', '', 'success');
+  }
+});`},
+ {id:'floating',name:'Floating UI',cat:'ui',color:'#7FB2FF',icon:'tooltip',
+  tagline:'Posisi tooltip & popover yang cerdas',
+  desc:'Menghitung posisi elemen melayang seperti tooltip, popover, dan dropdown supaya tidak terpotong layar. Penerus Popper.js.',
+  uses:['Tooltip saat hover tombol','Dropdown menu & popover','Menu konteks klik kanan'],
+  lic:'MIT',site:'floating-ui.com',
+  code:`import { computePosition, flip, shift, offset }
+  from '@floating-ui/dom';
+
+computePosition(tombol, tooltip, {
+  placement: 'top',
+  middleware: [offset(8), flip(), shift()]
+}).then(({ x, y }) => {
+  Object.assign(tooltip.style, {
+    left: x + 'px',
+    top: y + 'px'
+  });
+});`},
+ {id:'swiper',name:'Swiper',cat:'ui',color:'#5ED6C0',icon:'slides',
+  tagline:'Slider & carousel ramah sentuhan',
+  desc:'Library slider paling populer. Mendukung swipe di HP, autoplay, pagination, navigasi, dan banyak efek transisi.',
+  uses:['Banner promo di beranda','Galeri foto produk','Carousel testimoni'],
+  lic:'MIT',site:'swiperjs.com',
+  code:`<div class="swiper">
+  <div class="swiper-wrapper">
+    <div class="swiper-slide">Slide 1</div>
+    <div class="swiper-slide">Slide 2</div>
+  </div>
+  <div class="swiper-pagination"></div>
+</div>
+
+new Swiper('.swiper', {
+  loop: true,
+  pagination: { el: '.swiper-pagination' }
+});`},
+ {id:'tomselect',name:'Tom Select',cat:'ui',color:'#A88BFF',icon:'select',
+  tagline:'Select dengan pencarian & tagging',
+  desc:'Mengubah elemen select biasa menjadi dropdown pintar: bisa dicari, multi-pilih, tambah opsi baru, hingga memuat data dari server. Tanpa jQuery.',
+  uses:['Pilih kota dari daftar yang panjang','Input tag atau hobi','Autocomplete data dari API'],
+  lic:'Apache-2.0',site:'tom-select.js.org',
+  code:`<select id="hobi" multiple>
+  <option>Coding</option>
+  <option>Desain</option>
+</select>
+
+new TomSelect('#hobi', {
+  create: true,          // boleh tambah opsi baru
+  maxItems: null,        // multi-select
+  plugins: ['remove_button'],
+  placeholder: 'Pilih hobi...'
+});`},
+ {id:'flatpickr',name:'Flatpickr',cat:'ui',color:'#FFA65C',icon:'calendar',
+  tagline:'Date & time picker yang ringan',
+  desc:'Kalender pemilih tanggal dan jam yang ringan dan mudah diatur. Mendukung rentang tanggal, bahasa Indonesia, dan mode inline.',
+  uses:['Tanggal lahir di form pendaftaran','Booking rentang tanggal','Jadwal lengkap dengan jam'],
+  lic:'MIT',site:'flatpickr.js.org',
+  code:`<input id="tanggal" placeholder="Pilih tanggal">
+
+flatpickr('#tanggal', {
+  mode: 'range',
+  dateFormat: 'd M Y',
+  locale: 'id',
+  minDate: 'today'
+});`},
+ {id:'gsap',name:'GSAP',cat:'anim',color:'#6FD673',icon:'zap',
+  tagline:'Standar industri animasi web',
+  desc:'Mesin animasi paling lengkap untuk web. Kini 100% gratis termasuk semua plugin seperti ScrollTrigger dan SplitText, bahkan untuk proyek komersial.',
+  uses:['Animasi landing page yang kompleks','Animasi saat scroll (ScrollTrigger)','Animasi teks per huruf (SplitText)'],
+  lic:'Gratis (lisensi GSAP)',site:'gsap.com',
+  code:`gsap.to('.kotak', {
+  y: -40,
+  rotation: 360,
+  duration: 0.6,
+  stagger: 0.12,
+  ease: 'back.out(2)',
+  yoyo: true,
+  repeat: 1
+});
+
+// Tambah plugin ScrollTrigger untuk
+// animasi yang berjalan saat di-scroll`},
+ {id:'anime',name:'Anime.js v4',cat:'anim',color:'#FF7A7A',icon:'wave',
+  tagline:'Animasi ringan dengan API simpel',
+  desc:'Library animasi open-source yang ringan. Versi 4 ditulis ulang total berbasis ES module dan bisa menganimasikan CSS, SVG, atribut DOM, hingga objek JS.',
+  uses:['Micro-interaction tombol & ikon','Animasi garis SVG','Efek stagger berurutan'],
+  lic:'MIT',site:'animejs.com',
+  code:`import { animate, stagger } from 'animejs';
+
+animate('.bola', {
+  y: [{ to: -50 }, { to: 0 }],
+  scale: [{ to: 1.25 }, { to: 1 }],
+  delay: stagger(80),
+  ease: 'inOutQuad'
+});`},
+ {id:'motion',name:'Motion',cat:'anim',color:'#FFCF4A',icon:'orbit',
+  tagline:'Animasi modern berbasis fisika',
+  desc:'Dulu dikenal sebagai Framer Motion. Kini punya API vanilla JS dengan spring physics, animasi terhubung scroll, dan gesture.',
+  uses:['Animasi dengan efek pegas (spring)','Animasi yang mengikuti scroll','Efek hover & tekan'],
+  lic:'MIT',site:'motion.dev',
+  code:`import { animate, stagger } from 'motion';
+
+animate('.kartu',
+  { y: [0, -30, 0], rotate: [0, 12, 0] },
+  { duration: 0.7, delay: stagger(0.1) }
+);`},
+ {id:'lenis',name:'Lenis',cat:'anim',color:'#6CCBFF',icon:'mouse',
+  tagline:'Smooth scroll yang halus',
+  desc:'Membuat scroll terasa halus dan lembut seperti website agency kelas atas. Sering dipasangkan dengan GSAP ScrollTrigger.',
+  uses:['Landing page & portofolio','Website dengan animasi scroll','Pengalaman scroll yang premium'],
+  lic:'MIT',site:'github.com/darkroomengineering/lenis',
+  code:`const lenis = new Lenis({ lerp: 0.08 });
+
+function raf(time) {
+  lenis.raf(time);
+  requestAnimationFrame(raf);
+}
+requestAnimationFrame(raf);`},
+ {id:'chart',name:'Chart.js',cat:'data',color:'#FF94C8',icon:'chart',
+  tagline:'Grafik cantik dalam hitungan menit',
+  desc:'Library grafik berbasis canvas yang simpel: bar, line, pie, doughnut, radar, dan lainnya. Responsif dan beranimasi otomatis.',
+  uses:['Dashboard statistik','Laporan nilai siswa','Grafik penjualan'],
+  lic:'MIT',site:'chartjs.org',
+  code:`<canvas id="grafik"></canvas>
+
+new Chart(document.getElementById('grafik'), {
+  type: 'bar',
+  data: {
+    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum'],
+    datasets: [{
+      label: 'Pengunjung',
+      data: [12, 19, 8, 15, 22]
+    }]
+  }
+});`},
+ {id:'tabulator',name:'Tabulator',cat:'data',color:'#4FC9A8',icon:'table',
+  tagline:'Tabel data interaktif',
+  desc:'Membuat tabel dari data JSON lengkap dengan sorting, filter, pagination, edit langsung, hingga export ke CSV atau Excel.',
+  uses:['Data siswa atau inventaris','Panel admin','Laporan yang bisa di-export'],
+  lic:'MIT',site:'tabulator.info',
+  code:`new Tabulator('#tabel', {
+  data: dataSiswa,
+  layout: 'fitColumns',
+  pagination: true,
+  columns: [
+    { title: 'Nama', field: 'nama', headerFilter: 'input' },
+    { title: 'Kelas', field: 'kelas' },
+    { title: 'Nilai', field: 'nilai', sorter: 'number' }
+  ]
+});`},
+ {id:'three',name:'Three.js',cat:'g3d',color:'#B48CFF',icon:'cube',
+  tagline:'3D di browser jadi mudah',
+  desc:'Library 3D paling populer untuk web berbasis WebGL. Bisa menampilkan model 3D, cahaya, material, dan animasi interaktif.',
+  uses:['Hero section 3D','Product viewer 360°','Game & visualisasi kreatif'],
+  lic:'MIT',site:'threejs.org',
+  code:`import * as THREE from 'three';
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 100);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+
+const mesh = new THREE.Mesh(
+  new THREE.TorusKnotGeometry(1, 0.35, 128, 32),
+  new THREE.MeshStandardMaterial({ color: 0xb48cff })
+);
+scene.add(mesh, new THREE.AmbientLight(0xffffff, 1));
+
+renderer.setAnimationLoop(() => {
+  mesh.rotation.y += 0.01;
+  renderer.render(scene, camera);
+});`}
+];
+const libIndex = id => LIBS.findIndex(l=>l.id===id);
+const PALETTE = LIBS.map(l=>l.color);
+
+/* ===================== SLIDES ===================== */
+const slides = [];
+const libSlideStart = 4;
+
+// 0 Cover
+slides.push({title:'Judul',icon:['rocket','#7C6CFF'],html:`
+<div class="wrap"><div class="cover">
+  <div style="display:flex;flex-direction:column;gap:22px">
+    <span class="eyebrow">Sharing Session · Frontend</span>
+    <h1>12 Library <span class="grad">Vanilla JS</span> Populer 2026</h1>
+    <p>Library yang <b>framework-agnostic</b>: bisa dipakai di HTML biasa, Laravel Blade, React, Vue, atau apa pun. Cukup pasang, panggil, jadi.</p>
+    <div class="row"><button class="cbtn" data-go="1">Mulai →</button><span class="hint">Navigasi: <kbd>←</kbd> <kbd>→</kbd> · <kbd>O</kbd> daftar · <kbd>F</kbd> layar penuh</span></div>
+  </div>
+  <div class="cloud clay-card">
+    ${LIBS.map((l,i)=>`<button class="clay lg btn" style="--c:${l.color}" title="${l.name}" data-go="${libSlideStart+i}"><svg viewBox="0 0 24 24">${ICONS[l.icon]}</svg></button>`).join('')}
+  </div>
+</div></div>`});
+
+// 1 Library vs Framework
+slides.push({title:'Library vs Framework',icon:['layers','#FF8FA3'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Konsep Dasar</span><h2>Library vs Framework</h2></div>
+  <div class="two">
+    <div class="box clay-card">
+      <div class="row">${clay('code','#5ED6C0','lg')}<h3>Library</h3></div>
+      <p>Alat yang <b>kamu panggil</b> saat butuh. Kamu yang memegang kendali alur program.</p>
+      <ul style="--dot:#5ED6C0"><li>Contoh: SweetAlert2, Chart.js, GSAP</li><li>Bisa dicampur sesuai kebutuhan</li><li>Mudah dipasang dan dilepas</li></ul>
+    </div>
+    <div class="box clay-card">
+      <div class="row">${clay('frame','#B48CFF','lg')}<h3>Framework</h3></div>
+      <p>Kerangka yang <b>memanggil kodemu</b>. Framework menentukan struktur dan cara kerja aplikasi.</p>
+      <ul style="--dot:#B48CFF"><li>Contoh: React, Vue, Angular</li><li>Punya aturan dan pola sendiri</li><li>Cocok untuk aplikasi besar</li></ul>
+    </div>
+  </div>
+  <div class="box clay-card" style="flex-direction:row;align-items:center;gap:20px">
+    ${clay('target','#FFC24B','lg')}
+    <p><b style="color:var(--ink)">Framework-agnostic</b> artinya library tidak bergantung pada framework tertentu. Cukup JavaScript murni (vanilla), jadi ilmunya bisa dipakai di proyek apa pun.</p>
+  </div>
+</div>`});
+
+// 2 Cara pasang
+slides.push({title:'Cara Memasang',icon:['cdn','#7FB2FF'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Cara Pakai</span><h2>Dua cara memasang library</h2></div>
+  <div class="two">
+    <div class="box clay-card">
+      <div class="row">${clay('cdn','#7FB2FF','lg')}<div><h3>Lewat CDN</h3><p style="font-size:15px">Paling cepat, cocok untuk belajar</p></div></div>
+      <div class="code-card"><pre><code>&lt;!-- taruh sebelum &lt;/body&gt; --&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"&gt;&lt;/script&gt;
+&lt;script&gt;
+  Swal.fire('Halo dunia!');
+&lt;/script&gt;</code></pre></div>
+    </div>
+    <div class="box clay-card">
+      <div class="row">${clay('npm','#FF7A7A','lg')}<div><h3>Lewat npm</h3><p style="font-size:15px">Untuk proyek dengan Vite/bundler</p></div></div>
+      <div class="code-card"><pre><code>npm install sweetalert2
+
+// main.js
+import Swal from 'sweetalert2';
+Swal.fire('Halo dunia!');</code></pre></div>
+    </div>
+  </div>
+  <p class="hint">💡 Tips: untuk tugas sekolah dan prototipe, CDN sudah cukup. Untuk proyek serius, gunakan npm agar versi terkunci dan bisa di-bundle.</p>
+</div>`});
+
+// 3 Peta kategori
+slides.push({title:'Peta Kategori',icon:['puzzle','#FFC24B'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Peta Materi</span><h2>12 library dalam 5 kategori</h2><p>Klik nama library untuk langsung ke slide-nya.</p></div>
+  <div class="cats">
+    ${Object.entries(CATS).map(([k,c])=>`
+      <div class="cat clay-card">
+        ${clay(c.icon,c.color,'lg')}
+        <h3>${c.name}</h3>
+        <div class="libs">${LIBS.map((l,i)=>l.cat===k?`<button class="chip" style="--c:${l.color}" data-go="${libSlideStart+i}">${l.name}</button>`:'').join('')}</div>
+      </div>`).join('')}
+  </div>
+</div>`});
+
+// 4..15 library slides
+LIBS.forEach((l,i)=>{
+  slides.push({title:l.name,icon:[l.icon,l.color],lib:l,html:`
+<div class="wrap"><div class="lib">
+  <div class="lib-info">
+    <span class="lib-num">LIBRARY ${String(i+1).padStart(2,'0')} / ${LIBS.length}</span>
+    <div class="lib-head">
+      ${clay(l.icon,l.color,'xl')}
+      <div><span class="chip" style="--c:${CATS[l.cat].color}">${CATS[l.cat].name}</span><h2 style="margin-top:8px">${l.name}</h2><p class="tag">${l.tagline}</p></div>
+    </div>
+    <p class="desc">${l.desc}</p>
+    <h4>Cocok untuk</h4>
+    <ul class="uses" style="--c:${l.color}">${l.uses.map(u=>`<li>${u}</li>`).join('')}</ul>
+    <div class="meta"><span class="pill">📜 ${l.lic}</span><span class="pill">🔗 ${l.site}</span></div>
+  </div>
+  <div class="lib-side">
+    <div class="code-card">
+      <div class="code-top"><span style="display:flex;align-items:center"><span class="dots"><i></i><i></i><i></i></span>contoh.js</span><button class="copy">Salin</button></div>
+      <pre><code class="snippet"></code></pre>
+    </div>
+    <div class="stage clay-card" data-demo="${l.id}">
+      <span class="stage-label">Demo langsung</span>
+      ${clay(l.icon,l.color,'md')}
+      <button class="cbtn btn-demo" style="--c:${l.color}">▶ Coba Demo</button>
+      <small>Membutuhkan internet · dimuat dari CDN</small>
+    </div>
+  </div>
+</div></div>`});
+});
+
+// Resep kombinasi
+const recipe = (title,ids,desc) => `
+  <div class="recipe clay-card">
+    <div class="stack">${ids.map(id=>{const l=LIBS[libIndex(id)];return clay(l.icon,l.color,'md');}).join('')}</div>
+    <h3>${title}</h3>
+    <div class="row" style="gap:8px">${ids.map(id=>{const l=LIBS[libIndex(id)];return `<button class="chip" style="--c:${l.color}" data-go="${libSlideStart+libIndex(id)}">${l.name}</button>`}).join('')}</div>
+    <p style="font-size:16px">${desc}</p>
+  </div>`;
+slides.push({title:'Resep Kombinasi',icon:['sparkles','#FFC24B'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Praktik Nyata</span><h2>Resep kombinasi library</h2><p>Library paling kuat saat dipadukan sesuai kebutuhan proyek.</p></div>
+  <div class="cats">
+    ${recipe('Landing Page Modern',['gsap','lenis','swiper'],'Scroll halus, animasi saat scroll, dan slider testimoni yang memukau.')}
+    ${recipe('Dashboard Admin',['tabulator','chart','sweetalert'],'Tabel data lengkap, grafik statistik, dan konfirmasi aksi yang rapi.')}
+    ${recipe('Form Pendaftaran',['tomselect','flatpickr','sweetalert'],'Pilihan cerdas, pemilih tanggal, dan notifikasi sukses yang ramah.')}
+    ${recipe('Portofolio Kreatif',['three','anime','motion'],'Objek 3D interaktif dipadu micro-interaction yang hidup.')}
+  </div>
+</div>`});
+
+// Kuis
+const QUIZ = [
+  {q:'Kamu ingin menampilkan konfirmasi "Yakin hapus data?" yang cantik. Pakai apa?',a:'sweetalert',opts:['sweetalert','three','lenis','chart']},
+  {q:'Butuh tabel data siswa yang bisa di-filter, diurutkan, dan di-export ke Excel?',a:'tabulator',opts:['swiper','tabulator','motion','flatpickr']},
+  {q:'Form booking hotel perlu input rentang tanggal check-in sampai check-out.',a:'flatpickr',opts:['tomselect','gsap','flatpickr','floating']},
+  {q:'Website portofolio ingin scroll-nya terasa halus seperti website agency.',a:'lenis',opts:['chart','lenis','sweetalert','tabulator']},
+  {q:'Dropdown pilih kota dengan ratusan opsi dan fitur pencarian?',a:'tomselect',opts:['anime','tomselect','three','swiper']}
+];
+slides.push({title:'Kuis',icon:['question','#FF8FA3'],html:`
+<div class="wrap">
+  <div style="text-align:center"><span class="eyebrow">Uji Pemahaman</span><h2>Kuis: Pilih library yang tepat!</h2></div>
+  <div class="quiz clay-card" id="quiz"></div>
+</div>`});
+
+// Penutup
+slides.push({title:'Tugas & Penutup',icon:['trophy','#FFC24B'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Mini Project</span><h2>Tantangan untuk kalian 🚀</h2></div>
+  <div class="two">
+    <div class="box clay-card">
+      <div class="row">${clay('target','#FF7A7A','lg')}<h3>Tugas</h3></div>
+      <ul style="--dot:#FF7A7A">
+        <li>Buat satu halaman HTML bertema bebas (profil sekolah, toko online, atau portofolio).</li>
+        <li>Gunakan <b>minimal 3 library</b> dari materi ini, dari kategori yang berbeda.</li>
+        <li>Pasang lewat CDN, lalu jelaskan alasan memilih tiap library.</li>
+      </ul>
+    </div>
+    <div class="box clay-card">
+      <div class="row">${clay('trophy','#FFC24B','lg')}<h3>Kriteria Nilai</h3></div>
+      <ul style="--dot:#FFC24B">
+        <li>Library dipakai sesuai fungsinya</li>
+        <li>Tampilan rapi dan responsif di HP</li>
+        <li>Kode mudah dibaca dan diberi komentar</li>
+        <li>Bonus: tambahkan animasi dengan GSAP atau Anime.js</li>
+      </ul>
+    </div>
+  </div>
+  <div style="text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center">
+    <h1 class="grad">Terima kasih!</h1>
+    <p>Selamat bereksperimen. Baca dokumentasi resmi tiap library, itu sumber belajar terbaik.</p>
+    <button class="cbtn ghost" data-go="0">↺ Kembali ke awal</button>
+  </div>
+</div>`});
+
+/* ===================== RENDER ===================== */
+const deck = document.getElementById('deck');
+slides.forEach((s,i)=>{
+  const sec = document.createElement('section');
+  sec.className='slide';sec.dataset.index=i;sec.setAttribute('aria-label',s.title);
+  sec.innerHTML=s.html;
+  if(s.lib){ sec.querySelector('.snippet').textContent=s.lib.code; }
+  deck.appendChild(sec);
+});
+const els = [...deck.children];
+let cur = 0;
+
+function go(n){
+  n=Math.max(0,Math.min(els.length-1,n));
+  els.forEach((el,i)=>{el.classList.toggle('active',i===n);el.classList.toggle('left',i<n);});
+  cur=n;
+  document.getElementById('counter').textContent=`${n+1} / ${els.length}`;
+  document.getElementById('progress').style.width=`${(n+1)/els.length*100}%`;
+  els[n].scrollTop=0;
+  history.replaceState(null,'','#'+(n+1));
+  renderOverview();
+}
+
+document.getElementById('btnPrev').onclick=()=>go(cur-1);
+document.getElementById('btnNext').onclick=()=>go(cur+1);
+document.getElementById('btnFull').onclick=()=>{
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.();
+};
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'); if(g){go(+g.dataset.go);closeOverview();}
+  const c=e.target.closest('.copy');
+  if(c){const code=c.closest('.code-card').querySelector('code').textContent;
+    navigator.clipboard?.writeText(code).then(()=>{c.textContent='Tersalin ✓';setTimeout(()=>c.textContent='Salin',1500)}).catch(()=>{});}
+  const d=e.target.closest('.btn-demo'); if(d) runDemo(d.closest('.stage'));
+});
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('input,select,textarea,[contenteditable],.ts-control')) return;
+  if(document.querySelector('.swal2-container')) return;
+  if(['ArrowRight','PageDown'].includes(e.key)){e.preventDefault();go(cur+1);}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(cur-1);}
+  else if(e.key==='Home')go(0);
+  else if(e.key==='End')go(els.length-1);
+  else if(e.key.toLowerCase()==='o')toggleOverview();
+  else if(e.key.toLowerCase()==='f')document.getElementById('btnFull').click();
+  else if(e.key==='Escape')closeOverview();
+});
+// swipe
+let sx=null,sy=null;
+deck.addEventListener('touchstart',e=>{
+  if(e.target.closest('.stage,pre,.code-card')){sx=null;return;}
+  sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+deck.addEventListener('touchend',e=>{
+  if(sx===null)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) go(cur+(dx<0?1:-1)); sx=null;});
+
+// overview
+const ov=document.getElementById('overview'),ovGrid=document.getElementById('ovGrid');
+function renderOverview(){
+  ovGrid.innerHTML=slides.map((s,i)=>`<button class="ov-item clay-card ${i===cur?'cur':''}" data-go="${i}">${clay(s.icon[0],s.icon[1],'sm')}<span><small style="color:var(--muted)">${i+1}</small><br>${s.title}</span></button>`).join('');
+}
+function toggleOverview(){ov.classList.toggle('open');}
+function closeOverview(){ov.classList.remove('open');}
+document.getElementById('btnOverview').onclick=toggleOverview;
+document.getElementById('ovClose').onclick=closeOverview;
+
+/* ===================== QUIZ ===================== */
+let qi=0,score=0;
+function renderQuiz(){
+  const box=document.getElementById('quiz');
+  if(qi>=QUIZ.length){
+    box.innerHTML=`<div style="text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center">
+      ${clay('trophy','#FFC24B','xl')}<h2>Skor kamu: ${score} / ${QUIZ.length}</h2>
+      <p>${score===QUIZ.length?'Sempurna! Kamu sudah siap memilih library 🎉':score>=3?'Bagus! Sedikit lagi jadi master.':'Tidak apa-apa, coba ulangi dan baca lagi slide-nya ya.'}</p>
+      <button class="cbtn" id="qRestart">↺ Ulangi Kuis</button></div>`;
+    box.querySelector('#qRestart').onclick=()=>{qi=0;score=0;renderQuiz();};
+    return;
+  }
+  const q=QUIZ[qi];
+  box.innerHTML=`
+    <div class="qfoot"><span class="chip" style="--c:#FF8FA3">Soal ${qi+1} dari ${QUIZ.length}</span><span class="chip" style="--c:#4FC9A8">Skor: ${score}</span></div>
+    <div class="qtext">${q.q}</div>
+    <div class="opts">${q.opts.map(id=>{const l=LIBS[libIndex(id)];return `<button class="opt" data-id="${id}">${clay(l.icon,l.color,'sm')}${l.name}</button>`}).join('')}</div>
+    <div class="qfoot"><span class="qfeedback" id="qfb"></span><button class="cbtn" id="qNext" style="visibility:hidden">Lanjut →</button></div>`;
+  box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    if(box.dataset.done==='1')return; box.dataset.done='1';
+    const ok=b.dataset.id===q.a; if(ok)score++;
+    box.querySelectorAll('.opt').forEach(o=>{if(o.dataset.id===q.a)o.classList.add('right');});
+    if(!ok)b.classList.add('wrong');
+    const fb=box.querySelector('#qfb');
+    fb.textContent=ok?'✅ Tepat sekali!':`❌ Jawaban yang tepat: ${LIBS[libIndex(q.a)].name}`;
+    fb.style.color=ok?'#2E9E57':'#D64560';
+    const nx=box.querySelector('#qNext');nx.style.visibility='visible';
+    nx.onclick=()=>{qi++;box.dataset.done='0';renderQuiz();};
+  });
+}
+renderQuiz();
+
+/* ===================== DEMO LOADER ===================== */
+const cache={};
+function loadScript(src){return cache[src]??=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>rej(new Error('Gagal memuat '+src));document.head.appendChild(s);});}
+function loadCSS(href){if(cache[href])return;cache[href]=1;const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l);}
+const JD='https://cdn.jsdelivr.net/npm/';
+const h=(tag,props={},kids=[])=>{const e=Object.assign(document.createElement(tag),props);kids.forEach(k=>e.append(k));return e;};
+function boxes(st,n,round){
+  const row=h('div',{className:'demo-row'});
+  for(let i=0;i<n;i++){const b=h('div',{className:'demo-box'+(round?' round':'')});b.style.setProperty('--c',PALETTE[(i*2)%PALETTE.length]);row.append(b);}
+  st.append(row);return [...row.children];
+}
+function replay(st,fn){const b=h('button',{className:'cbtn sm',textContent:'↻ Putar lagi'});b.onclick=fn;st.append(b);fn();}
+
+const DEMOS={
+  sweetalert:{js:[JD+'sweetalert2@11'],run(st){
+    const b1=h('button',{className:'cbtn',textContent:'🗑️ Hapus Data'});b1.style.setProperty('--c','#FF7A7A');
+    b1.onclick=()=>Swal.fire({title:'Yakin hapus data?',text:'Data yang dihapus tidak bisa dikembalikan.',icon:'warning',showCancelButton:true,confirmButtonText:'Ya, hapus!',cancelButtonText:'Batal',confirmButtonColor:'#FF7A7A',cancelButtonColor:'#9AA0C3'})
+      .then(r=>{if(r.isConfirmed)Swal.fire({toast:true,position:'top-end',icon:'success',title:'Data terhapus!',showConfirmButton:false,timer:2000,timerProgressBar:true});});
+    const b2=h('button',{className:'cbtn',textContent:'✏️ Input Nama'});b2.style.setProperty('--c','#7FB2FF');
+    b2.onclick=()=>Swal.fire({title:'Siapa namamu?',input:'text',inputPlaceholder:'Ketik nama...',confirmButtonColor:'#7C6CFF'}).then(r=>{if(r.value)Swal.fire({title:`Halo, ${r.value}! 👋`,icon:'success',confirmButtonColor:'#7C6CFF'});});
+    st.append(h('div',{className:'row',style:'justify-content:center'},[b1,b2]),h('small',{textContent:'Klik tombol di atas'}));
+  }},
+  floating:{js:[JD+'@floating-ui/core@1/dist/floating-ui.core.umd.min.js',JD+'@floating-ui/dom@1/dist/floating-ui.dom.umd.min.js'],global:'FloatingUIDOM',run(st,m){
+    const tip=h('div',{className:'tip',textContent:'Halo! Aku tooltip 👋'});
+    const row=h('div',{className:'row',style:'justify-content:space-between;width:100%'});
+    ['Kiri','Tengah','Kanan'].forEach((t,i)=>{
+      const b=h('button',{className:'cbtn',textContent:t});b.style.setProperty('--c',['#7FB2FF','#A88BFF','#5ED6C0'][i]);
+      const show=()=>{m.computePosition(b,tip,{placement:'top',middleware:[m.offset(10),m.flip(),m.shift({padding:8})]}).then(({x,y})=>{Object.assign(tip.style,{left:x+'px',top:y+'px',opacity:1});});};
+      b.addEventListener('mouseenter',show);b.addEventListener('focus',show);
+      b.addEventListener('mouseleave',()=>tip.style.opacity=0);b.addEventListener('blur',()=>tip.style.opacity=0);
+      row.append(b);
+    });
+    st.append(tip,h('div',{style:'height:40px'}),row,h('small',{textContent:'Arahkan kursor ke tombol. Tooltip otomatis bergeser agar tidak terpotong.'}));
+  }},
+  swiper:{css:[JD+'swiper@11/swiper-bundle.min.css'],js:[JD+'swiper@11/swiper-bundle.min.js'],run(st){
+    const wrap=h('div',{className:'swiper-wrapper'});
+    ['Slide 1 🎨','Slide 2 🚀','Slide 3 ✨','Slide 4 🎉'].forEach((t,i)=>{const s=h('div',{className:'swiper-slide',textContent:t});s.style.background=['#5ED6C0','#7FB2FF','#FF94C8','#FFA65C'][i];wrap.append(s);});
+    const pag=h('div',{className:'swiper-pagination'});
+    const sw=h('div',{className:'swiper swiper-demo'},[wrap,pag]);
+    st.append(sw,h('small',{textContent:'Geser dengan mouse/jari. Otomatis berganti tiap 2.5 detik.'}));
+    new Swiper(sw,{loop:true,grabCursor:true,spaceBetween:12,autoplay:{delay:2500},pagination:{el:pag,clickable:true}});
+  }},
+  tomselect:{css:[JD+'tom-select@2/dist/css/tom-select.css'],js:[JD+'tom-select@2/dist/js/tom-select.complete.min.js'],run(st){
+    const sel=h('select',{multiple:true});
+    ['Coding','Desain','Musik','Olahraga','Membaca','Fotografi','Gaming','Memasak'].forEach(o=>sel.append(h('option',{value:o,textContent:o})));
+    st.append(h('div',{className:'tomsel-wrap'},[sel]),h('small',{textContent:'Ketik untuk mencari, atau ketik hobi baru lalu Enter.'}));
+    new TomSelect(sel,{create:true,maxItems:null,plugins:['remove_button'],placeholder:'Pilih hobi...',items:['Coding']});
+  }},
+  flatpickr:{css:[JD+'flatpickr/dist/flatpickr.min.css'],js:[JD+'flatpickr',JD+'flatpickr/dist/l10n/id.js'],run(st){
+    const inp=h('input',{className:'demo-input',placeholder:'Pilih rentang tanggal'});
+    const out=h('small',{textContent:'Pilih tanggal awal dan akhir'});
+    st.append(inp,out);
+    flatpickr(inp,{mode:'range',dateFormat:'d M Y',locale:'id',minDate:'today',inline:true,
+      onChange:(d,str)=>{out.textContent=d.length===2?`📅 ${str} (${Math.round((d[1]-d[0])/864e5)} malam)`:'Sekarang pilih tanggal akhir';}});
+  }},
+  gsap:{js:[JD+'gsap@3/dist/gsap.min.js'],run(st){
+    const b=boxes(st,6);
+    replay(st,()=>gsap.fromTo(b,{y:0,rotation:0},{y:-40,rotation:360,duration:.6,stagger:.12,ease:'back.out(2)',yoyo:true,repeat:1}));
+  }},
+  anime:{js:[JD+'animejs@4/dist/bundles/anime.umd.min.js'],global:'anime',run(st,m){
+    const b=boxes(st,7,true);
+    replay(st,()=>m.animate(b,{y:[{to:-50},{to:0}],scale:[{to:1.25},{to:1}],delay:m.stagger(80),ease:'inOutQuad'}));
+  }},
+  motion:{js:[JD+'motion@12/dist/motion.js'],global:'Motion',run(st,m){
+    const b=boxes(st,5);
+    replay(st,()=>m.animate(b,{y:[0,-30,0],rotate:[0,12,0]},{duration:.7,delay:m.stagger(.1)}));
+    const sp=h('button',{className:'cbtn sm',textContent:'🌀 Efek Pegas'});sp.style.setProperty('--c','#FFA65C');
+    let on=false;sp.onclick=()=>{on=!on;m.animate(b,{scale:on?1.35:1},{type:'spring',stiffness:400,damping:8});};
+    st.append(sp);
+  }},
+  lenis:{js:[JD+'lenis@1/dist/lenis.min.js'],global:'Lenis',run(st,Lenis){
+    const content=h('div');
+    for(let i=1;i<=14;i++){const it=h('div',{className:'item',textContent:`Item ke-${i} · scroll aku dengan mouse wheel`});it.style.background=PALETTE[i%PALETTE.length];content.append(it);}
+    const box=h('div',{className:'lenis-box'},[content]);
+    st.append(box,h('small',{textContent:'Rasakan scroll yang halus di dalam kotak ini.'}));
+    const lenis=new Lenis({wrapper:box,content,lerp:.07});
+    const raf=t=>{lenis.raf(t);requestAnimationFrame(raf);};requestAnimationFrame(raf);
+  }},
+  chart:{js:[JD+'chart.js@4/dist/chart.umd.js'],run(st){
+    const cv=h('canvas');st.append(h('div',{className:'chart-wrap'},[cv]));
+    const labels=['X-1','X-2','XI-1','XI-2','XII-1','XII-2'];
+    const rnd=()=>labels.map(()=>Math.round(60+Math.random()*40));
+    const ch=new Chart(cv,{type:'bar',data:{labels,datasets:[{label:'Rata-rata nilai',data:rnd(),backgroundColor:PALETTE.slice(0,6),borderRadius:12}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{min:0,max:100}}}});
+    const b=h('button',{className:'cbtn sm',textContent:'🎲 Acak Data'});b.onclick=()=>{ch.data.datasets[0].data=rnd();ch.update();};
+    st.append(b);
+  }},
+  tabulator:{css:[JD+'tabulator-tables@6/dist/css/tabulator.min.css'],js:[JD+'tabulator-tables@6/dist/js/tabulator.min.js'],run(st){
+    const nama=['Andi','Budi','Citra','Dewi','Eka','Fajar','Gita','Hadi','Intan','Joko'];
+    const data=nama.map((n,i)=>({nama:n,kelas:['X-1','XI-2','XII-1'][i%3],nilai:Math.round(65+Math.random()*35)}));
+    const div=h('div');st.append(h('div',{className:'tab-wrap'},[div]));
+    const t=new Tabulator(div,{data,layout:'fitColumns',height:200,columns:[
+      {title:'Nama',field:'nama',headerFilter:'input'},{title:'Kelas',field:'kelas'},{title:'Nilai',field:'nilai',sorter:'number',hozAlign:'center'}]});
+    const b=h('button',{className:'cbtn sm',textContent:'⬇️ Export CSV'});b.style.setProperty('--c','#4FC9A8');
+    b.onclick=()=>t.download('csv','data-siswa.csv');
+    st.append(b,h('small',{textContent:'Ketik di kolom Nama untuk filter, klik judul kolom untuk mengurutkan.'}));
+  }},
+  three:{esm:JD+'three@0.170.0/build/three.module.js',run(st,T){
+    const wrap=h('div',{className:'three-wrap'});st.append(wrap,h('small',{textContent:'Seret untuk memutar objek 3D.'}));
+    const w=wrap.clientWidth||400,hh=240;
+    const scene=new T.Scene();const cam=new T.PerspectiveCamera(50,w/hh,.1,100);cam.position.z=4.2;
+    const r=new T.WebGLRenderer({antialias:true,alpha:true});r.setPixelRatio(Math.min(devicePixelRatio,2));r.setSize(w,hh);wrap.append(r.domElement);
+    const mesh=new T.Mesh(new T.TorusKnotGeometry(1,.36,180,32),new T.MeshStandardMaterial({color:0xb48cff,roughness:.55,metalness:.05}));
+    scene.add(mesh,new T.AmbientLight(0xffffff,1.1));const dl=new T.DirectionalLight(0xffffff,2.2);dl.position.set(3,4,5);scene.add(dl);
+    const pl=new T.PointLight(0xff8fa3,25);pl.position.set(-3,-2,2);scene.add(pl);
+    let drag=false,px=0,py=0,vx=.01,vy=.004;
+    wrap.addEventListener('pointerdown',e=>{drag=true;px=e.clientX;py=e.clientY;wrap.setPointerCapture(e.pointerId);});
+    wrap.addEventListener('pointermove',e=>{if(!drag)return;vx=(e.clientX-px)*.005;vy=(e.clientY-py)*.005;px=e.clientX;py=e.clientY;});
+    wrap.addEventListener('pointerup',()=>drag=false);
+    r.setAnimationLoop(()=>{mesh.rotation.y+=vx;mesh.rotation.x+=vy;if(!drag){vx+=(.01-vx)*.03;vy+=(.004-vy)*.03;}r.render(scene,cam);});
+  }}
+};
+
+async function runDemo(st){
+  const d=DEMOS[st.dataset.demo]; if(!d||st.dataset.loading)return;
+  st.dataset.loading='1';
+  st.innerHTML='<span class="stage-label">Demo langsung</span><div class="spinner"></div><small>Memuat library…</small>';
+  try{
+    (d.css||[]).forEach(loadCSS);
+    for(const s of d.js||[]) await loadScript(s);
+    const mod=d.esm?await import(d.esm):(d.global?window[d.global]:null);
+    if(d.global&&!mod) throw new Error('Global '+d.global+' tidak ditemukan');
+    st.innerHTML='<span class="stage-label">Demo langsung</span>';
+    d.run(st,mod);
+  }catch(err){
+    console.error(err);
+    st.innerHTML='<span class="stage-label">Demo langsung</span><p class="err">Gagal memuat demo 😢</p><small>Pastikan perangkat terhubung ke internet, lalu coba lagi.</small>';
+    const b=h('button',{className:'cbtn sm',textContent:'Coba lagi'});b.onclick=()=>{delete st.dataset.loading;runDemo(st);};st.append(b);
+    return;
+  }
+}
+
+/* start */
+const start=parseInt(location.hash.slice(1));
+go(Number.isFinite(start)?start-1:0);
+</script>
+</body>
+</html>
