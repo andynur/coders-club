@@ -180,12 +180,11 @@ p{font-size:18px;line-height:1.6;color:var(--muted)}
 .kinfo{width:24px;height:24px;flex:0 0 24px;border-radius:50%;border:0;font:900 13px 'Nunito',system-ui,sans-serif;color:#fff;
   background:radial-gradient(circle at 30% 25%,#F2D27A,#D4A017 70%);box-shadow:inset -2px -2px 4px rgba(0,0,0,.2),inset 2px 2px 4px rgba(255,255,255,.5)}
 .kpi-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;width:100%;max-width:460px}
-.promo-swiper{width:100%;border-radius:20px;overflow:hidden;--swiper-pagination-color:#fff;--swiper-pagination-bullet-inactive-color:#fff}
-.stage>.promo-swiper{max-width:440px}
-.promo-swiper .swiper-slide{height:170px;border-radius:20px;color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:2px;padding:20px 24px;text-align:left}
-.promo-swiper .pe{font-size:40px;line-height:1.1}
-.promo-swiper b{font-size:22px;font-weight:900}
-.promo-swiper span{font-weight:700;opacity:.95}
+.promo-list{display:flex;flex-direction:column;gap:8px}
+.promo-item{--c:#1F4E9E;display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:14px;background:color-mix(in srgb,var(--c) 10%,#fff);border-left:4px solid var(--c)}
+.promo-item .pe{font-size:24px;line-height:1}
+.promo-item b{display:block;font-size:14px;font-weight:900;color:var(--ink)}
+.promo-item small{display:block;font-size:12.5px;font-weight:700;color:var(--muted)}
 .chart-wrap{position:relative;width:100%;height:220px}
 .chart-pair{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px;width:100%}
 .tab-wrap{width:100%;text-align:left;min-width:0}
@@ -414,7 +413,7 @@ const PROMO = [
   {e:'🍌',t:'Menu Baru!',s:'Pisang Goreng Coklat',c:'#3FA7A0'},
   {e:'💧',t:'Jumat Berkah',s:'Air mineral gratis tiap beli makanan',c:'#E8735A'}
 ];
-const promoSlides = () => PROMO.map(p=>`<div class="swiper-slide" style="background:linear-gradient(140deg,color-mix(in srgb,${p.c} 70%,#fff),${p.c})"><span class="pe">${p.e}</span><b>${p.t}</b><span>${p.s}</span></div>`).join('');
+const promoList = () => `<div class="promo-list">${PROMO.map(p=>`<div class="promo-item" style="--c:${p.c}"><span class="pe">${p.e}</span><div><b>${p.t}</b><small>${p.s}</small></div></div>`).join('')}</div>`;
 
 /* ===================== LIBRARY ===================== */
 const LIBS = [
@@ -461,26 +460,6 @@ const stop = autoUpdate(ikonInfo, tooltip, () => {
 
 // saat tooltip disembunyikan
 stop();`},
- {id:'swiper',name:'Swiper',role:'Carousel',color:'#3FA7A0',icon:'slides',
-  tagline:'Carousel promo yang bisa digeser',
-  desc:'Slider paling populer: bisa di-swipe di HP, autoplay, pagination, dan loop. Cocok untuk menampilkan beberapa informasi bergantian di ruang yang sempit.',
-  uses:['Banner promo menu spesial','Pengumuman kantin','Galeri foto menu baru'],
-  kantin:'Panel "Promo minggu ini" berganti otomatis tiap 3 detik.',
-  lic:'MIT',site:'swiperjs.com',docs:'https://swiperjs.com/get-started',
-  code:`<div class="swiper promo">
-  <div class="swiper-wrapper">
-    <div class="swiper-slide">🍜 Senin Hemat</div>
-    <div class="swiper-slide">🍳 Paket Sarapan</div>
-    <div class="swiper-slide">🍌 Menu Baru</div>
-  </div>
-  <div class="swiper-pagination"></div>
-</div>
-
-new Swiper('.promo', {
-  loop: true,
-  autoplay: { delay: 3000 },
-  pagination: { el: '.swiper-pagination', clickable: true }
-});`},
  {id:'tomselect',name:'Tom Select',role:'Filter',color:'#1F4E9E',icon:'select',
   tagline:'Dropdown pintar untuk filter',
   desc:'Mengubah <code>&lt;select&gt;</code> biasa menjadi dropdown yang bisa dicari dan multi-pilih, lengkap dengan tombol × untuk menghapus pilihan. Tanpa jQuery.',
@@ -572,7 +551,6 @@ install:`<\!doctype html>
 <html lang="id">
 <head>
   <\!-- 1. CSS library di <head> -->
-  <link rel="stylesheet" href="${JD}swiper@11/swiper-bundle.min.css">
   <link rel="stylesheet" href="${JD}tom-select@2/dist/css/tom-select.css">
   <link rel="stylesheet" href="${JD}flatpickr@4/dist/flatpickr.min.css">
   <link rel="stylesheet" href="${JD}tabulator-tables@6/dist/css/tabulator.min.css">
@@ -586,7 +564,6 @@ install:`<\!doctype html>
   <script src="${JD}sweetalert2@11"><\/script>
   <script src="${JD}@floating-ui/core@1/dist/floating-ui.core.umd.min.js"><\/script>
   <script src="${JD}@floating-ui/dom@1/dist/floating-ui.dom.umd.min.js"><\/script>
-  <script src="${JD}swiper@11/swiper-bundle.min.js"><\/script>
   <script src="${JD}tom-select@2/dist/js/tom-select.complete.min.js"><\/script>
   <script src="${JD}flatpickr@4/dist/flatpickr.min.js"><\/script>
   <script src="${JD}flatpickr@4/dist/l10n/id.js"><\/script>
@@ -650,13 +627,14 @@ function sembunyi() {
   stop?.();     // hentikan listener scroll/resize
   stop = null;
 }`,
-t_swiper:`tombolTab.onclick = () => {
-  panelPromo.hidden = false;
-  promo.update();   // hitung ulang ukuran slide
-};
+t_tab:`// ❌ tabel belum selesai dibangun
+const tabel = new Tabulator('#tabel', {...});
+tabel.replaceData(rows);  // bisa diabaikan / error
 
-// atau sejak awal:
-new Swiper(el, { observer: true, observeParents: true });`,
+// ✅ tunggu event tableBuilt
+let siap = false;
+tabel.on('tableBuilt', () => { siap = true; });
+if (siap) tabel.replaceData(rows);`,
 t_order:`<\!-- ❌ kode kita sebelum library -->
 <script>new Chart(...)<\/script>
 <script src=".../chart.umd.js"><\/script>
@@ -688,7 +666,6 @@ starter:`<\!doctype html>
 <title>Dashboard Kantin Sekolah</title>
 
 <\!-- ===== 1. CSS library ===== -->
-<link rel="stylesheet" href="${JD}swiper@11/swiper-bundle.min.css">
 <link rel="stylesheet" href="${JD}tom-select@2/dist/css/tom-select.css">
 <link rel="stylesheet" href="${JD}flatpickr@4/dist/flatpickr.min.css">
 <link rel="stylesheet" href="${JD}tabulator-tables@6/dist/css/tabulator.min.css">
@@ -709,8 +686,8 @@ starter:`<\!doctype html>
   .info { border: 0; background: #E8B931; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
   .tooltip { position: absolute; top: 0; left: 0; display: none; max-width: 220px;
              background: #1E2A44; color: #fff; padding: 6px 10px; border-radius: 8px; font-size: 13px; }
-  .swiper { height: 140px; border-radius: 14px; }
-  .swiper-slide { display: grid; place-items: center; background: #D4A017; color: #fff; font-size: 22px; font-weight: 700; }
+  .promo { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .promo li { padding: 10px 12px; border-left: 4px solid #D4A017; background: #FFF6DD; border-radius: 8px; }
   .grafik { position: relative; height: 240px; }
   @media (max-width: 700px) { .app { grid-template-columns: 1fr; } }
 </style>
@@ -744,20 +721,22 @@ starter:`<\!doctype html>
       <div class="panel">Transaksi <button class="info" data-tip="Banyaknya catatan transaksi">i</button><h2 id="kpiTrx">-</h2></div>
     </div>
 
-    <div class="swiper" id="promo">
-      <div class="swiper-wrapper">
-        <div class="swiper-slide">🍜 Senin Hemat</div>
-        <\!-- TODO: tambah minimal 2 slide promo lagi -->
-      </div>
-      <div class="swiper-pagination"></div>
-    </div>
-
     <div class="grid">
       <div class="panel"><div class="grafik"><canvas id="grafikHarian"></canvas></div></div>
       <div class="panel"><div class="grafik"><canvas id="grafikKategori"></canvas></div></div>
     </div>
 
-    <div class="panel"><div id="tabel"></div></div>
+    <div class="grid">
+      <div class="panel"><div id="tabel"></div></div>
+      <div class="panel">
+        <h3>Promo minggu ini</h3>
+        <\!-- Cukup HTML biasa, tidak perlu library -->
+        <ul class="promo">
+          <li>🍜 <b>Senin Hemat</b> · Mie Ayam cuma Rp7.000</li>
+          <\!-- TODO: tambah minimal 2 promo lagi -->
+        </ul>
+      </div>
+    </div>
   </main>
 </div>
 <div class="tooltip" id="tooltip"></div>
@@ -766,7 +745,6 @@ starter:`<\!doctype html>
 <script src="${JD}sweetalert2@11"><\/script>
 <script src="${JD}@floating-ui/core@1/dist/floating-ui.core.umd.min.js"><\/script>
 <script src="${JD}@floating-ui/dom@1/dist/floating-ui.dom.umd.min.js"><\/script>
-<script src="${JD}swiper@11/swiper-bundle.min.js"><\/script>
 <script src="${JD}tom-select@2/dist/js/tom-select.complete.min.js"><\/script>
 <script src="${JD}flatpickr@4/dist/flatpickr.min.js"><\/script>
 <script src="${JD}flatpickr@4/dist/l10n/id.js"><\/script>
@@ -829,7 +807,6 @@ function dataTerfilter() {
 // TODO 4 Tabulator  : tabel produk + kolom tombol hapus
 // TODO 5 SweetAlert2: konfirmasi sebelum hapus, lalu toast sukses
 // TODO 6 Floating UI: tooltip untuk setiap tombol .info (pakai autoUpdate)
-// TODO 7 Swiper     : new Swiper('#promo', { loop: true, autoplay: { delay: 3000 }, pagination: { el: '.swiper-pagination' } })
 
 // ---------- UPDATE DASHBOARD ----------
 function applyFilter() {
@@ -857,7 +834,7 @@ console.log('Starter siap!', produk.length, 'produk,', transaksi.length, 'transa
 /* ===================== SLIDES ===================== */
 const slides = [];
 const libSlideStart = 3;
-const DASH_SLIDE = libSlideStart + LIBS.length + 2; // 12
+const DASH_SLIDE = libSlideStart + LIBS.length + 2; // 11
 const goLib = id => libSlideStart + libIndex(id);
 const codeCard = (key,name,extra='',tall=false) => `
   <div class="code-card${tall?' tall':''}">
@@ -875,7 +852,7 @@ slides.push({title:'Judul',icon:['rocket','#1F4E9E'],html:`
       <div><b>HSI Boarding School</b><small>Coders Club · Bahan Ajar Frontend</small></div>
     </div>
     <h1>Membangun <span class="grad">Dashboard</span> dengan Library JavaScript</h1>
-    <p>Tujuh library siap pakai yang bekerja bersama menjadi satu <b>Dashboard Kantin Sekolah</b>: dialog, tooltip, carousel, filter, kalender, grafik, dan tabel.</p>
+    <p>Enam library siap pakai yang bekerja bersama menjadi satu <b>Dashboard Kantin Sekolah</b>: dialog, tooltip, filter, kalender, grafik, dan tabel.</p>
     <div class="row"><button class="cbtn" data-go="1">Mulai →</button><span class="hint">Navigasi: <kbd>←</kbd> <kbd>→</kbd> · <kbd>O</kbd> daftar · <kbd>F</kbd> layar penuh</span></div>
   </div>
   <div class="cloud clay-card">
@@ -892,7 +869,7 @@ const wb = (cls,label,sub,id) => {
 slides.push({title:'Target Kita',icon:['target','#D4A017'],html:`
 <div class="wrap">
   <div><span class="eyebrow">Target Kita</span><h2>Sketsa Dashboard Kantin Sekolah</h2>
-  <p>Setiap bagian dashboard dikerjakan oleh satu library. Klik label library untuk melihat slide-nya.</p></div>
+  <p>Setiap bagian interaktif dikerjakan oleh satu library. Bagian yang tidak butuh interaksi cukup HTML &amp; CSS biasa. Klik label library untuk melihat slide-nya.</p></div>
   <div class="wire clay-card">
     <div class="wb wire-side" style="--c:#1E2A44"><span>🍱 Sidebar</span><small>Nama kantin + menu navigasi (HTML & CSS biasa)</small></div>
     <div class="wire-main">
@@ -904,7 +881,7 @@ slides.push({title:'Target Kita',icon:['target','#D4A017'],html:`
       ${wb('s4','📊 Omzet per hari','Grafik batang','chart')}
       ${wb('s2','🍩 Per kategori','Grafik doughnut','chart')}
       ${wb('s4','📋 Tabel produk','Sort, cari, pagination + tombol 🗑️','tabulator')}
-      ${wb('s2','🎉 Promo minggu ini','Carousel otomatis','swiper')}
+      ${wb('s2','🎉 Promo minggu ini','Daftar biasa (HTML & CSS), tanpa library')}
       ${wb('s6','🗑️ Hapus produk → "Yakin?" → toast "Produk dihapus"','Dialog konfirmasi & notifikasi','sweetalert')}
     </div>
   </div>
@@ -929,7 +906,7 @@ slides.push({title:'Cara Memasang',icon:['cdn','#5B8DEF'],html:`
   </div>
 </div>`});
 
-// 3..9 library
+// 3..8 library
 LIBS.forEach((l,i)=>{
   slides.push({title:l.name,icon:[l.icon,l.color],lib:l,html:`
 <div class="wrap"><div class="lib">
@@ -960,7 +937,7 @@ LIBS.forEach((l,i)=>{
 </div></div>`});
 });
 
-// 10 Library saling terhubung
+// 9 Library saling terhubung
 const fnode = (id,sub) => {const l=L(id);return `<button class="fnode" style="--c:${l.color}" data-go="${goLib(id)}">${clay(l.icon,l.color,'sm')}<span><b>${l.name}</b><small>${sub}</small></span></button>`;};
 slides.push({title:'Library Saling Terhubung',icon:['link','#3FA7A0'],html:`
 <div class="wrap">
@@ -986,13 +963,13 @@ slides.push({title:'Library Saling Terhubung',icon:['link','#3FA7A0'],html:`
     <div class="box clay-card">
       <h3>Yang berdiri sendiri</h3>
       <div class="row" style="flex-wrap:nowrap">${clay('tooltip',L('floating').color,'md')}<p style="font-size:16px"><b style="color:var(--ink)">Floating UI</b> tidak ikut alur data. Ia hanya memosisikan tooltip saat ikon ⓘ di-hover.</p></div>
-      <div class="row" style="flex-wrap:nowrap">${clay('slides',L('swiper').color,'md')}<p style="font-size:16px"><b style="color:var(--ink)">Swiper</b> menampilkan promo. Datanya tetap, jadi cukup dibuat sekali.</p></div>
+      <div class="row" style="flex-wrap:nowrap">${clay('store','#9CA3AF','md')}<p style="font-size:16px"><b style="color:var(--ink)">Panel promo</b> cukup daftar HTML biasa. Isinya tetap, jadi tidak perlu library. Tiap library menambah beban halaman.</p></div>
       <div class="row" style="flex-wrap:nowrap">${clay('bell',L('sweetalert').color,'md')}<p style="font-size:16px"><b style="color:var(--ink)">SweetAlert2</b> menunggu jawaban "Ya" dulu, baru data diubah dan <code>applyFilter()</code> dipanggil.</p></div>
     </div>
   </div>
 </div>`});
 
-// 11 Jebakan umum
+// 10 Jebakan umum
 const trap = (id,title,text,key) => {const l=L(id);return `
   <div class="trap clay-card">
     <div class="trap-h">${clay('alert',l.color,'sm')}<div><span class="chip" style="--c:${l.color};padding:3px 10px;font-size:12px">${l.name}</span><h3>${title}</h3></div></div>
@@ -1005,34 +982,34 @@ slides.push({title:'Jebakan Umum',icon:['alert','#E8735A'],html:`
   <div class="traps">
     ${trap('chart','Membuat grafik baru tiap filter','Membuat <code>new Chart()</code> di canvas yang sama akan error dan grafik menumpuk. Ubah datanya lalu <code>update()</code>, atau <code>destroy()</code> dulu.','t_chart')}
     ${trap('floating','Tooltip "tertinggal" saat scroll','<code>computePosition</code> hanya menghitung sekali. Pakai <code>autoUpdate</code> saat tampil, dan panggil fungsi cleanup-nya saat disembunyikan.','t_float')}
-    ${trap('swiper','Swiper di dalam elemen tersembunyi','Jika dibuat saat container <code>display:none</code> (tab, modal), ukurannya 0. Panggil <code>swiper.update()</code> setelah elemen tampil.','t_swiper')}
+    ${trap('tabulator','Data diganti sebelum tabel siap','Tabulator dibangun secara asinkron. <code>replaceData()</code> sebelum event <code>tableBuilt</code> bisa gagal. Tunggu event itu dulu.','t_tab')}
     ${trap('chart','Urutan script terbalik','Kode kita jalan sebelum library dimuat, hasilnya <code>Chart is not defined</code>. Library dulu, kode kita paling akhir.','t_order')}
     ${trap('tomselect','Nilai onChange tidak sesuai','Tanpa atribut <code>multiple</code>, nilainya string. Dengan <code>multiple</code>, array. Amankan dengan <code>[].concat(nilai)</code>.','t_tom')}
     ${trap('flatpickr','Mode range memberi array','<code>onChange</code> terpanggil di klik pertama juga (array berisi 1 tanggal). Cek <code>length === 2</code> sebelum memfilter.','t_flat')}
   </div>
 </div>`});
 
-// 12 Demo dashboard jadi
+// 11 Demo dashboard jadi
 slides.push({title:'Demo Dashboard Jadi',icon:['monitor','#1E2A44'],html:`
 <div class="wrap">
-  <div><span class="eyebrow">Hasil Akhir</span><h2>Demo dashboard jadi</h2><p>Tujuh library bekerja bersama. Inilah gambaran hasil tugas kalian.</p></div>
+  <div><span class="eyebrow">Hasil Akhir</span><h2>Demo dashboard jadi</h2><p>Enam library bekerja bersama. Inilah gambaran hasil tugas kalian.</p></div>
   <div class="stage clay-card wide" data-demo="dashboard">
     <span class="stage-label">Demo langsung</span>
     <div class="stack">${LIBS.map(l=>clay(l.icon,l.color,'md')).join('')}</div>
     <h3>Dashboard Kantin HSI</h3>
-    <button class="cbtn btn-demo">▶ Jalankan Dashboard</button>
-    <small>Memuat 7 library dari CDN · butuh internet</small>
+    <div class="row" style="justify-content:center"><button class="cbtn btn-demo">▶ Jalankan Dashboard</button><a class="cbtn ghost" href="dashboard-kantin.html" target="_blank" rel="noopener">Buka halaman penuh ↗</a></div>
+    <small>Memuat 6 library dari CDN · butuh internet</small>
   </div>
 </div>`});
 
-// 13 Kuis
+// 12 Kuis
 const QUIZ = [
-  {q:'Admin kantin klik 🗑️ pada "Nasi Uduk". Sebelum benar-benar dihapus harus muncul dialog "Yakin?". Pakai apa?',a:'sweetalert',opts:['sweetalert','swiper','chart','flatpickr']},
-  {q:'Ikon ⓘ di kartu "Omzet hari ini" butuh tooltip yang tidak terpotong tepi layar.',a:'floating',opts:['tabulator','floating','tomselect','swiper']},
-  {q:'Panel promo menampilkan 4 menu spesial bergantian dan bisa digeser di HP.',a:'swiper',opts:['chart','sweetalert','swiper','flatpickr']},
+  {q:'Admin kantin klik 🗑️ pada "Nasi Uduk". Sebelum benar-benar dihapus harus muncul dialog "Yakin?". Pakai apa?',a:'sweetalert',opts:['sweetalert','tabulator','chart','flatpickr']},
+  {q:'Ikon ⓘ di kartu "Omzet hari ini" butuh tooltip yang tidak terpotong tepi layar.',a:'floating',opts:['tabulator','floating','tomselect','sweetalert']},
+  {q:'Panel promo hanya berisi 4 teks promo yang tetap. Library apa yang perlu dipasang?',a:'Tidak perlu, cukup HTML & CSS',opts:['chart','Tidak perlu, cukup HTML & CSS','tabulator','sweetalert']},
   {q:'Filter kategori: admin ingin memilih "Minuman" dan "Snack" sekaligus, dengan pencarian.',a:'tomselect',opts:['tomselect','floating','tabulator','chart']},
-  {q:'Laporan penjualan perlu dibatasi dari tanggal 1 sampai 15 Oktober.',a:'flatpickr',opts:['swiper','flatpickr','sweetalert','tomselect']},
-  {q:'Kepala kantin ingin membandingkan omzet tiap hari dalam bentuk batang.',a:'chart',opts:['tabulator','chart','floating','swiper']},
+  {q:'Laporan penjualan perlu dibatasi dari tanggal 1 sampai 15 Oktober.',a:'flatpickr',opts:['chart','flatpickr','sweetalert','tomselect']},
+  {q:'Kepala kantin ingin membandingkan omzet tiap hari dalam bentuk batang.',a:'chart',opts:['tabulator','chart','floating','tomselect']},
   {q:'Daftar 50 produk harus bisa diurutkan, dicari per kolom, dan dibagi per halaman.',a:'tabulator',opts:['tabulator','tomselect','chart','sweetalert']},
   {q:'Filter tanggal berubah. Cara yang benar memperbarui grafik Chart.js yang sudah ada adalah…',a:'Ubah data lalu chart.update()',opts:['Buat new Chart() lagi','Ubah data lalu chart.update()','location.reload()','Hapus elemen canvas']}
 ];
@@ -1042,11 +1019,11 @@ slides.push({title:'Kuis',icon:['question','#E89A2C'],html:`
   <div class="quiz clay-card" id="quiz"></div>
 </div>`});
 
-// 14 Tugas
+// 13 Tugas
 const TUGAS = [
   'Layout: header nama kantin + sidebar/menu',
   'Minimal 3 kartu ringkasan dengan tooltip Floating UI',
-  'Carousel promo Swiper (minimal 3 slide)',
+  'Panel promo (minimal 3 promo) dengan HTML & CSS biasa',
   'Filter kategori dengan Tom Select',
   'Filter tanggal Flatpickr (mode range)',
   'Minimal 2 grafik Chart.js yang ikut berubah saat filter',
@@ -1057,7 +1034,7 @@ const TUGAS = [
 slides.push({title:'Tugas',icon:['check','#D4A017'],html:`
 <div class="wrap">
   <div><span class="eyebrow">Mini Project</span><h2>Tugas: Dashboard Kantin Sekolah</h2>
-  <p>Buat satu file HTML dashboard kantin memakai ketujuh library. Mulai dari starter di kanan, lalu centang fitur yang sudah selesai.</p></div>
+  <p>Buat satu file HTML dashboard kantin memakai keenam library. Mulai dari starter di kanan, lalu centang fitur yang sudah selesai.</p></div>
   <div class="two">
     <div class="box clay-card">
       <div class="row" style="justify-content:space-between"><div class="row">${clay('check','#D4A017','md')}<h3>Fitur wajib</h3></div><span class="chip" style="--c:#D4A017" id="tProg">0 / ${TUGAS.length}</span></div>
@@ -1085,11 +1062,11 @@ slides.push({title:'Tugas',icon:['check','#D4A017'],html:`
   </div>
 </div>`});
 
-// 15 Penutup
+// 14 Penutup
 slides.push({title:'Penutup',icon:['trophy','#D4A017'],html:`
 <div class="wrap">
-  <div><span class="eyebrow">Ringkasan</span><h2>Tujuh library, satu dashboard</h2>
-  <p>Ingat polanya: filter mengubah <b>state</b>, <code>applyFilter()</code> memperbarui semuanya. Dokumentasi resmi adalah sumber belajar terbaik.</p></div>
+  <div><span class="eyebrow">Ringkasan</span><h2>Enam library, satu dashboard</h2>
+  <p>Ingat polanya: filter mengubah <b>state</b>, <code>applyFilter()</code> memperbarui semuanya. Pakai library hanya jika memang dibutuhkan. Dokumentasi resmi adalah sumber belajar terbaik.</p></div>
   <div class="docs">
     ${LIBS.map(l=>`<div class="doc clay-card">${clay(l.icon,l.color,'md')}<div style="min-width:0"><b>${l.name}</b><p>${l.role}</p><a class="chip" style="--c:${l.color};margin-top:6px" href="${l.docs}" target="_blank" rel="noopener">Dokumentasi ↗</a></div></div>`).join('')}
   </div>
@@ -1208,7 +1185,7 @@ function renderQuiz(){
 renderQuiz();
 
 /* ===================== CHECKLIST TUGAS ===================== */
-const TKEY='hsi-dashboard-kantin-checklist';
+const TKEY='hsi-dashboard-kantin-checklist-v2';
 function loadChecks(){try{return JSON.parse(localStorage.getItem(TKEY))||[];}catch(e){return [];}}
 function saveChecks(a){try{localStorage.setItem(TKEY,JSON.stringify(a));}catch(e){}}
 function syncChecks(){
@@ -1236,7 +1213,6 @@ const cbtn=(text,color,sm)=>{const b=h('button',{className:'cbtn'+(sm?' sm':''),
 const LIBJS={
   sweetalert:{js:[JD+'sweetalert2@11']},
   floating:{js:[JD+'@floating-ui/core@1/dist/floating-ui.core.umd.min.js',JD+'@floating-ui/dom@1/dist/floating-ui.dom.umd.min.js']},
-  swiper:{css:[JD+'swiper@11/swiper-bundle.min.css'],js:[JD+'swiper@11/swiper-bundle.min.js']},
   tomselect:{css:[JD+'tom-select@2/dist/css/tom-select.css'],js:[JD+'tom-select@2/dist/js/tom-select.complete.min.js']},
   flatpickr:{css:[JD+'flatpickr@4/dist/flatpickr.min.css'],js:[JD+'flatpickr@4/dist/flatpickr.min.js',JD+'flatpickr@4/dist/l10n/id.js']},
   chart:{js:[JD+'chart.js@4/dist/chart.umd.js']},
@@ -1300,14 +1276,6 @@ const DEMOS={
     pair.querySelector('[data-k=b]').textContent='Nasi Goreng';
     st.append(tip,pair,h('small',{textContent:'Arahkan kursor (atau Tab) ke ikon i. Tooltip bergeser sendiri agar tidak terpotong.'}));
     return attachTips(m,st,tip,'.kinfo');
-  }},
-  swiper:{libs:['swiper'],run(st){
-    const el=h('div',{className:'swiper promo-swiper'});
-    el.innerHTML=`<div class="swiper-wrapper">${promoSlides()}</div><div class="swiper-pagination"></div>`;
-    st.append(el,h('small',{textContent:'Geser dengan mouse/jari. Otomatis berganti tiap 2,5 detik.'}));
-    const sw=new Swiper(el,{loop:true,grabCursor:true,spaceBetween:12,autoplay:{delay:2500,disableOnInteraction:false},
-      pagination:{el:el.querySelector('.swiper-pagination'),clickable:true}});
-    return ()=>sw.destroy(true,true);
   }},
   tomselect:{libs:['tomselect'],run(st){
     const sel=h('select',{multiple:true});
@@ -1385,7 +1353,7 @@ const DEMOS={
         </div>
         <div class="dash-bottom">
           <div class="dpanel"><h5>Produk</h5><div class="t-prod"></div></div>
-          <div class="dpanel"><h5>Promo minggu ini</h5><div class="swiper promo-swiper p-sw"><div class="swiper-wrapper">${promoSlides()}</div><div class="swiper-pagination"></div></div></div>
+          <div class="dpanel"><h5>Promo minggu ini</h5>${promoList()}</div>
         </div>
       </div>
       <div class="tip"></div>`;
@@ -1415,10 +1383,6 @@ const DEMOS={
     ]});
     table.on('tableBuilt',()=>{ready=true;});
 
-    // Swiper
-    const sw=new Swiper($('.p-sw'),{loop:true,spaceBetween:10,autoplay:{delay:3000,disableOnInteraction:false},
-      pagination:{el:$('.p-sw .swiper-pagination'),clickable:true}});
-
     // Fungsi pusat
     function renderKPI(){
       $('[data-k=omzet]').textContent=rupiah(r.omzet);
@@ -1441,7 +1405,7 @@ const DEMOS={
       onChange:v=>{state.kategori=toArr(v);applyFilter();}});
 
     renderKPI();
-    return ()=>{hideTip();Swal.close();bar.destroy();dn.destroy();table.destroy();sw.destroy(true,true);ts.destroy();fp.destroy();};
+    return ()=>{hideTip();Swal.close();bar.destroy();dn.destroy();table.destroy();ts.destroy();fp.destroy();};
   }}
 };
 
