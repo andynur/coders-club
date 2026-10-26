@@ -142,6 +142,7 @@ svg.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-wid
 
 .row-2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:var(--ds-space-200)}
 .chart-wrap{position:relative;height:260px}
+.task-caption{margin:var(--ds-space-100) 0 0;color:var(--ds-text-subtlest);font-size:12px;line-height:16px}
 
 /* Button */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--ds-space-050);height:32px;padding:0 var(--ds-space-150);border:0;
@@ -323,10 +324,12 @@ div:where(.swal2-container).swal2-backdrop-show{background:rgba(5,21,36,.5)}
             <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
             <input id="fDate" placeholder="Pilih rentang tanggal" readonly>
           </div>
+          <p class="task-caption">Tugas: aktifkan pemilih rentang tanggal dengan Flatpickr.</p>
         </div>
         <div class="field">
           <label for="fKat">Kategori</label>
           <select id="fKat" multiple></select>
+          <p class="task-caption">Tugas: ubah pilihan kategori menjadi multi-select dengan Tom Select.</p>
         </div>
       </div>
     </header>
@@ -336,6 +339,7 @@ div:where(.swal2-container).swal2-backdrop-show{background:rgba(5,21,36,.5)}
         <div class="kpi-h"><span class="kpi-ico blue"><svg class="ic" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9.5v5M18 9.5v5"/></svg></span>Omzet
           <button class="icon-btn" type="button" data-tip="Total uang masuk (harga × jumlah) dalam rentang tanggal & kategori terpilih." aria-label="Info Omzet"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button></div>
         <div class="kpi-v" id="kOmzet">-</div><div class="kpi-c" id="cOmzet">&nbsp;</div>
+        <p class="task-caption">Tugas: tampilkan tooltip ikon informasi dengan Floating UI.</p>
       </div>
       <div class="card kpi">
         <div class="kpi-h"><span class="kpi-ico green"><svg class="ic" viewBox="0 0 24 24"><path d="M5 8h14l-1.3 11.1a2 2 0 0 1-2 1.9H8.3a2 2 0 0 1-2-1.9z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>Item terjual
@@ -350,12 +354,12 @@ div:where(.swal2-container).swal2-backdrop-show{background:rgba(5,21,36,.5)}
     </section>
 
     <section class="row-2">
-      <div class="card"><div class="card-h"><h2>Omzet per hari</h2><small>Rupiah</small></div><div class="chart-wrap"><canvas id="cBar" aria-label="Grafik omzet per hari"></canvas></div></div>
-      <div class="card"><div class="card-h"><h2>Item per kategori</h2><small>Porsi</small></div><div class="chart-wrap"><canvas id="cDn" aria-label="Grafik item per kategori"></canvas></div></div>
+      <div class="card"><div class="card-h"><h2>Omzet per hari</h2><small>Rupiah</small></div><div class="chart-wrap"><canvas id="cBar" aria-label="Grafik omzet per hari"></canvas></div><p class="task-caption">Tugas: buat grafik batang dengan Chart.js.</p></div>
+      <div class="card"><div class="card-h"><h2>Item per kategori</h2><small>Porsi</small></div><div class="chart-wrap"><canvas id="cDn" aria-label="Grafik item per kategori"></canvas></div><p class="task-caption">Tugas: buat grafik donat dengan Chart.js.</p></div>
     </section>
 
     <section class="row-2">
-      <div class="card"><div class="card-h"><h2>Produk</h2><small id="tCount"></small></div><div id="tProd"></div></div>
+      <div class="card"><div class="card-h"><h2>Produk</h2><small id="tCount"></small></div><div id="tProd"></div><p class="task-caption">Tugas: tampilkan tabel interaktif dengan Tabulator, lalu gunakan SweetAlert2 saat menghapus produk.</p></div>
       <div class="card"><div class="card-h"><h2>Promo minggu ini</h2><small id="pCount"></small></div>
         <ul class="promo" id="promo"></ul>
       </div>
@@ -374,209 +378,6 @@ div:where(.swal2-container).swal2-backdrop-show{background:rgba(5,21,36,.5)}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6/dist/js/tabulator.min.js"></script>
 
-<script>
-/* ===================== TOKEN ATLASSIAN ===================== */
-// Tema resmi dari paket @atlaskit/tokens (atlassian.design), diambil sebagai modul ESM.
-const TOKENS='https://cdn.jsdelivr.net/npm/@atlaskit/tokens@20.4.1/dist/esm/artifacts/themes/';
-async function loadTokens(){
-  const names=['atlassian-light','atlassian-dark','atlassian-typography','atlassian-shape','atlassian-spacing'];
-  const mods=await Promise.all(names.map(n=>import(TOKENS+n+'.js')));
-  const st=document.createElement('style');st.id='ads-tokens';
-  st.textContent=mods.map(m=>m.default).join('\n');
-  document.head.appendChild(st);
-}
-const token=name=>getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-
-/* ===================== DATA KANTIN ===================== */
-const HARI_INI=(()=>{const d=new Date();d.setHours(0,0,0,0);return d;})();
-const hariLalu=n=>{const d=new Date(HARI_INI);d.setDate(d.getDate()-n);return d;};
-const KAT=['Makanan','Minuman','Snack'];
-const KAT_LOZENGE={Makanan:'blue',Minuman:'green',Snack:'purple'};
-const PRODUK=[
-  {id:1,nama:'Nasi Goreng',kategori:'Makanan',harga:10000,stok:25},
-  {id:2,nama:'Mie Ayam',kategori:'Makanan',harga:8000,stok:20},
-  {id:3,nama:'Nasi Uduk',kategori:'Makanan',harga:7000,stok:30},
-  {id:4,nama:'Es Teh Manis',kategori:'Minuman',harga:3000,stok:60},
-  {id:5,nama:'Jus Jeruk',kategori:'Minuman',harga:6000,stok:24},
-  {id:6,nama:'Air Mineral',kategori:'Minuman',harga:4000,stok:80},
-  {id:7,nama:'Keripik Singkong',kategori:'Snack',harga:5000,stok:40},
-  {id:8,nama:'Roti Coklat',kategori:'Snack',harga:4000,stok:35},
-  {id:9,nama:'Pisang Goreng',kategori:'Snack',harga:2000,stok:50},
-  {id:10,nama:'Susu Kotak',kategori:'Minuman',harga:5000,stok:45}
-];
-// [berapa hari lalu, id produk, jumlah]
-const TRX=[[6,1,12],[6,4,20],[6,7,8],[5,2,10],[5,5,9],[5,9,15],[4,3,14],[4,6,18],[4,8,7],[3,1,11],[3,10,12],
-  [3,7,10],[2,2,13],[2,4,22],[2,9,12],[1,3,9],[1,5,8],[1,8,11],[0,1,15],[0,6,16],[0,10,9]]
-  .map(([h,id,q])=>({tgl:hariLalu(h),produkId:id,qty:q}));
-const PROMO=[
-  {e:'🍜',t:'Senin Hemat',s:'Mie Ayam cuma Rp7.000',hari:'Senin',c:'blue'},
-  {e:'🍳',t:'Paket Sarapan',s:'Nasi Uduk + Es Teh Rp9.000',hari:'Setiap hari',c:'yellow'},
-  {e:'🍌',t:'Menu Baru',s:'Pisang Goreng Coklat',hari:'Minggu ini',c:'teal'},
-  {e:'💧',t:'Jumat Berkah',s:'Air mineral gratis tiap beli makanan',hari:'Jumat',c:'red'}
-];
-
-const rupiah=n=>'Rp'+n.toLocaleString('id-ID');
-const fmtTgl=d=>d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
-const toArr=v=>Array.isArray(v)?v:(v?String(v).split(','):[]);
-const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const $=s=>document.querySelector(s);
-
-function hitung(produk,awal,akhir,kategori){
-  const map=new Map(produk.map(p=>[p.id,p]));
-  const data=TRX.filter(t=>{const p=map.get(t.produkId);return p&&t.tgl>=awal&&t.tgl<=akhir&&kategori.includes(p.kategori);});
-  const hari=[];for(let d=new Date(awal);d<=akhir&&hari.length<93;d.setDate(d.getDate()+1))hari.push(new Date(d));
-  const perHari=hari.map(d=>data.filter(t=>+t.tgl===+d).reduce((s,t)=>s+t.qty*map.get(t.produkId).harga,0));
-  const perKat=KAT.map(k=>data.filter(t=>map.get(t.produkId).kategori===k).reduce((s,t)=>s+t.qty,0));
-  const rows=produk.filter(p=>kategori.includes(p.kategori)).map(p=>{
-    const q=data.filter(t=>t.produkId===p.id).reduce((s,t)=>s+t.qty,0);
-    return {...p,terjual:q,omzet:q*p.harga};
-  });
-  return {
-    labels:hari.map(d=>d.toLocaleDateString('id-ID',{weekday:'short',day:'numeric'})),
-    perHari,perKat,rows,hari:hari.length,
-    omzet:perHari.reduce((a,b)=>a+b,0),
-    item:data.reduce((s,t)=>s+t.qty,0),
-    trx:data.length
-  };
-}
-
-/* ===================== STATE ===================== */
-let produk=PRODUK.map(p=>({...p}));
-const state={awal:hariLalu(6),akhir:HARI_INI,kategori:[...KAT]};
-let r=hitung(produk,state.awal,state.akhir,state.kategori);
-
-/* ===================== SWEETALERT2: Modal & Flag ===================== */
-const ICON_WARN='<svg class="ic" viewBox="0 0 24 24"><path d="M12 3.5l9 16.5H3z"/><path d="M12 10v4.5M12 17.3h.01"/></svg>';
-const ICON_OK='<svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16 9.5"/></svg>';
-const flag=title=>Swal.fire({toast:true,position:'bottom-start',icon:'success',iconHtml:ICON_OK,titleText:title,
-  showConfirmButton:false,timer:2500,timerProgressBar:true,customClass:{popup:'ads-flag'}});
-const hapus=p=>Swal.fire({
-  title:`${ICON_WARN}Hapus ${esc(p.nama)}?`,
-  text:'Produk dan transaksinya akan hilang dari laporan. Tindakan ini tidak bisa dibatalkan.',
-  showCancelButton:true,confirmButtonText:'Hapus',cancelButtonText:'Batal',reverseButtons:true,
-  buttonsStyling:false,focusCancel:true,showClass:{popup:''},hideClass:{popup:''},
-  customClass:{popup:'ads-modal',confirmButton:'btn danger',cancelButton:'btn subtle'}
-}).then(res=>{
-  if(!res.isConfirmed)return;
-  produk=produk.filter(x=>x.id!==p.id);
-  applyFilter();
-  flag(`${p.nama} dihapus`);
-});
-
-/* ===================== FLOATING UI: tooltip ===================== */
-(function(){
-  const m=window.FloatingUIDOM, tip=$('#tooltip');
-  let stop=null;
-  const hide=()=>{tip.style.opacity=0;stop?.();stop=null;};
-  document.querySelectorAll('[data-tip]').forEach(b=>{
-    const show=()=>{
-      stop?.();
-      tip.textContent=b.dataset.tip;tip.style.opacity=1;
-      stop=m.autoUpdate(b,tip,()=>m.computePosition(b,tip,{strategy:'fixed',placement:'top',middleware:[m.offset(8),m.flip(),m.shift({padding:8})]})
-        .then(({x,y})=>Object.assign(tip.style,{left:x+'px',top:y+'px'})));
-    };
-    b.addEventListener('mouseenter',show);b.addEventListener('focus',show);
-    b.addEventListener('mouseleave',hide);b.addEventListener('blur',hide);
-  });
-})();
-
-/* ===================== CHART.JS ===================== */
-Chart.defaults.font.family=getComputedStyle(document.body).fontFamily;
-Chart.defaults.font.size=12;
-const bar=new Chart($('#cBar'),{type:'bar',
-  data:{labels:r.labels,datasets:[{label:'Omzet',data:r.perHari,borderRadius:4,maxBarThickness:40}]},
-  options:{responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>rupiah(c.parsed.y)}}},
-    scales:{y:{beginAtZero:true,border:{display:false},ticks:{callback:v=>(v/1000)+'rb'}},x:{grid:{display:false}}}}});
-const dn=new Chart($('#cDn'),{type:'doughnut',
-  data:{labels:KAT,datasets:[{data:r.perKat,borderWidth:2}]},
-  options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
-    plugins:{legend:{position:'bottom',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,boxHeight:8,padding:16}}}}});
-
-// Warna grafik mengikuti token ADS (dipanggil ulang saat tema berubah)
-function warnaiGrafik(){
-  const text=token('--ds-text-subtle'), grid=token('--ds-border'), surface=token('--ds-surface-raised');
-  Chart.defaults.color=text;
-  const ds=bar.data.datasets[0];
-  ds.backgroundColor=token('--ds-chart-brand');ds.hoverBackgroundColor=token('--ds-chart-brand-hovered');
-  bar.options.scales.y.grid={color:grid};
-  bar.options.scales.x.ticks={color:text};bar.options.scales.y.ticks.color=text;
-  dn.data.datasets[0].backgroundColor=[1,2,3].map(i=>token('--ds-chart-categorical-'+i));
-  dn.data.datasets[0].borderColor=surface;
-  dn.options.plugins.legend.labels.color=text;
-  [bar,dn].forEach(c=>{c.options.plugins.tooltip=Object.assign(c.options.plugins.tooltip||{},{
-    backgroundColor:token('--ds-background-neutral-bold'),titleColor:token('--ds-text-inverse'),bodyColor:token('--ds-text-inverse'),
-    cornerRadius:4,padding:8,displayColors:c===dn,boxPadding:4});c.update();});
-}
-warnaiGrafik();
-
-/* ===================== TABULATOR ===================== */
-let ready=false;
-const ICON_DEL='<svg class="ic" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2l1-12M9 7V4h6v3"/></svg>';
-const table=new Tabulator('#tProd',{data:r.rows,index:'id',layout:'fitColumns',pagination:true,paginationSize:5,
-  placeholder:'Tidak ada produk',initialSort:[{column:'omzet',dir:'desc'}],
-  langs:{default:{pagination:{first:'«',first_title:'Halaman pertama',last:'»',last_title:'Halaman terakhir',prev:'‹',prev_title:'Sebelumnya',next:'›',next_title:'Berikutnya'}}},
-  columns:[
-  {title:'Produk',field:'nama',headerFilter:'input',headerFilterPlaceholder:'Cari produk…',minWidth:140},
-  {title:'Kategori',field:'kategori',minWidth:100,formatter:c=>`<span class="lozenge ${KAT_LOZENGE[c.getValue()]}">${c.getValue()}</span>`},
-  {title:'Terjual',field:'terjual',sorter:'number',hozAlign:'right',minWidth:80,formatter:c=>`<span class="num">${c.getValue()}</span>`},
-  {title:'Omzet',field:'omzet',sorter:'number',hozAlign:'right',minWidth:110,formatter:c=>`<span class="num">${rupiah(c.getValue())}</span>`},
-  {title:'',field:'id',headerSort:false,hozAlign:'center',width:56,
-    formatter:()=>`<button class="icon-btn del" type="button" aria-label="Hapus produk">${ICON_DEL}</button>`,
-    cellClick:(e,cell)=>hapus(cell.getRow().getData())}
-]});
-table.on('tableBuilt',()=>{ready=true;});
-
-/* ===================== PROMO (HTML biasa, tanpa library) ===================== */
-$('#promo').innerHTML=PROMO.map(p=>`<li>
-  <span class="p-emoji" style="background:var(--ds-background-accent-${p.c}-subtler)">${p.e}</span>
-  <div class="p-body"><b>${p.t}</b><small>${p.s}</small></div>
-  <span class="lozenge ${p.c}">${p.hari}</span></li>`).join('');
-$('#pCount').textContent=`${PROMO.length} aktif`;
-
-/* ===================== FUNGSI PUSAT ===================== */
-function renderKPI(){
-  $('#kOmzet').textContent=rupiah(r.omzet);
-  $('#cOmzet').textContent=`Rata-rata ${rupiah(Math.round(r.omzet/Math.max(r.hari,1)))} per hari`;
-  $('#kItem').textContent=r.item.toLocaleString('id-ID');
-  $('#cItem').textContent=`Dari ${r.rows.filter(x=>x.terjual).length} produk yang laku`;
-  $('#kTrx').textContent=r.trx.toLocaleString('id-ID');
-  $('#cTrx').textContent=`Dalam ${r.hari} hari`;
-  $('#dRange').textContent=`${fmtTgl(state.awal)} – ${fmtTgl(state.akhir)} · ${state.kategori.length} kategori · ${produk.length} produk`;
-  $('#tCount').textContent=`${r.rows.length} produk`;
-}
-function applyFilter(){
-  r=hitung(produk,state.awal,state.akhir,state.kategori);
-  bar.data.labels=r.labels;bar.data.datasets[0].data=r.perHari;bar.update();
-  dn.data.datasets[0].data=r.perKat;dn.update();
-  if(ready)table.replaceData(r.rows);
-  renderKPI();
-}
-
-/* ===================== FILTER: Flatpickr + Tom Select ===================== */
-flatpickr('#fDate',{mode:'range',dateFormat:'d M Y',locale:'id',maxDate:'today',static:true,defaultDate:[state.awal,state.akhir],
-  onChange:d=>{if(d.length===2){[state.awal,state.akhir]=d;applyFilter();}}});
-const fKat=$('#fKat');
-KAT.forEach(k=>fKat.append(new Option(k,k,true,true)));
-new TomSelect(fKat,{maxItems:null,plugins:['remove_button'],placeholder:'Pilih kategori',hidePlaceholder:true,
-  onChange:v=>{state.kategori=toArr(v);applyFilter();}});
-
-renderKPI();
-
-/* ===================== TEMA ===================== */
-const btnTheme=$('#btnTheme');
-function labelTema(){
-  const dark=document.documentElement.getAttribute('data-color-mode')==='dark';
-  btnTheme.querySelector('span').textContent=dark?'Mode terang':'Mode gelap';
-}
-btnTheme.addEventListener('click',()=>{
-  const next=document.documentElement.getAttribute('data-color-mode')==='dark'?'light':'dark';
-  document.documentElement.setAttribute('data-color-mode',next);
-  try{localStorage.setItem('kantin-color-mode',next);}catch(e){}
-  labelTema();warnaiGrafik();
-});
-labelTema();
-loadTokens().then(warnaiGrafik).catch(err=>console.warn('Token ADS gagal dimuat, memakai nilai cadangan.',err));
-</script>
+<script src="dashboard-kantin/script.js"></script>
 </body>
 </html>
