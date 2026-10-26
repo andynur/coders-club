@@ -1,383 +1,1449 @@
 <!doctype html>
-<html lang="id" data-theme="light:light dark:dark spacing:spacing typography:typography shape:shape" data-color-mode="light">
+<html lang="id">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Dashboard Kantin HSI</title>
-<script>
-// Pilih mode warna sebelum halaman digambar (hindari kedip)
-(function(){
-  let m=null;try{m=localStorage.getItem('kantin-color-mode');}catch(e){}
-  if(m!=='light'&&m!=='dark') m=matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
-  document.documentElement.setAttribute('data-color-mode',m);
-})();
-</script>
+<title>Library untuk Dashboard · HSI Boarding School</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF7EE; --bg2:#FFFFFF; --card:#FFFDF8;
+  --ink:#1E2A44; --muted:#6B7280;
+  --accent:#1F4E9E; --gold:#D4A017; --gold2:#E8B931; --blue-soft:#5B8DEF;
+  --shadow-dark:rgba(150,120,60,.22); --shadow-light:rgba(255,255,255,.95);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Nunito',system-ui,sans-serif;color:var(--ink);
+  background:radial-gradient(1200px 700px at 8% 0%,#FFF1CF 0%,transparent 60%),
+             radial-gradient(1000px 700px at 100% 100%,#E3ECFB 0%,transparent 60%),
+             linear-gradient(160deg,var(--bg2),var(--bg));
+  overflow:hidden;-webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer}
+a{color:inherit}
 
-<!-- Atlassian Design System: CSS reset -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@atlaskit/css-reset@8.4.3/dist/bundle.css">
-<!-- CSS library -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tom-select@2/dist/css/tom-select.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr@4/dist/flatpickr.min.css">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tabulator-tables@6/dist/css/tabulator.min.css">
+/* ===== Clay primitives ===== */
+.clay-card{
+  background:var(--card);border-radius:32px;
+  box-shadow:16px 16px 32px var(--shadow-dark),-10px -10px 24px var(--shadow-light),
+             inset 4px 4px 10px rgba(255,255,255,.9),inset -4px -4px 10px rgba(150,120,60,.10);
+}
+.clay{
+  --s:64px;--c:#1F4E9E;
+  width:var(--s);height:var(--s);flex:0 0 var(--s);
+  border-radius:calc(var(--s)*.34);position:relative;display:grid;place-items:center;
+  background:radial-gradient(circle at 30% 25%,color-mix(in srgb,var(--c) 45%,#fff) 0%,var(--c) 55%,color-mix(in srgb,var(--c) 82%,#000) 125%);
+  box-shadow:
+    inset calc(var(--s)*-.07) calc(var(--s)*-.09) calc(var(--s)*.16) rgba(0,0,0,.2),
+    inset calc(var(--s)*.07) calc(var(--s)*.07) calc(var(--s)*.14) rgba(255,255,255,.6),
+    0 calc(var(--s)*.2) calc(var(--s)*.34) calc(var(--s)*-.1) color-mix(in srgb,var(--c) 75%,transparent);
+}
+.clay::after{
+  content:"";position:absolute;top:11%;left:15%;width:34%;height:17%;border-radius:50%;
+  background:rgba(255,255,255,.6);filter:blur(1.5px);transform:rotate(-22deg);
+}
+.clay svg{width:52%;height:52%;color:#fff;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 calc(var(--s)*.03) 0 rgba(0,0,0,.16));position:relative;z-index:1}
+.clay.sm{--s:44px}.clay.md{--s:58px}.clay.lg{--s:84px}.clay.xl{--s:110px}
+.clay.btn{border:0;transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.clay.btn:hover{transform:translateY(-6px) rotate(-6deg) scale(1.06)}
+
+.cbtn{
+  --c:var(--accent);border:0;border-radius:18px;padding:12px 22px;font-weight:800;font-size:15px;color:#fff;
+  background:radial-gradient(circle at 30% 20%,color-mix(in srgb,var(--c) 55%,#fff),var(--c) 70%);
+  box-shadow:inset -3px -4px 8px rgba(0,0,0,.18),inset 3px 3px 8px rgba(255,255,255,.5),0 10px 18px -8px color-mix(in srgb,var(--c) 80%,transparent);
+  transition:transform .2s cubic-bezier(.34,1.56,.64,1);
+}
+.cbtn:hover{transform:translateY(-2px)}.cbtn:active{transform:scale(.95)}
+.cbtn.sm{padding:8px 14px;font-size:13px;border-radius:14px}
+.cbtn.ghost{--c:#EDE4CF;color:var(--ink)}
+
+.chip{
+  --c:#1F4E9E;display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:999px;font-weight:800;font-size:13px;
+  color:color-mix(in srgb,var(--c) 60%,#000);background:color-mix(in srgb,var(--c) 18%,#fff);
+  box-shadow:inset 2px 2px 4px rgba(255,255,255,.8),inset -2px -2px 4px color-mix(in srgb,var(--c) 25%,transparent);
+  border:0;text-decoration:none;
+}
+button.chip,a.chip{transition:transform .2s}button.chip:hover,a.chip:hover{transform:translateY(-2px)}
+.pill{display:inline-flex;gap:6px;align-items:center;padding:8px 14px;border-radius:14px;background:#fff;font-weight:700;font-size:13px;color:var(--muted);
+  box-shadow:4px 4px 10px var(--shadow-dark),-4px -4px 10px var(--shadow-light)}
+
+/* ===== Deck ===== */
+.progress{position:fixed;top:0;left:0;height:6px;background:linear-gradient(90deg,#1F4E9E,#5B8DEF,#E8B931,#D4A017);
+  border-radius:0 6px 6px 0;transition:width .5s cubic-bezier(.22,1,.36,1);z-index:60}
+.brand{position:fixed;top:14px;left:18px;z-index:55;display:flex;align-items:center;gap:8px;font-weight:800;font-size:12px;color:var(--muted);
+  background:rgba(255,253,248,.85);backdrop-filter:blur(8px);padding:4px 12px 4px 4px;border-radius:999px;box-shadow:3px 3px 8px var(--shadow-dark)}
+.brand img{height:24px;width:auto;display:block}
+.brand b{color:var(--accent)}
+.deck{position:fixed;inset:0}
+.slide{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:64px 24px 120px;
+  opacity:0;visibility:hidden;transform:translateX(60px) scale(.98);
+  transition:opacity .45s ease,transform .55s cubic-bezier(.22,1,.36,1),visibility .45s;
+}
+.slide.active{opacity:1;visibility:visible;transform:none}
+.slide.left{transform:translateX(-60px) scale(.98)}
+.wrap{max-width:1120px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;justify-content:center;gap:28px}
+h1{font-size:clamp(34px,5.6vw,64px);font-weight:900;line-height:1.05;letter-spacing:-.02em}
+h2{font-size:clamp(28px,4vw,44px);font-weight:900;line-height:1.1;letter-spacing:-.01em}
+h3{font-size:21px;font-weight:900}
+h4{font-size:14px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-top:6px}
+p{font-size:18px;line-height:1.6;color:var(--muted)}
+.grad{background:linear-gradient(90deg,#1F4E9E,#5B8DEF 45%,#D4A017);-webkit-background-clip:text;background-clip:text;color:transparent}
+.eyebrow{font-weight:900;color:var(--gold);letter-spacing:.12em;text-transform:uppercase;font-size:14px}
+
+/* cover */
+.cover{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center}
+.cover-logo{display:flex;align-items:center;gap:14px}
+.cover-logo img{height:64px;width:auto}
+.cover-logo b{display:block;font-size:18px;color:var(--ink)}
+.cover-logo small{font-weight:700;color:var(--muted)}
+.cloud{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;justify-items:center;padding:30px}
+.cloud .clay{animation:bob 4s ease-in-out infinite}
+.cloud .clay:nth-child(3n){animation-delay:-1.3s}.cloud .clay:nth-child(3n+1){animation-delay:-2.6s}
+@keyframes bob{50%{translate:0 -10px}}
+
+/* grids */
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+.box{padding:28px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.box ul,.box ol{list-style:none;display:flex;flex-direction:column;gap:10px}
+.box li{font-size:16px;line-height:1.5;color:var(--muted);padding-left:26px;position:relative}
+.box ul li::before{content:"";position:absolute;left:4px;top:7px;width:12px;height:12px;border-radius:50%;
+  background:var(--dot,#1F4E9E);box-shadow:inset -2px -2px 3px rgba(0,0,0,.2),inset 2px 2px 3px rgba(255,255,255,.6)}
+.row{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.steps{counter-reset:st}
+.steps li{padding-left:44px!important;min-height:32px}
+.steps li::before{counter-increment:st;content:counter(st);position:absolute;left:0;top:-2px;width:32px;height:32px;border-radius:11px;display:grid;place-items:center;
+  font-weight:900;color:#fff;background:radial-gradient(circle at 30% 25%,#7FA3E6,#1F4E9E 70%);box-shadow:inset -2px -3px 5px rgba(0,0,0,.2),inset 2px 2px 5px rgba(255,255,255,.5)}
+.steps li b{color:var(--ink)}
+
+/* target wireframe */
+.wire{display:grid;grid-template-columns:160px minmax(0,1fr);gap:12px;padding:20px}
+.wire-main{display:grid;gap:12px;grid-template-columns:repeat(6,minmax(0,1fr))}
+.wb{--c:#9CA3AF;border:2.5px dashed color-mix(in srgb,var(--c) 55%,transparent);background:color-mix(in srgb,var(--c) 9%,#fff);border-radius:16px;
+  padding:10px 12px;display:flex;flex-direction:column;gap:8px;align-items:flex-start;font-weight:800;font-size:14px;color:var(--ink);min-height:68px}
+.wb small{font-weight:700;color:var(--muted);font-size:12.5px}
+.s6{grid-column:span 6}.s4{grid-column:span 4}.s3{grid-column:span 3}.s2{grid-column:span 2}
+.wire-side{min-height:100%}
+
+/* library slide */
+.lib{display:grid;grid-template-columns:1fr 1.08fr;gap:32px;align-items:start}
+.lib-info{display:flex;flex-direction:column;gap:16px;padding-top:8px;min-width:0}
+.lib-head{display:flex;gap:22px;align-items:center}
+.lib-head .tag{font-size:17px;font-weight:700;color:var(--muted);margin-top:4px}
+.lib-num{font-weight:900;color:var(--muted);font-size:14px;letter-spacing:.1em}
+.desc{font-size:18px}
+.uses{list-style:none;display:flex;flex-direction:column;gap:10px}
+.uses li{display:flex;gap:12px;align-items:center;font-weight:700;font-size:16px;background:#fff;padding:12px 16px;border-radius:18px;
+  box-shadow:6px 6px 14px var(--shadow-dark),-6px -6px 14px var(--shadow-light)}
+.uses li::before{content:"";width:12px;height:12px;border-radius:50%;flex:0 0 12px;background:var(--c);
+  box-shadow:inset -2px -2px 3px rgba(0,0,0,.2),inset 2px 2px 3px rgba(255,255,255,.6)}
+.kantin-note{--c:#D4A017;display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:20px;
+  background:color-mix(in srgb,var(--c) 10%,#fff);border:2px dashed color-mix(in srgb,var(--c) 45%,transparent)}
+.kantin-note p{font-size:15px;color:var(--ink);line-height:1.5}
+.meta{display:flex;gap:10px;flex-wrap:wrap}
+.lib-side{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+.code-card{background:#1E2A44;border-radius:26px;overflow:hidden;min-width:0;
+  box-shadow:14px 14px 30px rgba(30,42,68,.32),inset 3px 3px 8px rgba(255,255,255,.08),inset -3px -3px 8px rgba(0,0,0,.4)}
+.code-top{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 16px 0 20px;color:#AFB8D0;font:600 13px 'JetBrains Mono',monospace}
+.dots{display:flex;gap:6px;margin-right:10px}.dots i{width:11px;height:11px;border-radius:50%;background:#E8735A}
+.dots i:nth-child(2){background:#E8B931}.dots i:nth-child(3){background:#5FBF8F}
+.code-card pre{padding:14px 20px 20px;overflow:auto;max-height:300px}
+.code-card.tall pre{max-height:420px}
+.code-card code{font:400 13.5px/1.65 'JetBrains Mono',monospace;color:#EDEFF8;white-space:pre}
+.copy,.dl{background:#2D3B5C;color:#EDEFF8;border:0;border-radius:10px;padding:6px 12px;font-weight:800;font-size:12px}
+.mini{background:#1E2A44;border-radius:16px;padding:12px 14px;overflow:auto}
+.mini code{font:400 12.5px/1.6 'JetBrains Mono',monospace;color:#EDEFF8;white-space:pre}
+
+.stage{position:relative;padding:46px 22px 22px;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;min-width:0}
+.stage small{color:var(--muted);font-weight:700}
+.stage .err{color:#C2412D;font-weight:800}
+.stage-label{position:absolute;top:14px;left:20px;font-weight:900;font-size:12px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.spinner{width:42px;height:42px;border-radius:50%;border:5px solid #EDE4CF;border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.stack{display:flex}
+.stack .clay{margin-right:-10px;border:3px solid var(--card)}
+
+/* demo bits */
+.tip{position:absolute;top:0;left:0;background:#1E2A44;color:#fff;padding:8px 12px;border-radius:12px;font-weight:700;font-size:13px;line-height:1.4;
+  pointer-events:none;opacity:0;transition:opacity .15s;max-width:240px;text-align:left;z-index:20}
+.demo-input{width:100%;max-width:340px;padding:12px 16px;border-radius:16px;border:0;font:700 15px 'Nunito',system-ui,sans-serif;background:#fff;color:var(--ink);
+  box-shadow:inset 3px 3px 8px var(--shadow-dark),inset -3px -3px 8px var(--shadow-light)}
+.kpi{background:#fff;border-radius:20px;padding:14px 16px;text-align:left;display:flex;flex-direction:column;gap:6px;min-width:0;
+  box-shadow:6px 6px 14px var(--shadow-dark),-6px -6px 14px var(--shadow-light)}
+.kpi-h{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:800;font-size:13px;color:var(--muted)}
+.kpi b{font-size:22px;font-weight:900;color:var(--ink)}
+.kinfo{width:24px;height:24px;flex:0 0 24px;border-radius:50%;border:0;font:900 13px 'Nunito',system-ui,sans-serif;color:#fff;
+  background:radial-gradient(circle at 30% 25%,#F2D27A,#D4A017 70%);box-shadow:inset -2px -2px 4px rgba(0,0,0,.2),inset 2px 2px 4px rgba(255,255,255,.5)}
+.kpi-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;width:100%;max-width:460px}
+.promo-list{display:flex;flex-direction:column;gap:8px}
+.promo-item{--c:#1F4E9E;display:flex;align-items:center;gap:12px;padding:9px 12px;border-radius:14px;background:color-mix(in srgb,var(--c) 10%,#fff);border-left:4px solid var(--c)}
+.promo-item .pe{font-size:24px;line-height:1}
+.promo-item b{display:block;font-size:14px;font-weight:900;color:var(--ink)}
+.promo-item small{display:block;font-size:12.5px;font-weight:700;color:var(--muted)}
+.chart-wrap{position:relative;width:100%;height:220px}
+.chart-pair{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:14px;width:100%}
+.tab-wrap{width:100%;text-align:left;min-width:0}
+.tomsel-wrap{width:100%;max-width:380px;text-align:left}
+.flatpickr-calendar.inline{max-width:100%}
+.ts-wrapper .ts-control{border-radius:14px;border:0;padding:8px 10px;box-shadow:inset 3px 3px 8px var(--shadow-dark),inset -3px -3px 8px var(--shadow-light);font-family:'Nunito',system-ui,sans-serif;font-weight:700}
+.ts-wrapper.multi .ts-control>div{background:#E3ECFB;color:#1F4E9E;border-radius:8px;font-weight:800}
+.tabulator{border-radius:14px;font-family:'Nunito',system-ui,sans-serif;font-size:14px}
+.t-del{border:0;background:#FDE8E3;border-radius:10px;padding:4px 8px;font-size:14px}
+
+/* dashboard demo */
+.stage.wide{padding:46px 18px 18px}
+.dash{position:relative;width:100%;display:grid;grid-template-columns:190px minmax(0,1fr);gap:18px;text-align:left}
+.dash-side{background:linear-gradient(170deg,#1F4E9E,#163A78);color:#fff;border-radius:22px;padding:18px 14px;display:flex;flex-direction:column;gap:18px;
+  box-shadow:inset 3px 3px 8px rgba(255,255,255,.15),inset -3px -3px 8px rgba(0,0,0,.25),8px 10px 20px -8px rgba(31,78,158,.5)}
+.dash-brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:900}
+.dash-brand small{display:block;font-size:11px;font-weight:700;color:#C9D6F2}
+.dash-side nav{display:flex;flex-direction:column;gap:6px}
+.dash-side a{padding:10px 12px;border-radius:12px;font-weight:700;font-size:14px;color:#DCE6FA;text-decoration:none}
+.dash-side a.on{background:rgba(255,255,255,.16);color:#fff;box-shadow:inset 2px 2px 5px rgba(255,255,255,.15)}
+.dash-main{display:flex;flex-direction:column;gap:16px;min-width:0}
+.dash-top{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;align-items:flex-end}
+.dash-top small{font-weight:700;color:var(--muted)}
+.dash-filter{display:flex;gap:12px;flex-wrap:wrap;flex:1 1 360px;justify-content:flex-end}
+.dash-filter label{display:flex;flex-direction:column;gap:4px;font-size:12px;font-weight:900;color:var(--muted);flex:1 1 170px;max-width:270px;letter-spacing:.04em;text-transform:uppercase}
+.dash-filter label>*{text-transform:none;letter-spacing:normal}
+.dash-filter .demo-input{max-width:none;padding:10px 12px;font-size:14px}
+.dash-filter .flatpickr-wrapper{width:100%}
+.dash-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.dash-charts,.dash-bottom{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px}
+.dpanel{background:#fff;border-radius:20px;padding:14px;min-width:0;box-shadow:6px 6px 14px var(--shadow-dark),-6px -6px 14px var(--shadow-light)}
+.dpanel h5{font-size:12px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px}
+
+/* integrasi */
+.flow{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr);gap:14px;align-items:center;padding:24px}
+.fcol{display:flex;flex-direction:column;gap:10px;min-width:0}
+.fnode{--c:#1F4E9E;display:flex;gap:12px;align-items:center;background:#fff;border:0;border-left:5px solid var(--c);border-radius:18px;padding:10px 12px;text-align:left;
+  font:inherit;color:var(--ink);box-shadow:6px 6px 14px var(--shadow-dark),-6px -6px 14px var(--shadow-light)}
+.fnode b{display:block;font-size:15px}
+.fnode small{display:block;color:var(--muted);font-weight:700;font-size:12.5px;font-family:'JetBrains Mono',monospace}
+.fcore{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:20px 16px;border-radius:24px;
+  background:linear-gradient(160deg,#FFF6DD,#FFFDF8);border:2.5px dashed #D4A017}
+.fcore b{font:600 17px 'JetBrains Mono',monospace;color:var(--ink)}
+.fcore small{font-weight:700;color:var(--muted)}
+.farrow{font-size:30px;font-weight:900;color:var(--gold)}
+
+/* jebakan */
+.traps{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.trap{padding:22px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.trap-h{display:flex;gap:12px;align-items:center}
+.trap-h h3{font-size:18px}
+.trap p{font-size:15px}
+
+/* quiz */
+.quiz{padding:30px;display:flex;flex-direction:column;gap:18px;max-width:780px;width:100%;margin:0 auto}
+.qtext{font-size:22px;font-weight:900;color:var(--ink)}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+.opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:0;border-radius:20px;background:#fff;font-weight:800;font-size:16px;color:var(--ink);text-align:left;
+  box-shadow:6px 6px 14px var(--shadow-dark),-6px -6px 14px var(--shadow-light);transition:transform .2s}
+.opt:hover{transform:translateY(-3px)}
+.opt.right{background:#DFF5E6;box-shadow:inset 3px 3px 8px rgba(80,170,110,.35)}
+.opt.wrong{background:#FDE5DF;box-shadow:inset 3px 3px 8px rgba(194,65,45,.3)}
+.qfoot{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.qfeedback{font-weight:800;min-height:24px}
+
+/* tugas */
+.checks{display:flex;flex-direction:column;gap:10px}
+.check{display:flex;gap:12px;align-items:center;padding:10px 14px;border-radius:16px;background:#fff;font-weight:700;font-size:15px;cursor:pointer;
+  box-shadow:5px 5px 12px var(--shadow-dark),-5px -5px 12px var(--shadow-light);transition:background .2s}
+.check input{appearance:none;-webkit-appearance:none;width:22px;height:22px;flex:0 0 22px;border-radius:7px;background:#F3ECDC;cursor:pointer;
+  box-shadow:inset 2px 2px 5px var(--shadow-dark),inset -2px -2px 5px var(--shadow-light);display:grid;place-items:center}
+.check input:checked{background:radial-gradient(circle at 30% 25%,#F2D27A,#D4A017 70%);box-shadow:inset -2px -2px 4px rgba(0,0,0,.2),inset 2px 2px 4px rgba(255,255,255,.5)}
+.check input:checked::after{content:"✓";color:#fff;font-weight:900;font-size:14px}
+.check:has(input:checked){background:#FFF8E4}
+.check:has(input:checked) span{color:var(--muted);text-decoration:line-through}
+.meter{height:12px;border-radius:999px;background:#F3ECDC;box-shadow:inset 2px 2px 5px var(--shadow-dark);overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#1F4E9E,#E8B931);border-radius:999px;transition:width .4s}
+
+/* penutup */
+.docs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+.doc{padding:18px;display:flex;gap:14px;align-items:center;min-width:0}
+.doc b{display:block;font-size:16px}
+.doc p{font-size:14px;line-height:1.4}
+
+/* nav */
+.nav{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:26px;z-index:50;
+  background:rgba(255,253,248,.92);backdrop-filter:blur(10px)}
+.nav .nbtn{width:46px;height:46px;border-radius:16px;border:0;display:grid;place-items:center;color:var(--ink);background:var(--card);
+  box-shadow:5px 5px 12px var(--shadow-dark),-5px -5px 12px var(--shadow-light);transition:transform .2s}
+.nav .nbtn:active{transform:scale(.92);box-shadow:inset 3px 3px 8px var(--shadow-dark),inset -3px -3px 8px var(--shadow-light)}
+.nav .nbtn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.nav .nbtn.primary{background:var(--accent);color:#fff;box-shadow:inset -3px -4px 8px rgba(0,0,0,.2),inset 3px 3px 8px rgba(255,255,255,.4),0 8px 16px -6px var(--accent)}
+.counter{font-weight:900;min-width:70px;text-align:center;font-size:15px}
+
+.overview{position:fixed;inset:0;z-index:70;background:rgba(251,247,238,.96);backdrop-filter:blur(6px);padding:40px 24px;overflow:auto;display:none}
+.overview.open{display:block}
+.ov-grid{max-width:1120px;margin:20px auto 0;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+.ov-item{border:0;padding:18px;text-align:left;display:flex;gap:12px;align-items:center;font-weight:800;font-size:15px;color:var(--ink);border-radius:24px}
+.ov-item.cur{outline:3px solid var(--gold)}
+.ov-head{max-width:1120px;margin:0 auto;display:flex;justify-content:space-between;align-items:center}
+
+.hint{color:var(--muted);font-weight:700;font-size:14px}
+kbd{font:700 12px 'JetBrains Mono';background:#fff;padding:3px 8px;border-radius:8px;box-shadow:2px 2px 5px var(--shadow-dark)}
+
+@media (max-width:860px){
+  .cover,.two,.lib{grid-template-columns:1fr}
+  .cloud{gap:14px;padding:16px}
+  .cloud .clay{--s:56px}
+  .slide{padding:56px 16px 120px}
+  .lib-head{gap:16px}
+  .lib-head .clay.xl{--s:76px}
+  .wrap{justify-content:flex-start}
+  .wire{grid-template-columns:1fr;padding:14px}
+  .wire-main{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .wire-main>*{grid-column:span 2}
+  .wire-main>.kp{grid-column:span 1}
+  .wire-main>.kp:last-of-type{grid-column:span 2}
+  .flow{grid-template-columns:1fr;padding:18px}
+  .farrow{justify-self:center;transform:rotate(90deg)}
+  .dash{grid-template-columns:1fr}
+  .dash-side nav{flex-direction:row;flex-wrap:wrap}
+  .dash-kpis,.dash-charts,.dash-bottom,.chart-pair{grid-template-columns:minmax(0,1fr)}
+  .dash-filter label{max-width:none}
+  .kpi-pair{grid-template-columns:minmax(0,1fr)}
+  .stage{padding:46px 14px 18px}
+  .brand span{display:none}
+  .box{padding:20px}
+  .quiz{padding:20px}
+  .code-card pre{padding:12px 14px 16px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<div class="brand"><img src="logo-color.png" alt="" onerror="this.remove()"><span><b>HSI Boarding School</b> · Coders Club</span></div>
+<main class="deck" id="deck"></main>
+
+<nav class="nav clay-card" aria-label="Navigasi slide">
+  <button class="nbtn" id="btnOverview" title="Daftar slide (O)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg></button>
+  <button class="nbtn" id="btnPrev" title="Sebelumnya (←)"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+  <span class="counter" id="counter">1 / 1</span>
+  <button class="nbtn primary" id="btnNext" title="Berikutnya (→)"><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+  <button class="nbtn" id="btnFull" title="Layar penuh (F)"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</nav>
+
+<div class="overview" id="overview">
+  <div class="ov-head"><h2>Daftar Slide</h2><button class="cbtn ghost" id="ovClose">Tutup ✕</button></div>
+  <div class="ov-grid" id="ovGrid"></div>
+</div>
+
+<script>
+/* ===================== IKON (SVG glyph) ===================== */
+const ICONS = {
+  bell:'<path d="M6 9a6 6 0 0 1 12 0c0 6.5 3 8.5 3 8.5H3S6 15.5 6 9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  tooltip:'<rect x="3" y="3" width="18" height="12" rx="3.5"/><path d="M9 15l3 4 3-4"/><path d="M8 9h8"/>',
+  slides:'<rect x="6.5" y="5" width="11" height="14" rx="2.5"/><path d="M3 8.5v7M21 8.5v7"/>',
+  select:'<rect x="3" y="4" width="18" height="7" rx="2.5"/><path d="M14.5 6.8l1.7 1.6 1.7-1.6"/><path d="M6 15.5h9M6 19.5h6"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="3.5"/><path d="M8 3v4M16 3v4M3 10.5h18"/><path d="M8 15h.01M12 15h.01M16 15h.01"/>',
+  chart:'<path d="M3 21h18"/><path d="M6 17v-6M11 17V5M16 17v-9M20.5 17v-4"/>',
+  table:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9.5h18M3 14.8h18M9.5 9.5V20"/>',
+  code:'<path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/>',
+  cdn:'<path d="M7 18a4.5 4.5 0 0 1-.6-9A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5z"/><path d="M12 11v6M9.5 14.5L12 17l2.5-2.5"/>',
+  question:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9.3a2.6 2.6 0 1 1 3.7 2.4c-.7.3-1.2 1-1.2 1.8v.3"/><path d="M12 17.3h.01"/>',
+  trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H4.5a3 3 0 0 0 3.5 4M16 6h3.5a3 3 0 0 1-3.5 4"/><path d="M12 13v4M8.5 20.5h7M10 17h4v3.5h-4z"/>',
+  rocket:'<path d="M5 15c-1.5 1.3-2 5-2 5s3.7-.5 5-2"/><path d="M9 15l-3-3c1.5-4.5 5.5-8.5 13-9-.5 7.5-4.5 11.5-9 13z"/><circle cx="14.5" cy="9.5" r="1.6"/>',
+  target:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.2"/>',
+  store:'<path d="M3.5 9l1.8-5h13.4l1.8 5"/><path d="M3.5 9h17v1.5a2.8 2.8 0 0 1-5.6 0 2.8 2.8 0 0 1-5.8 0 2.8 2.8 0 0 1-5.6 0z"/><path d="M5 13.5V21h14v-7.5"/><path d="M10 21v-4.5h4V21"/>',
+  link:'<path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1"/><path d="M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/>',
+  alert:'<path d="M12 3.5l9 16.5H3z"/><path d="M12 10v4.5M12 17.3h.01"/>',
+  monitor:'<rect x="3" y="4" width="18" height="12" rx="2.5"/><path d="M8 20h8M12 16v4"/>',
+  check:'<rect x="3" y="3" width="18" height="18" rx="4"/><path d="M8 12.5l2.7 2.7L16 9.5"/>',
+  book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v14H6.5A2.5 2.5 0 0 0 4 19.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/>'
+};
+const clay = (icon,color,size='md',extra='') =>
+  `<span class="clay ${size} ${extra}" style="--c:${color}"><svg viewBox="0 0 24 24">${ICONS[icon]}</svg></span>`;
+const esc = s => String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ===================== DATA KANTIN (dipakai semua demo) ===================== */
+const HARI_INI = (()=>{const d=new Date();d.setHours(0,0,0,0);return d;})();
+const hariLalu = n => {const d=new Date(HARI_INI);d.setDate(d.getDate()-n);return d;};
+const KAT = ['Makanan','Minuman','Snack'];
+const KAT_COLOR = {Makanan:'#1F4E9E',Minuman:'#5B8DEF',Snack:'#D4A017'};
+const PRODUK = [
+  {id:1,nama:'Nasi Goreng',kategori:'Makanan',harga:10000,stok:25},
+  {id:2,nama:'Mie Ayam',kategori:'Makanan',harga:8000,stok:20},
+  {id:3,nama:'Nasi Uduk',kategori:'Makanan',harga:7000,stok:30},
+  {id:4,nama:'Es Teh Manis',kategori:'Minuman',harga:3000,stok:60},
+  {id:5,nama:'Jus Jeruk',kategori:'Minuman',harga:6000,stok:24},
+  {id:6,nama:'Air Mineral',kategori:'Minuman',harga:4000,stok:80},
+  {id:7,nama:'Keripik Singkong',kategori:'Snack',harga:5000,stok:40},
+  {id:8,nama:'Roti Coklat',kategori:'Snack',harga:4000,stok:35},
+  {id:9,nama:'Pisang Goreng',kategori:'Snack',harga:2000,stok:50},
+  {id:10,nama:'Susu Kotak',kategori:'Minuman',harga:5000,stok:45}
+];
+// [berapa hari lalu, id produk, jumlah]
+const TRX = [[6,1,12],[6,4,20],[6,7,8],[5,2,10],[5,5,9],[5,9,15],[4,3,14],[4,6,18],[4,8,7],[3,1,11],[3,10,12],
+  [3,7,10],[2,2,13],[2,4,22],[2,9,12],[1,3,9],[1,5,8],[1,8,11],[0,1,15],[0,6,16],[0,10,9]]
+  .map(([h,id,q])=>({tgl:hariLalu(h),produkId:id,qty:q}));
+const rupiah = n => 'Rp' + n.toLocaleString('id-ID');
+const fmtTgl = d => d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+const toArr = v => Array.isArray(v) ? v : (v ? String(v).split(',') : []);
+
+function hitung(produk,awal,akhir,kategori){
+  const map=new Map(produk.map(p=>[p.id,p]));
+  const data=TRX.filter(t=>{const p=map.get(t.produkId);return p&&t.tgl>=awal&&t.tgl<=akhir&&kategori.includes(p.kategori);});
+  const hari=[];for(let d=new Date(awal);d<=akhir&&hari.length<93;d.setDate(d.getDate()+1))hari.push(new Date(d));
+  const perHari=hari.map(d=>data.filter(t=>+t.tgl===+d).reduce((s,t)=>s+t.qty*map.get(t.produkId).harga,0));
+  const perKat=KAT.map(k=>data.filter(t=>map.get(t.produkId).kategori===k).reduce((s,t)=>s+t.qty,0));
+  const rows=produk.filter(p=>kategori.includes(p.kategori)).map(p=>{
+    const q=data.filter(t=>t.produkId===p.id).reduce((s,t)=>s+t.qty,0);
+    return {...p,terjual:q,omzet:q*p.harga};
+  });
+  return {
+    labels:hari.map(d=>d.toLocaleDateString('id-ID',{weekday:'short',day:'numeric'})),
+    perHari,perKat,rows,
+    omzet:perHari.reduce((a,b)=>a+b,0),
+    item:data.reduce((s,t)=>s+t.qty,0),
+    trx:data.length
+  };
+}
+
+const PROMO = [
+  {e:'🍜',t:'Senin Hemat',s:'Mie Ayam cuma Rp7.000',c:'#1F4E9E'},
+  {e:'🍳',t:'Paket Sarapan',s:'Nasi Uduk + Es Teh Rp9.000',c:'#D4A017'},
+  {e:'🍌',t:'Menu Baru!',s:'Pisang Goreng Coklat',c:'#3FA7A0'},
+  {e:'💧',t:'Jumat Berkah',s:'Air mineral gratis tiap beli makanan',c:'#E8735A'}
+];
+const promoList = () => `<div class="promo-list">${PROMO.map(p=>`<div class="promo-item" style="--c:${p.c}"><span class="pe">${p.e}</span><div><b>${p.t}</b><small>${p.s}</small></div></div>`).join('')}</div>`;
+
+/* ===================== LIBRARY ===================== */
+const LIBS = [
+ {id:'sweetalert',name:'SweetAlert2',role:'Dialog & Notifikasi',color:'#E8735A',icon:'bell',
+  tagline:'Konfirmasi & notifikasi yang ramah',
+  desc:'Pengganti <code>alert()</code>, <code>confirm()</code> dan <code>prompt()</code> bawaan browser. Tampilannya modern, bisa berupa dialog di tengah layar atau <b>toast</b> kecil di pojok.',
+  uses:['Konfirmasi sebelum menghapus produk','Toast "Pesanan tersimpan" setelah submit','Form singkat tambah produk (input)'],
+  kantin:'Tombol 🗑️ di tabel produk memunculkan dialog konfirmasi, lalu toast sukses.',
+  lic:'MIT',site:'sweetalert2.github.io',docs:'https://sweetalert2.github.io/',
+  code:`<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"><\/script>
+
+Swal.fire({
+  title: 'Hapus Mie Ayam?',
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonText: 'Ya, hapus'
+}).then((hasil) => {
+  if (hasil.isConfirmed) {
+    Swal.fire({
+      toast: true, position: 'top-end',
+      icon: 'success', title: 'Produk dihapus',
+      showConfirmButton: false, timer: 2000
+    });
+  }
+});`},
+ {id:'floating',name:'Floating UI',role:'Tooltip & Popover',color:'#5B8DEF',icon:'tooltip',
+  tagline:'Tooltip yang selalu pas posisinya',
+  desc:'Menghitung posisi elemen melayang (tooltip, popover, dropdown) supaya tidak terpotong tepi layar. Ia <b>hanya menghitung koordinat</b>; tampilannya kita yang atur dengan CSS.',
+  uses:['Tooltip penjelasan di kartu KPI','Popover detail produk','Menu aksi kecil (⋯)'],
+  kantin:'Ikon ⓘ di kartu "Omzet hari ini" menampilkan penjelasan cara angka itu dihitung.',
+  lic:'MIT',site:'floating-ui.com',docs:'https://floating-ui.com/docs/getting-started',
+  code:`// lewat CDN, fungsi ada di window.FloatingUIDOM
+const { computePosition, autoUpdate, offset, flip, shift } = window.FloatingUIDOM;
+
+// saat tooltip ditampilkan
+const stop = autoUpdate(ikonInfo, tooltip, () => {
+  computePosition(ikonInfo, tooltip, {
+    placement: 'top',
+    middleware: [offset(8), flip(), shift({ padding: 8 })]
+  }).then(({ x, y }) => {
+    Object.assign(tooltip.style, { left: x + 'px', top: y + 'px' });
+  });
+});
+
+// saat tooltip disembunyikan
+stop();`},
+ {id:'tomselect',name:'Tom Select',role:'Filter',color:'#1F4E9E',icon:'select',
+  tagline:'Dropdown pintar untuk filter',
+  desc:'Mengubah <code>&lt;select&gt;</code> biasa menjadi dropdown yang bisa dicari dan multi-pilih, lengkap dengan tombol × untuk menghapus pilihan. Tanpa jQuery.',
+  uses:['Filter kategori Makanan / Minuman / Snack','Pilih produk dari daftar panjang','Input tag menu'],
+  kantin:'Filter kategori di header dashboard; setiap perubahan memanggil applyFilter().',
+  lic:'Apache-2.0',site:'tom-select.js.org',docs:'https://tom-select.js.org/',
+  code:`<select id="kategori" multiple>
+  <option value="Makanan" selected>Makanan</option>
+  <option value="Minuman" selected>Minuman</option>
+  <option value="Snack" selected>Snack</option>
+</select>
+
+new TomSelect('#kategori', {
+  plugins: ['remove_button'],
+  placeholder: 'Pilih kategori...',
+  onChange(nilai) {
+    console.log(nilai); // ['Makanan', 'Snack']
+  }
+});`},
+ {id:'flatpickr',name:'Flatpickr',role:'Filter Tanggal',color:'#E89A2C',icon:'calendar',
+  tagline:'Pilih rentang tanggal laporan',
+  desc:'Kalender pemilih tanggal yang ringan. Mode <b>range</b> memungkinkan memilih tanggal awal dan akhir sekaligus, lengkap dengan bahasa Indonesia.',
+  uses:['Rentang tanggal laporan penjualan','Tanggal kedaluwarsa stok','Jadwal pesanan katering'],
+  kantin:'Input "Tanggal" di header: pilih awal & akhir, grafik langsung menyesuaikan.',
+  lic:'MIT',site:'flatpickr.js.org',docs:'https://flatpickr.js.org/',
+  code:`<input id="tanggal" placeholder="Pilih rentang">
+
+flatpickr('#tanggal', {
+  mode: 'range',
+  dateFormat: 'd M Y',
+  locale: 'id',        // butuh l10n/id.js
+  maxDate: 'today',
+  onChange(tanggal) {
+    // tanggal = array: [awal] lalu [awal, akhir]
+    if (tanggal.length === 2) applyFilter();
+  }
+});`},
+ {id:'chart',name:'Chart.js',role:'Grafik',color:'#D4A017',icon:'chart',
+  tagline:'Grafik penjualan dalam beberapa baris',
+  desc:'Library grafik berbasis canvas: bar, line, pie, doughnut, dan lainnya. Responsif dan beranimasi otomatis saat datanya berubah.',
+  uses:['Bar omzet per hari','Doughnut porsi per kategori','Line tren penjualan mingguan'],
+  kantin:'Dua grafik di tengah dashboard, diperbarui dengan chart.update() saat filter berubah.',
+  lic:'MIT',site:'chartjs.org',docs:'https://www.chartjs.org/docs/latest/',
+  code:`<canvas id="grafikHarian"></canvas>
+
+const grafik = new Chart(document.getElementById('grafikHarian'), {
+  type: 'bar',
+  data: {
+    labels: ['Sen', 'Sel', 'Rab', 'Kam', 'Jum'],
+    datasets: [{
+      label: 'Omzet (Rp)',
+      data: [210000, 180000, 245000, 195000, 260000]
+    }]
+  }
+});
+
+// data berubah? cukup:
+grafik.data.datasets[0].data = dataBaru;
+grafik.update();`},
+ {id:'tabulator',name:'Tabulator',role:'Tabel Data',color:'#2C6E8F',icon:'table',
+  tagline:'Tabel produk yang interaktif',
+  desc:'Membuat tabel dari array data lengkap dengan sorting, pencarian per kolom, pagination, tombol aksi, hingga export CSV.',
+  uses:['Daftar produk & stok','Rekap transaksi harian','Export laporan ke CSV'],
+  kantin:'Tabel produk di bawah grafik, dengan tombol 🗑️ yang memanggil SweetAlert2.',
+  lic:'MIT',site:'tabulator.info',docs:'https://tabulator.info/docs',
+  code:`const tabel = new Tabulator('#tabel', {
+  data: produk,
+  layout: 'fitColumns',
+  pagination: true,
+  paginationSize: 5,
+  columns: [
+    { title: 'Produk', field: 'nama', headerFilter: 'input' },
+    { title: 'Kategori', field: 'kategori' },
+    { title: 'Harga', field: 'harga', sorter: 'number' },
+    { title: 'Stok', field: 'stok', sorter: 'number' }
+  ]
+});
+
+// data berubah? cukup:
+tabel.replaceData(produkBaru);`}
+];
+const libIndex = id => LIBS.findIndex(l=>l.id===id);
+const L = id => LIBS[libIndex(id)];
+
+/* ===================== KODE PANJANG ===================== */
+const JD='https://cdn.jsdelivr.net/npm/';
+const CODES = {
+install:`<\!doctype html>
+<html lang="id">
+<head>
+  <\!-- 1. CSS library di <head> -->
+  <link rel="stylesheet" href="${JD}tom-select@2/dist/css/tom-select.css">
+  <link rel="stylesheet" href="${JD}flatpickr@4/dist/flatpickr.min.css">
+  <link rel="stylesheet" href="${JD}tabulator-tables@6/dist/css/tabulator.min.css">
+</head>
+<body>
+  <\!-- 2. Elemen HTML yang akan dipakai -->
+  <input id="tanggal">
+  <canvas id="grafik"></canvas>
+
+  <\!-- 3. Script library, sebelum </body> -->
+  <script src="${JD}sweetalert2@11"><\/script>
+  <script src="${JD}@floating-ui/core@1/dist/floating-ui.core.umd.min.js"><\/script>
+  <script src="${JD}@floating-ui/dom@1/dist/floating-ui.dom.umd.min.js"><\/script>
+  <script src="${JD}tom-select@2/dist/js/tom-select.complete.min.js"><\/script>
+  <script src="${JD}flatpickr@4/dist/flatpickr.min.js"><\/script>
+  <script src="${JD}flatpickr@4/dist/l10n/id.js"><\/script>
+  <script src="${JD}chart.js@4/dist/chart.umd.js"><\/script>
+  <script src="${JD}tabulator-tables@6/dist/js/tabulator.min.js"><\/script>
+
+  <\!-- 4. Kode kita PALING AKHIR -->
+  <script>
+    flatpickr('#tanggal', { mode: 'range', locale: 'id' });
+    new Chart(document.getElementById('grafik'), {
+      type: 'bar',
+      data: { labels: ['Sen', 'Sel'], datasets: [{ data: [5, 8] }] }
+    });
+  <\/script>
+</body>
+</html>`,
+integrasi:`// 1. Satu sumber kebenaran: state filter
+const state = {
+  awal: hariLalu(6), akhir: hariIni,
+  kategori: ['Makanan', 'Minuman', 'Snack']
+};
+
+// 2. Filter hanya MENGUBAH state, lalu memanggil applyFilter()
+flatpickr('#tanggal', { mode: 'range', onChange(tgl) {
+  if (tgl.length === 2) { [state.awal, state.akhir] = tgl; applyFilter(); }
+}});
+new TomSelect('#kategori', { onChange(nilai) {
+  state.kategori = [].concat(nilai); applyFilter();
+}});
+
+// 3. Satu fungsi memperbarui semua tampilan
+function applyFilter() {
+  const data = dataTerfilter();            // saring transaksi
+  grafikHarian.data.datasets[0].data = omzetPerHari(data);
+  grafikHarian.update();                   // jangan new Chart() lagi
+  tabel.replaceData(ringkasProduk(data));  // Tabulator
+  tampilkanKPI(data);                      // kartu ringkasan
+}
+
+// 4. Aksi hapus: SweetAlert2 -> ubah data -> applyFilter()
+Swal.fire({ title: 'Hapus produk?', showCancelButton: true })
+  .then(r => {
+    if (!r.isConfirmed) return;
+    produk = produk.filter(p => p.id !== id);
+    applyFilter();
+  });`,
+t_chart:`// ❌ tiap filter: new Chart(canvas, {...})
+//    Error: Canvas is already in use
+
+// ✅ ubah data, lalu update
+grafik.data.datasets[0].data = dataBaru;
+grafik.update();
+
+// ✅ atau hancurkan dulu sebelum buat ulang
+grafik.destroy();`,
+t_float:`let stop = null;
+function tampil() {
+  stop = autoUpdate(ikon, tip, posisikan);
+}
+function sembunyi() {
+  stop?.();     // hentikan listener scroll/resize
+  stop = null;
+}`,
+t_tab:`// ❌ tabel belum selesai dibangun
+const tabel = new Tabulator('#tabel', {...});
+tabel.replaceData(rows);  // bisa diabaikan / error
+
+// ✅ tunggu event tableBuilt
+let siap = false;
+tabel.on('tableBuilt', () => { siap = true; });
+if (siap) tabel.replaceData(rows);`,
+t_order:`<\!-- ❌ kode kita sebelum library -->
+<script>new Chart(...)<\/script>
+<script src=".../chart.umd.js"><\/script>
+// ReferenceError: Chart is not defined
+
+<\!-- ✅ library dulu, kode kita terakhir -->
+<script src=".../chart.umd.js"><\/script>
+<script src="app.js"><\/script>`,
+t_tom:`new TomSelect('#kategori', {
+  onChange(nilai) {
+    // <select multiple> -> ['Makanan', 'Snack']
+    // tanpa multiple    -> 'Makanan'
+    state.kategori = [].concat(nilai);
+    applyFilter();
+  }
+});`,
+t_flat:`onChange(tgl) {
+  // klik 1 -> [awal]
+  // klik 2 -> [awal, akhir]
+  if (tgl.length < 2) return;
+  [state.awal, state.akhir] = tgl;
+  applyFilter();
+}`,
+starter:`<\!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard Kantin Sekolah</title>
+
+<\!-- ===== 1. CSS library ===== -->
+<link rel="stylesheet" href="${JD}tom-select@2/dist/css/tom-select.css">
+<link rel="stylesheet" href="${JD}flatpickr@4/dist/flatpickr.min.css">
+<link rel="stylesheet" href="${JD}tabulator-tables@6/dist/css/tabulator.min.css">
 
 <style>
-/* ============ Fallback token ADS ============
-   Token resmi dimuat dari @atlaskit/tokens (lihat loadTokens()).
-   Nilai di bawah hanya cadangan saat token belum/tidak termuat. */
-:root{
-  --ds-text:#292A2E;--ds-text-subtle:#505258;--ds-text-subtlest:#6B6E76;--ds-text-inverse:#FFFFFF;
-  --ds-text-selected:#1868DB;--ds-text-danger:#AE2E24;--ds-text-success:#4C6B1F;--ds-link:#1868DB;
-  --ds-text-accent-blue:#1558BC;--ds-text-accent-green:#216E4E;--ds-text-accent-purple:#803FA5;
-  --ds-text-accent-yellow:#7F5F01;--ds-text-accent-teal:#206A83;--ds-text-accent-red:#AE2E24;
-  --ds-icon:#292A2E;--ds-icon-subtle:#505258;--ds-icon-danger:#C9372C;--ds-icon-warning:#E06C00;
-  --ds-surface:#FFFFFF;--ds-surface-sunken:#F8F8F8;--ds-surface-raised:#FFFFFF;--ds-surface-overlay:#FFFFFF;
-  --ds-shadow-raised:0px 1px 1px #1E1F2140,0px 0px 1px #1E1F214F;
-  --ds-shadow-overlay:0px 8px 12px #1E1F2126,0px 0px 1px #1E1F214F;
-  --ds-border:#0B120E24;--ds-border-input:#8C8F97;--ds-border-focused:#4688EC;--ds-border-selected:#1868DB;--ds-border-bold:#7D818A;
-  --ds-background-input:#FFFFFF;--ds-background-input-hovered:#F8F8F8;
-  --ds-background-neutral:#0515240F;--ds-background-neutral-hovered:#0B120E24;--ds-background-neutral-pressed:#080F214A;
-  --ds-background-neutral-subtle-hovered:#0515240F;--ds-background-neutral-bold:#292A2E;
-  --ds-background-selected:#E9F2FE;--ds-background-selected-hovered:#CFE1FD;
-  --ds-background-brand-bold:#1868DB;--ds-background-brand-bold-hovered:#1558BC;
-  --ds-background-danger-bold:#C9372C;--ds-background-danger-bold-hovered:#AE2E24;
-  --ds-background-accent-blue-subtler:#CFE1FD;--ds-background-accent-green-subtler:#BAF3DB;
-  --ds-background-accent-purple-subtler:#EED7FC;--ds-background-accent-yellow-subtler:#F5E989;
-  --ds-background-accent-teal-subtler:#C6EDFB;--ds-background-accent-red-subtler:#FFD5D2;
-  --ds-chart-brand:#357DE8;--ds-chart-brand-hovered:#1868DB;
-  --ds-chart-categorical-1:#357DE8;--ds-chart-categorical-2:#82B536;--ds-chart-categorical-3:#BF63F3;
-  --ds-font-family-body:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Ubuntu,"Helvetica Neue",sans-serif;
-  --ds-font-weight-medium:500;--ds-font-weight-semibold:600;--ds-font-weight-bold:653;
-  --ds-radius-small:.25rem;--ds-radius-medium:.375rem;--ds-radius-large:.5rem;
-  --ds-space-050:.25rem;--ds-space-100:.5rem;--ds-space-150:.75rem;--ds-space-200:1rem;--ds-space-300:1.5rem;--ds-space-400:2rem;
-}
-:root[data-color-mode="dark"]{
-  --ds-text:#CECFD2;--ds-text-subtle:#A9ABAF;--ds-text-subtlest:#96999E;--ds-text-inverse:#1F1F21;
-  --ds-text-selected:#669DF1;--ds-text-danger:#FD9891;--ds-text-success:#B3DF72;--ds-link:#669DF1;
-  --ds-text-accent-blue:#8FB8F6;--ds-text-accent-green:#7EE2B8;--ds-text-accent-purple:#D8A0F7;
-  --ds-text-accent-yellow:#EED12B;--ds-text-accent-teal:#9DD9EE;--ds-text-accent-red:#FD9891;
-  --ds-icon:#CECFD2;--ds-icon-subtle:#A9ABAF;--ds-icon-danger:#F15B50;--ds-icon-warning:#FBC828;
-  --ds-surface:#1F1F21;--ds-surface-sunken:#18191A;--ds-surface-raised:#242528;--ds-surface-overlay:#2B2C2F;
-  --ds-shadow-raised:0px 0px 0px 1px #00000000,0px 1px 1px #01040480,0px 0px 1px #01040480;
-  --ds-shadow-overlay:0px 0px 0px 1px #BDBDBD1F,0px 8px 12px #0104045C,0px 0px 1px 1px #01040480;
-  --ds-border:#E3E4F21F;--ds-border-input:#7E8188;--ds-border-focused:#8FB8F6;--ds-border-selected:#669DF1;--ds-border-bold:#7E8188;
-  --ds-background-input:#242528;--ds-background-input-hovered:#2B2C2F;
-  --ds-background-neutral:#CECED912;--ds-background-neutral-hovered:#E3E4F21F;--ds-background-neutral-pressed:#E5E9F640;
-  --ds-background-neutral-subtle-hovered:#CECED912;--ds-background-neutral-bold:#CECFD2;
-  --ds-background-selected:#1C2B42;--ds-background-selected-hovered:#123263;
-  --ds-background-brand-bold:#669DF1;--ds-background-brand-bold-hovered:#8FB8F6;
-  --ds-background-danger-bold:#F87168;--ds-background-danger-bold-hovered:#FD9891;
-  --ds-background-accent-blue-subtler:#123263;--ds-background-accent-green-subtler:#164B35;
-  --ds-background-accent-purple-subtler:#48245D;--ds-background-accent-yellow-subtler:#533F04;
-  --ds-background-accent-teal-subtler:#164555;--ds-background-accent-red-subtler:#5D1F1A;
-  --ds-chart-brand:#4688EC;--ds-chart-brand-hovered:#669DF1;
-  --ds-chart-categorical-1:#4688EC;--ds-chart-categorical-2:#94C748;--ds-chart-categorical-3:#C97CF4;
-}
-
-/* ============ Dasar ============ */
-*{box-sizing:border-box}
-html,body{background:var(--ds-surface-sunken);color:var(--ds-text)}
-body{margin:0;font-family:var(--ds-font-family-body);font-size:14px;line-height:20px;-webkit-font-smoothing:antialiased}
-h1,h2,h3,h4,h5{margin:0;color:var(--ds-text);font-weight:var(--ds-font-weight-bold);letter-spacing:normal}
-svg.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round}
-:focus-visible{outline:2px solid var(--ds-border-focused);outline-offset:2px}
-
-/* ============ Layout ============ */
-.app{display:grid;grid-template-columns:240px minmax(0,1fr);min-height:100vh}
-
-/* Side navigation */
-.side{background:var(--ds-surface);border-right:1px solid var(--ds-border);display:flex;flex-direction:column;
-  padding:var(--ds-space-200) var(--ds-space-150);gap:var(--ds-space-300);position:sticky;top:0;height:100vh}
-.brand{display:flex;align-items:center;gap:var(--ds-space-100);padding:0 var(--ds-space-050)}
-.brand-tile{width:32px;height:32px;border-radius:var(--ds-radius-medium);background:var(--ds-background-brand-bold);color:var(--ds-text-inverse);display:grid;place-items:center}
-.brand-tile svg.ic{width:18px;height:18px}
-.brand b{display:block;font-weight:var(--ds-font-weight-bold)}
-.brand small{display:block;font-size:12px;line-height:16px;color:var(--ds-text-subtlest)}
-.nav-h{font-size:11px;line-height:16px;font-weight:var(--ds-font-weight-bold);color:var(--ds-text-subtlest);text-transform:uppercase;letter-spacing:.02em;padding:0 var(--ds-space-100);margin-bottom:var(--ds-space-050)}
-.nav{display:flex;flex-direction:column;gap:2px}
-.nav a{position:relative;display:flex;align-items:center;gap:var(--ds-space-150);height:40px;padding:0 var(--ds-space-100);border-radius:var(--ds-radius-small);
-  color:var(--ds-text-subtle);text-decoration:none;font-weight:var(--ds-font-weight-medium);cursor:pointer}
-.nav a:hover{background:var(--ds-background-neutral-subtle-hovered);color:var(--ds-text)}
-.nav a[aria-current="page"]{background:var(--ds-background-selected);color:var(--ds-text-selected)}
-.nav a[aria-current="page"]::before{content:"";position:absolute;left:0;top:10px;bottom:10px;width:3px;border-radius:0 2px 2px 0;background:var(--ds-border-selected)}
-.side-foot{margin-top:auto;display:flex;flex-direction:column;gap:var(--ds-space-100)}
-
-/* Main */
-.main{min-width:0;padding:var(--ds-space-300) var(--ds-space-400) var(--ds-space-400);display:flex;flex-direction:column;gap:var(--ds-space-300)}
-.crumbs{display:flex;gap:var(--ds-space-050);align-items:center;color:var(--ds-text-subtlest);font-size:14px;margin-bottom:var(--ds-space-100)}
-.crumbs a{color:var(--ds-text-subtlest);text-decoration:none}
-.crumbs a:hover{color:var(--ds-text-subtle);text-decoration:underline}
-.page-head{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--ds-space-200);flex-wrap:wrap}
-.page-head h1{font-size:24px;line-height:28px}
-.page-head .sub{color:var(--ds-text-subtle);margin-top:var(--ds-space-050)}
-.filters{display:flex;gap:var(--ds-space-150);flex-wrap:wrap;flex:1 1 420px;justify-content:flex-end}
-.field{display:flex;flex-direction:column;gap:var(--ds-space-050);flex:1 1 200px;max-width:300px;min-width:0}
-.field>label{font-size:12px;line-height:16px;font-weight:var(--ds-font-weight-bold);color:var(--ds-text-subtle)}
-
-/* Textfield */
-.textfield{position:relative;display:flex;align-items:center;min-height:36px;background:var(--ds-background-input);
-  border:1px solid var(--ds-border-input);border-radius:var(--ds-radius-small);color:var(--ds-text);transition:background .2s,border-color .2s}
-.textfield:hover{background:var(--ds-background-input-hovered)}
-.textfield:focus-within{border-color:var(--ds-border-focused);box-shadow:inset 0 0 0 1px var(--ds-border-focused)}
-.textfield>svg.ic{position:absolute;left:10px;color:var(--ds-icon-subtle);pointer-events:none;z-index:1}
-.textfield .flatpickr-wrapper{display:block;width:100%}
-.textfield input{width:100%;border:0;background:transparent;outline:0;font:inherit;color:inherit;padding:7px 8px 7px 34px;cursor:pointer}
-.textfield input::placeholder{color:var(--ds-text-subtlest)}
-
-/* Card / panel */
-.card{background:var(--ds-surface-raised);box-shadow:var(--ds-shadow-raised);border-radius:var(--ds-radius-large);padding:var(--ds-space-200) var(--ds-space-250, 1.25rem);min-width:0}
-.card-h{display:flex;justify-content:space-between;align-items:center;gap:var(--ds-space-100);margin-bottom:var(--ds-space-200)}
-.card-h h2{font-size:16px;line-height:20px}
-.card-h small{color:var(--ds-text-subtlest);font-size:12px}
-
-.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--ds-space-200)}
-.kpi{display:flex;flex-direction:column;gap:var(--ds-space-100)}
-.kpi-h{display:flex;align-items:center;gap:var(--ds-space-100);color:var(--ds-text-subtle);font-weight:var(--ds-font-weight-semibold)}
-.kpi-ico{width:32px;height:32px;border-radius:var(--ds-radius-medium);display:grid;place-items:center}
-.kpi-ico.blue{background:var(--ds-background-accent-blue-subtler);color:var(--ds-text-accent-blue)}
-.kpi-ico.green{background:var(--ds-background-accent-green-subtler);color:var(--ds-text-accent-green)}
-.kpi-ico.purple{background:var(--ds-background-accent-purple-subtler);color:var(--ds-text-accent-purple)}
-.kpi-h .icon-btn{margin-left:auto}
-.kpi-v{font-size:28px;line-height:32px;font-weight:var(--ds-font-weight-bold);color:var(--ds-text);font-variant-numeric:tabular-nums}
-.kpi-c{font-size:12px;line-height:16px;color:var(--ds-text-subtlest)}
-
-.row-2{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:var(--ds-space-200)}
-.chart-wrap{position:relative;height:260px}
-.task-caption{margin:var(--ds-space-100) 0 0;color:var(--ds-text-subtlest);font-size:12px;line-height:16px}
-
-/* Button */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:var(--ds-space-050);height:32px;padding:0 var(--ds-space-150);border:0;
-  border-radius:var(--ds-radius-small);font:inherit;font-weight:var(--ds-font-weight-medium);cursor:pointer;white-space:nowrap;
-  background:var(--ds-background-neutral);color:var(--ds-text-subtle);transition:background .1s}
-.btn:hover{background:var(--ds-background-neutral-hovered)}
-.btn:active{background:var(--ds-background-neutral-pressed)}
-.btn.subtle{background:transparent}
-.btn.subtle:hover{background:var(--ds-background-neutral-subtle-hovered)}
-.btn.primary{background:var(--ds-background-brand-bold);color:var(--ds-text-inverse)}
-.btn.primary:hover{background:var(--ds-background-brand-bold-hovered)}
-.btn.danger{background:var(--ds-background-danger-bold);color:var(--ds-text-inverse)}
-.btn.danger:hover{background:var(--ds-background-danger-bold-hovered)}
-.icon-btn{width:24px;height:24px;padding:0;border:0;border-radius:var(--ds-radius-small);background:transparent;color:var(--ds-icon-subtle);
-  display:inline-grid;place-items:center;cursor:pointer}
-.icon-btn:hover{background:var(--ds-background-neutral-subtle-hovered);color:var(--ds-icon)}
-.icon-btn.del:hover{color:var(--ds-icon-danger)}
-.side-foot .btn{justify-content:flex-start;width:100%;height:36px}
-
-/* Lozenge */
-.lozenge{display:inline-block;padding:0 4px;border-radius:var(--ds-radius-small);font-size:11px;line-height:16px;font-weight:var(--ds-font-weight-bold);
-  text-transform:uppercase;white-space:nowrap}
-.lozenge.blue{background:var(--ds-background-accent-blue-subtler);color:var(--ds-text-accent-blue)}
-.lozenge.green{background:var(--ds-background-accent-green-subtler);color:var(--ds-text-accent-green)}
-.lozenge.purple{background:var(--ds-background-accent-purple-subtler);color:var(--ds-text-accent-purple)}
-
-/* Tooltip (Floating UI) */
-.tooltip{position:fixed;top:0;left:0;z-index:600;max-width:240px;padding:2px 6px;border-radius:var(--ds-radius-small);
-  background:var(--ds-background-neutral-bold);color:var(--ds-text-inverse);font-size:12px;line-height:16px;
-  opacity:0;pointer-events:none;transition:opacity .12s}
-
-/* ============ Promo: daftar biasa ============ */
-.promo{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
-.promo li{display:flex;align-items:center;gap:var(--ds-space-150);padding:var(--ds-space-150) 0;border-bottom:1px solid var(--ds-border);margin:0}
-.promo li:last-child{border-bottom:0;padding-bottom:0}
-.promo li:first-child{padding-top:0}
-.promo .p-emoji{width:40px;height:40px;flex:none;border-radius:var(--ds-radius-medium);display:grid;place-items:center;font-size:20px}
-.promo .p-body{flex:1;min-width:0}
-.promo b{display:block;font-weight:var(--ds-font-weight-semibold);color:var(--ds-text)}
-.promo small{display:block;font-size:12px;line-height:16px;color:var(--ds-text-subtlest)}
-.lozenge.yellow{background:var(--ds-background-accent-yellow-subtler);color:var(--ds-text-accent-yellow)}
-.lozenge.teal{background:var(--ds-background-accent-teal-subtler);color:var(--ds-text-accent-teal)}
-.lozenge.red{background:var(--ds-background-accent-red-subtler);color:var(--ds-text-accent-red)}
-
-/* ============ Tom Select ============ */
-.ts-wrapper{flex:1;min-width:0}
-.ts-wrapper .ts-control{min-height:36px;padding:3px 6px;border:1px solid var(--ds-border-input);border-radius:var(--ds-radius-small);
-  background:var(--ds-background-input);color:var(--ds-text);font:inherit;box-shadow:none;gap:4px}
-.ts-wrapper .ts-control:hover{background:var(--ds-background-input-hovered)}
-.ts-wrapper.focus .ts-control{border-color:var(--ds-border-focused);box-shadow:inset 0 0 0 1px var(--ds-border-focused)}
-.ts-wrapper .ts-control input{color:var(--ds-text);font:inherit}
-.ts-wrapper .ts-control input::placeholder{color:var(--ds-text-subtlest)}
-.ts-wrapper.multi.has-items .ts-control>input{min-width:24px!important;flex:1 1 24px}
-.ts-wrapper.multi .ts-control>div{margin:0;padding:0 0 0 6px;border:0;border-radius:var(--ds-radius-small);background:var(--ds-background-neutral);
-  color:var(--ds-text);font-size:14px;line-height:24px}
-.ts-wrapper.multi .ts-control>div.active{background:var(--ds-background-selected);color:var(--ds-text-selected)}
-.ts-wrapper.plugin-remove_button .item .remove{border:0;margin-left:2px;padding:0 6px;border-radius:0 var(--ds-radius-small) var(--ds-radius-small) 0;color:var(--ds-icon-subtle)}
-.ts-wrapper.plugin-remove_button .item .remove:hover{background:var(--ds-background-accent-red-subtler);color:var(--ds-text-danger)}
-.ts-dropdown{margin-top:4px;border:0;border-radius:var(--ds-radius-small);background:var(--ds-surface-overlay);box-shadow:var(--ds-shadow-overlay);color:var(--ds-text);overflow:hidden}
-.ts-dropdown .option{padding:8px 12px}
-.ts-dropdown .active{background:var(--ds-background-neutral-subtle-hovered);color:var(--ds-text)}
-.ts-dropdown .no-results{color:var(--ds-text-subtlest);padding:8px 12px}
-
-/* ============ Flatpickr ============ */
-.flatpickr-calendar{background:var(--ds-surface-overlay);box-shadow:var(--ds-shadow-overlay);border:0;border-radius:var(--ds-radius-small);font-family:inherit;margin-top:4px}
-.flatpickr-calendar.static{top:calc(100% + 4px);left:-35px}
-.flatpickr-calendar::before,.flatpickr-calendar::after{display:none}
-.flatpickr-months .flatpickr-month,.flatpickr-current-month input.cur-year,.flatpickr-current-month .flatpickr-monthDropdown-months{color:var(--ds-text);fill:var(--ds-text);background:transparent}
-.flatpickr-current-month{font-size:14px;font-weight:var(--ds-font-weight-bold)}
-.flatpickr-current-month .flatpickr-monthDropdown-months option{background:var(--ds-surface-overlay)}
-.flatpickr-months .flatpickr-prev-month,.flatpickr-months .flatpickr-next-month{color:var(--ds-icon-subtle);fill:var(--ds-icon-subtle)}
-.flatpickr-months .flatpickr-prev-month:hover svg,.flatpickr-months .flatpickr-next-month:hover svg{fill:var(--ds-link)}
-span.flatpickr-weekday{color:var(--ds-text-subtlest);font-size:11px;font-weight:var(--ds-font-weight-bold);text-transform:uppercase}
-.flatpickr-day{color:var(--ds-text);border-radius:var(--ds-radius-small);border:0;font-size:14px}
-.flatpickr-day:hover,.flatpickr-day:focus{background:var(--ds-background-neutral-subtle-hovered);border-color:transparent}
-.flatpickr-day.today{border:0;color:var(--ds-text-selected);font-weight:var(--ds-font-weight-bold);text-decoration:underline;text-underline-offset:3px}
-.flatpickr-day.inRange,.flatpickr-day.inRange:hover{background:var(--ds-background-selected);box-shadow:-5px 0 0 var(--ds-background-selected),5px 0 0 var(--ds-background-selected);color:var(--ds-text-selected)}
-.flatpickr-day.selected,.flatpickr-day.startRange,.flatpickr-day.endRange,
-.flatpickr-day.selected:hover,.flatpickr-day.startRange:hover,.flatpickr-day.endRange:hover{background:var(--ds-background-brand-bold);color:var(--ds-text-inverse);border-color:transparent;box-shadow:none}
-.flatpickr-day.startRange,.flatpickr-day.endRange{border-radius:var(--ds-radius-small)!important}
-.flatpickr-day.prevMonthDay,.flatpickr-day.nextMonthDay,.flatpickr-day.flatpickr-disabled,.flatpickr-day.flatpickr-disabled:hover{color:var(--ds-text-subtlest);opacity:.55;background:transparent}
-
-/* ============ Tabulator (gaya Dynamic Table) ============ */
-.tabulator{border:0;background:transparent;font-size:14px;color:var(--ds-text)}
-.tabulator .tabulator-header{background:transparent;border-bottom:2px solid var(--ds-border);color:var(--ds-text-subtlest);font-weight:var(--ds-font-weight-bold)}
-.tabulator .tabulator-header .tabulator-col{background:transparent;border-right:0}
-.tabulator .tabulator-header .tabulator-col:hover{background:var(--ds-background-neutral-subtle-hovered)!important}
-.tabulator .tabulator-header .tabulator-col .tabulator-col-content{padding:6px 8px}
-.tabulator .tabulator-header .tabulator-col .tabulator-col-title{font-size:12px}
-.tabulator .tabulator-header .tabulator-col .tabulator-arrow{border-bottom-color:var(--ds-border-bold);opacity:.5}
-.tabulator .tabulator-header .tabulator-col[aria-sort=ascending] .tabulator-arrow,
-.tabulator .tabulator-header .tabulator-col[aria-sort=descending] .tabulator-arrow{opacity:1}
-.tabulator .tabulator-header .tabulator-col[aria-sort=ascending] .tabulator-arrow{border-bottom-color:var(--ds-text-selected)}
-.tabulator .tabulator-header .tabulator-col[aria-sort=descending] .tabulator-arrow{border-top-color:var(--ds-text-selected)}
-.tabulator .tabulator-header-filter input{height:28px;padding:2px 6px!important;border:1px solid var(--ds-border-input);border-radius:var(--ds-radius-small);
-  background:var(--ds-background-input);color:var(--ds-text);font:400 13px var(--ds-font-family-body)}
-.tabulator .tabulator-header-filter input:focus{outline:0;border-color:var(--ds-border-focused);box-shadow:inset 0 0 0 1px var(--ds-border-focused)}
-.tabulator .tabulator-tableholder{background:transparent}
-.tabulator .tabulator-tableholder .tabulator-table{background:transparent;color:var(--ds-text)}
-.tabulator-row,.tabulator-row.tabulator-row-even{background:transparent;border-bottom:1px solid var(--ds-border);min-height:40px}
-.tabulator-row.tabulator-selectable:hover{background:var(--ds-background-neutral-subtle-hovered)}
-.tabulator-row .tabulator-cell{border-right:0;padding:10px 8px}
-.tabulator .tabulator-placeholder .tabulator-placeholder-contents{color:var(--ds-text-subtlest);font-size:14px;font-weight:400}
-.tabulator .tabulator-footer{background:transparent;border-top:0;color:var(--ds-text-subtle);font-weight:400;padding:12px 0 0}
-.tabulator .tabulator-footer .tabulator-page{border:0;border-radius:var(--ds-radius-small);background:transparent;color:var(--ds-text-subtle);
-  font:var(--ds-font-weight-medium) 14px var(--ds-font-family-body);min-width:32px;height:32px;padding:0 8px;margin:0 1px}
-.tabulator .tabulator-footer .tabulator-page:not(:disabled):hover{background:var(--ds-background-neutral-subtle-hovered);color:var(--ds-text)}
-.tabulator .tabulator-footer .tabulator-page.active{background:var(--ds-background-selected);color:var(--ds-text-selected)}
-.tabulator .tabulator-footer .tabulator-page:disabled{opacity:.4}
-.num{font-variant-numeric:tabular-nums}
-
-/* ============ SweetAlert2 (gaya Modal & Flag) ============ */
-div:where(.swal2-container).swal2-backdrop-show{background:rgba(5,21,36,.5)}
-.ads-modal.swal2-popup{width:400px;padding:var(--ds-space-300);border-radius:var(--ds-radius-medium);background:var(--ds-surface-overlay);
-  box-shadow:var(--ds-shadow-overlay);color:var(--ds-text);font-family:var(--ds-font-family-body);text-align:left;grid-template-columns:1fr}
-.ads-modal .swal2-title{display:flex!important;align-items:center;gap:var(--ds-space-100);padding:0;font-size:20px;line-height:24px;font-weight:var(--ds-font-weight-bold);color:var(--ds-text);text-align:left}
-.ads-modal .swal2-title svg.ic{width:24px;height:24px;color:var(--ds-icon-danger)}
-.ads-modal .swal2-html-container{margin:var(--ds-space-200) 0 0;padding:0;font-size:14px;line-height:20px;color:var(--ds-text);text-align:left}
-.ads-modal .swal2-actions{justify-content:flex-end;gap:var(--ds-space-100);margin:var(--ds-space-300) 0 0;padding:0;width:100%}
-.ads-flag.swal2-popup.swal2-toast{width:400px;max-width:calc(100vw - 32px);padding:var(--ds-space-200);border-radius:var(--ds-radius-small);
-  background:var(--ds-surface-overlay);box-shadow:var(--ds-shadow-overlay);color:var(--ds-text);font-family:var(--ds-font-family-body);
-  align-items:center;column-gap:var(--ds-space-200);row-gap:0}
-.ads-flag .swal2-icon{margin:0!important;width:24px!important;height:24px!important;min-width:24px;border:0!important;color:var(--ds-icon-success,#6A9A23)}
-.ads-flag .swal2-icon svg.ic{width:24px;height:24px}
-.ads-flag .swal2-title{margin:0!important;padding:0!important;font-size:14px!important;font-weight:var(--ds-font-weight-bold)!important;color:var(--ds-text)!important}
-.ads-flag .swal2-timer-progress-bar{background:var(--ds-background-brand-bold);opacity:.5}
-
-/* ============ Responsif ============ */
-@media (max-width:1100px){.row-2{grid-template-columns:minmax(0,1fr)}}
-@media (max-width:860px){
-  .app{grid-template-columns:minmax(0,1fr)}
-  .side{position:static;height:auto;flex-direction:row;flex-wrap:wrap;align-items:center;padding:var(--ds-space-100) var(--ds-space-200);gap:var(--ds-space-100)}
-  .side .nav-h{display:none}
-  .side .nav{flex-direction:row;flex-wrap:wrap}
-  .nav a{height:32px}
-  .nav a[aria-current="page"]::before{left:8px;right:8px;top:auto;bottom:0;width:auto;height:2px}
-  .side-foot{margin:0 0 0 auto}
-  .side-foot .btn span{display:none}
-  .main{padding:var(--ds-space-200)}
-  .kpis{grid-template-columns:minmax(0,1fr)}
-  .field{max-width:none}
-}
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; background: #FBF7EE; color: #1E2A44; }
+  .app { display: grid; grid-template-columns: 200px 1fr; min-height: 100vh; }
+  .sidebar { background: #1F4E9E; color: #fff; padding: 20px; }
+  .sidebar a { display: block; color: #fff; text-decoration: none; padding: 8px 0; }
+  main { padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .filter { display: flex; gap: 12px; flex-wrap: wrap; }
+  .filter label { flex: 1 1 220px; font-weight: 600; font-size: 14px; }
+  .filter input { width: 100%; padding: 8px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+  .panel { background: #fff; border-radius: 14px; padding: 16px; min-width: 0; }
+  .panel h2 { margin: 4px 0 0; }
+  .info { border: 0; background: #E8B931; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; }
+  .tooltip { position: absolute; top: 0; left: 0; display: none; max-width: 220px;
+             background: #1E2A44; color: #fff; padding: 6px 10px; border-radius: 8px; font-size: 13px; }
+  .promo { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .promo li { padding: 10px 12px; border-left: 4px solid #D4A017; background: #FFF6DD; border-radius: 8px; }
+  .grafik { position: relative; height: 240px; }
+  @media (max-width: 700px) { .app { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
 <div class="app">
-  <!-- ===== Sidebar ===== -->
-  <aside class="side">
-    <div class="brand">
-      <span class="brand-tile"><svg class="ic" viewBox="0 0 24 24"><path d="M3.5 9l1.8-5h13.4l1.8 5"/><path d="M3.5 9h17v1.5a2.8 2.8 0 0 1-5.6 0 2.8 2.8 0 0 1-5.8 0 2.8 2.8 0 0 1-5.6 0z"/><path d="M5 13.5V21h14v-7.5"/><path d="M10 21v-4.5h4V21"/></svg></span>
-      <div><b>Kantin HSI-BS</b><small>HSI Boarding School</small></div>
-    </div>
-    <div>
-      <div class="nav-h">Menu</div>
-      <nav class="nav" aria-label="Navigasi utama">
-        <a aria-current="page"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Dashboard</a>
-        <a><svg class="ic" viewBox="0 0 24 24"><path d="M21 8l-9-5-9 5 9 5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>Produk</a>
-        <a><svg class="ic" viewBox="0 0 24 24"><path d="M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>Laporan</a>
-        <a><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Pengaturan</a>
-      </nav>
-    </div>
-    <div class="side-foot">
-      <button class="btn subtle" id="btnTheme" type="button"><svg class="ic" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><span>Mode gelap</span></button>
-    </div>
+  <aside class="sidebar">
+    <h2>🍱 Kantin Sekolah</h2>
+    <a href="#">📊 Dashboard</a>
+    <a href="#">🍱 Produk</a>
+    <a href="#">🧾 Laporan</a>
   </aside>
 
-  <!-- ===== Konten ===== -->
-  <main class="main">
-    <header class="page-head">
-      <div>
-        <nav class="crumbs" aria-label="Breadcrumb"><a href="#">Kantin HSI-BS</a><span>/</span><span>Dashboard</span></nav>
-        <h1>Dashboard Kantin</h1>
-        <p class="sub" id="dRange">-</p>
-      </div>
-      <div class="filters">
-        <div class="field">
-          <label for="fDate">Tanggal</label>
-          <div class="textfield">
-            <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
-            <input id="fDate" placeholder="Pilih rentang tanggal" readonly>
-          </div>
-          <p class="task-caption">Tugas: aktifkan pemilih rentang tanggal dengan Flatpickr.</p>
-        </div>
-        <div class="field">
-          <label for="fKat">Kategori</label>
-          <select id="fKat" multiple></select>
-          <p class="task-caption">Tugas: ubah pilihan kategori menjadi multi-select dengan Tom Select.</p>
-        </div>
-      </div>
-    </header>
+  <main>
+    <h1>Dashboard Kantin</h1>
 
-    <section class="kpis" aria-label="Ringkasan">
-      <div class="card kpi">
-        <div class="kpi-h"><span class="kpi-ico blue"><svg class="ic" viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9.5v5M18 9.5v5"/></svg></span>Omzet
-          <button class="icon-btn" type="button" data-tip="Total uang masuk (harga × jumlah) dalam rentang tanggal & kategori terpilih." aria-label="Info Omzet"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button></div>
-        <div class="kpi-v" id="kOmzet">-</div><div class="kpi-c" id="cOmzet">&nbsp;</div>
-        <p class="task-caption">Tugas: tampilkan tooltip ikon informasi dengan Floating UI.</p>
-      </div>
-      <div class="card kpi">
-        <div class="kpi-h"><span class="kpi-ico green"><svg class="ic" viewBox="0 0 24 24"><path d="M5 8h14l-1.3 11.1a2 2 0 0 1-2 1.9H8.3a2 2 0 0 1-2-1.9z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg></span>Item terjual
-          <button class="icon-btn" type="button" data-tip="Jumlah porsi/barang yang terjual pada filter saat ini." aria-label="Info Item terjual"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button></div>
-        <div class="kpi-v" id="kItem">-</div><div class="kpi-c" id="cItem">&nbsp;</div>
-      </div>
-      <div class="card kpi">
-        <div class="kpi-h"><span class="kpi-ico purple"><svg class="ic" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg></span>Transaksi
-          <button class="icon-btn" type="button" data-tip="Banyaknya catatan transaksi yang lolos filter." aria-label="Info Transaksi"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg></button></div>
-        <div class="kpi-v" id="kTrx">-</div><div class="kpi-c" id="cTrx">&nbsp;</div>
-      </div>
-    </section>
+    <div class="filter">
+      <label>Tanggal <input id="tanggal" placeholder="Pilih rentang tanggal"></label>
+      <label>Kategori
+        <select id="kategori" multiple>
+          <option value="Makanan" selected>Makanan</option>
+          <option value="Minuman" selected>Minuman</option>
+          <option value="Snack" selected>Snack</option>
+        </select>
+      </label>
+    </div>
 
-    <section class="row-2">
-      <div class="card"><div class="card-h"><h2>Omzet per hari</h2><small>Rupiah</small></div><div class="chart-wrap"><canvas id="cBar" aria-label="Grafik omzet per hari"></canvas></div><p class="task-caption">Tugas: buat grafik batang dengan Chart.js.</p></div>
-      <div class="card"><div class="card-h"><h2>Item per kategori</h2><small>Porsi</small></div><div class="chart-wrap"><canvas id="cDn" aria-label="Grafik item per kategori"></canvas></div><p class="task-caption">Tugas: buat grafik donat dengan Chart.js.</p></div>
-    </section>
+    <div class="grid">
+      <div class="panel">Omzet <button class="info" data-tip="Total harga x jumlah terjual">i</button><h2 id="kpiOmzet">-</h2></div>
+      <div class="panel">Item Terjual <button class="info" data-tip="Jumlah porsi/barang terjual">i</button><h2 id="kpiItem">-</h2></div>
+      <div class="panel">Transaksi <button class="info" data-tip="Banyaknya catatan transaksi">i</button><h2 id="kpiTrx">-</h2></div>
+    </div>
 
-    <section class="row-2">
-      <div class="card"><div class="card-h"><h2>Produk</h2><small id="tCount"></small></div><div id="tProd"></div><p class="task-caption">Tugas: tampilkan tabel interaktif dengan Tabulator, lalu gunakan SweetAlert2 saat menghapus produk.</p></div>
-      <div class="card"><div class="card-h"><h2>Promo minggu ini</h2><small id="pCount"></small></div>
-        <ul class="promo" id="promo"></ul>
+    <div class="grid">
+      <div class="panel"><div class="grafik"><canvas id="grafikHarian"></canvas></div></div>
+      <div class="panel"><div class="grafik"><canvas id="grafikKategori"></canvas></div></div>
+    </div>
+
+    <div class="grid">
+      <div class="panel"><div id="tabel"></div></div>
+      <div class="panel">
+        <h3>Promo minggu ini</h3>
+        <\!-- Cukup HTML biasa, tidak perlu library -->
+        <ul class="promo">
+          <li>🍜 <b>Senin Hemat</b> · Mie Ayam cuma Rp7.000</li>
+          <\!-- TODO: tambah minimal 2 promo lagi -->
+        </ul>
       </div>
-    </section>
+    </div>
   </main>
 </div>
-<div class="tooltip" id="tooltip" role="tooltip"></div>
+<div class="tooltip" id="tooltip"></div>
 
-<!-- Script library (SEBELUM kode kita) -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/@floating-ui/core@1/dist/floating-ui.core.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@floating-ui/dom@1/dist/floating-ui.dom.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tom-select@2/dist/js/tom-select.complete.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr@4/dist/flatpickr.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr@4/dist/l10n/id.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tabulator-tables@6/dist/js/tabulator.min.js"></script>
+<\!-- ===== 2. Script library (SEBELUM kode kita) ===== -->
+<script src="${JD}sweetalert2@11"><\/script>
+<script src="${JD}@floating-ui/core@1/dist/floating-ui.core.umd.min.js"><\/script>
+<script src="${JD}@floating-ui/dom@1/dist/floating-ui.dom.umd.min.js"><\/script>
+<script src="${JD}tom-select@2/dist/js/tom-select.complete.min.js"><\/script>
+<script src="${JD}flatpickr@4/dist/flatpickr.min.js"><\/script>
+<script src="${JD}flatpickr@4/dist/l10n/id.js"><\/script>
+<script src="${JD}chart.js@4/dist/chart.umd.js"><\/script>
+<script src="${JD}tabulator-tables@6/dist/js/tabulator.min.js"><\/script>
 
-<script src="dashboard-kantin/script.js"></script>
+<\!-- ===== 3. Kode kita ===== -->
+<script>
+// ---------- DATA DUMMY ----------
+const hariIni = new Date();
+hariIni.setHours(0, 0, 0, 0);
+function hariLalu(n) {
+  const d = new Date(hariIni);
+  d.setDate(d.getDate() - n);
+  return d;
+}
+
+let produk = [
+  { id: 1,  nama: 'Nasi Goreng',      kategori: 'Makanan', harga: 10000, stok: 25 },
+  { id: 2,  nama: 'Mie Ayam',         kategori: 'Makanan', harga: 8000,  stok: 20 },
+  { id: 3,  nama: 'Nasi Uduk',        kategori: 'Makanan', harga: 7000,  stok: 30 },
+  { id: 4,  nama: 'Es Teh Manis',     kategori: 'Minuman', harga: 3000,  stok: 60 },
+  { id: 5,  nama: 'Jus Jeruk',        kategori: 'Minuman', harga: 6000,  stok: 24 },
+  { id: 6,  nama: 'Air Mineral',      kategori: 'Minuman', harga: 4000,  stok: 80 },
+  { id: 7,  nama: 'Keripik Singkong', kategori: 'Snack',   harga: 5000,  stok: 40 },
+  { id: 8,  nama: 'Roti Coklat',      kategori: 'Snack',   harga: 4000,  stok: 35 },
+  { id: 9,  nama: 'Pisang Goreng',    kategori: 'Snack',   harga: 2000,  stok: 50 },
+  { id: 10, nama: 'Susu Kotak',       kategori: 'Minuman', harga: 5000,  stok: 45 }
+];
+
+// [berapa hari lalu, id produk, jumlah]
+const transaksi = [
+  [6, 1, 12], [6, 4, 20], [6, 7, 8],  [5, 2, 10], [5, 5, 9],  [5, 9, 15], [4, 3, 14],
+  [4, 6, 18], [4, 8, 7],  [3, 1, 11], [3, 10, 12], [3, 7, 10], [2, 2, 13], [2, 4, 22],
+  [2, 9, 12], [1, 3, 9],  [1, 5, 8],  [1, 8, 11], [0, 1, 15], [0, 6, 16], [0, 10, 9]
+].map(t => ({ tgl: hariLalu(t[0]), produkId: t[1], qty: t[2] }));
+
+// ---------- STATE FILTER ----------
+const state = {
+  awal: hariLalu(6),
+  akhir: hariIni,
+  kategori: ['Makanan', 'Minuman', 'Snack']
+};
+
+// ---------- FUNGSI BANTU ----------
+const rupiah = n => 'Rp' + n.toLocaleString('id-ID');
+const cariProduk = id => produk.find(p => p.id === id);
+
+function dataTerfilter() {
+  return transaksi.filter(t => {
+    const p = cariProduk(t.produkId);
+    return p && t.tgl >= state.awal && t.tgl <= state.akhir && state.kategori.includes(p.kategori);
+  });
+}
+
+// ---------- TODO: inisialisasi library ----------
+// TODO 1 Flatpickr  : mode 'range' di #tanggal; saat 2 tanggal terpilih -> isi state lalu applyFilter()
+// TODO 2 Tom Select : #kategori; onChange -> state.kategori = [].concat(nilai); applyFilter()
+// TODO 3 Chart.js   : grafik bar (omzet per hari) + doughnut (item per kategori), simpan di variabel
+// TODO 4 Tabulator  : tabel produk + kolom tombol hapus
+// TODO 5 SweetAlert2: konfirmasi sebelum hapus, lalu toast sukses
+// TODO 6 Floating UI: tooltip untuk setiap tombol .info (pakai autoUpdate)
+
+// ---------- UPDATE DASHBOARD ----------
+function applyFilter() {
+  const data = dataTerfilter();
+  let omzet = 0, item = 0;
+  data.forEach(t => {
+    omzet += cariProduk(t.produkId).harga * t.qty;
+    item += t.qty;
+  });
+  document.getElementById('kpiOmzet').textContent = rupiah(omzet);
+  document.getElementById('kpiItem').textContent = item + ' item';
+  document.getElementById('kpiTrx').textContent = data.length + ' transaksi';
+
+  // TODO: perbarui grafik -> grafik.data.datasets[0].data = ...; grafik.update();
+  // TODO: perbarui tabel  -> tabel.replaceData(...);
+}
+
+applyFilter();
+console.log('Starter siap!', produk.length, 'produk,', transaksi.length, 'transaksi');
+<\/script>
+</body>
+</html>`
+};
+
+/* ===================== SLIDES ===================== */
+const slides = [];
+const libSlideStart = 3;
+const DASH_SLIDE = libSlideStart + LIBS.length + 2; // 11
+const goLib = id => libSlideStart + libIndex(id);
+const codeCard = (key,name,extra='',tall=false) => `
+  <div class="code-card${tall?' tall':''}">
+    <div class="code-top"><span style="display:flex;align-items:center"><span class="dots"><i></i><i></i><i></i></span>${name}</span><span class="row" style="gap:8px">${extra}<button class="copy">Salin</button></span></div>
+    <pre><code data-src="${key}"></code></pre>
+  </div>`;
+
+// 0 Judul
+slides.push({title:'Judul',icon:['rocket','#1F4E9E'],html:`
+<div class="wrap"><div class="cover">
+  <div style="display:flex;flex-direction:column;gap:22px">
+    <div class="cover-logo">
+      <img src="logo-color.png" alt="Logo HSI Boarding School" onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+      <span hidden>${clay('store','#1F4E9E','md')}</span>
+      <div><b>HSI Boarding School</b><small>Coders Club · Bahan Ajar Frontend</small></div>
+    </div>
+    <h1>Membangun <span class="grad">Dashboard</span> dengan Library JavaScript</h1>
+    <p>Enam library siap pakai yang bekerja bersama menjadi satu <b>Dashboard Kantin Sekolah</b>: dialog, tooltip, filter, kalender, grafik, dan tabel.</p>
+    <div class="row"><button class="cbtn" data-go="1">Mulai →</button><span class="hint">Navigasi: <kbd>←</kbd> <kbd>→</kbd> · <kbd>O</kbd> daftar · <kbd>F</kbd> layar penuh</span></div>
+  </div>
+  <div class="cloud clay-card">
+    ${LIBS.map((l,i)=>`<button class="clay lg btn" style="--c:${l.color}" title="${l.name}" data-go="${libSlideStart+i}"><svg viewBox="0 0 24 24">${ICONS[l.icon]}</svg></button>`).join('')}
+    <button class="clay lg btn" style="--c:#1E2A44" title="Demo Dashboard" data-go="${DASH_SLIDE}"><svg viewBox="0 0 24 24">${ICONS.monitor}</svg></button>
+  </div>
+</div></div>`});
+
+// 1 Target Kita
+const wb = (cls,label,sub,id) => {
+  const l = id?L(id):null;
+  return `<div class="wb ${cls}" style="--c:${l?l.color:'#9CA3AF'}"><span>${label}</span>${sub?`<small>${sub}</small>`:''}${l?`<button class="chip" style="--c:${l.color}" data-go="${goLib(id)}">${l.name}</button>`:''}</div>`;
+};
+slides.push({title:'Target Kita',icon:['target','#D4A017'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Target Kita</span><h2>Sketsa Dashboard Kantin Sekolah</h2>
+  <p>Setiap bagian interaktif dikerjakan oleh satu library. Bagian yang tidak butuh interaksi cukup HTML &amp; CSS biasa. Klik label library untuk melihat slide-nya.</p></div>
+  <div class="wire clay-card">
+    <div class="wb wire-side" style="--c:#1E2A44"><span>🍱 Sidebar</span><small>Nama kantin + menu navigasi (HTML & CSS biasa)</small></div>
+    <div class="wire-main">
+      ${wb('s3','📅 Filter tanggal','Rentang tanggal laporan','flatpickr')}
+      ${wb('s3','🏷️ Filter kategori','Makanan, Minuman, Snack','tomselect')}
+      ${wb('s2 kp','💰 Omzet ⓘ','Tooltip penjelasan','floating')}
+      ${wb('s2 kp','🧺 Item terjual ⓘ','','floating')}
+      ${wb('s2 kp','🧾 Transaksi ⓘ','','floating')}
+      ${wb('s4','📊 Omzet per hari','Grafik batang','chart')}
+      ${wb('s2','🍩 Per kategori','Grafik doughnut','chart')}
+      ${wb('s4','📋 Tabel produk','Sort, cari, pagination + tombol 🗑️','tabulator')}
+      ${wb('s2','🎉 Promo minggu ini','Daftar biasa (HTML & CSS), tanpa library')}
+      ${wb('s6','🗑️ Hapus produk → "Yakin?" → toast "Produk dihapus"','Dialog konfirmasi & notifikasi','sweetalert')}
+    </div>
+  </div>
+</div>`});
+
+// 2 Cara Memasang
+slides.push({title:'Cara Memasang',icon:['cdn','#5B8DEF'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Cara Pakai</span><h2>Memasang library lewat CDN</h2></div>
+  <div class="two">
+    <div class="box clay-card">
+      <div class="row">${clay('cdn','#5B8DEF','lg')}<div><h3>Urutan itu penting</h3><p style="font-size:15px">Browser membaca file dari atas ke bawah</p></div></div>
+      <ol class="steps">
+        <li><b>CSS library</b> di dalam <code>&lt;head&gt;</code> lewat <code>&lt;link&gt;</code>. Tidak semua library punya CSS (SweetAlert2 dan Chart.js tidak perlu).</li>
+        <li><b>Elemen HTML</b> yang akan "dihidupkan": input, select, canvas, div tabel.</li>
+        <li><b>Script library</b> sebelum <code>&lt;/body&gt;</code>. Floating UI butuh dua file: <i>core</i> dulu, baru <i>dom</i>. Begitu juga Flatpickr lalu bahasa <i>id.js</i>.</li>
+        <li><b>Kode kita paling akhir</b>, setelah semua library selesai dimuat.</li>
+      </ol>
+      <p class="hint">💡 Versi dikunci (mis. <code>chart.js@4</code>) supaya proyek tidak rusak saat library merilis versi besar baru.</p>
+    </div>
+    ${codeCard('install','index.html','',true)}
+  </div>
+</div>`});
+
+// 3..8 library
+LIBS.forEach((l,i)=>{
+  slides.push({title:l.name,icon:[l.icon,l.color],lib:l,html:`
+<div class="wrap"><div class="lib">
+  <div class="lib-info">
+    <span class="lib-num">LIBRARY ${i+1} / ${LIBS.length}</span>
+    <div class="lib-head">
+      ${clay(l.icon,l.color,'xl')}
+      <div><span class="chip" style="--c:${l.color}">${l.role}</span><h2 style="margin-top:8px">${l.name}</h2><p class="tag">${l.tagline}</p></div>
+    </div>
+    <p class="desc">${l.desc}</p>
+    <h4>Cocok untuk</h4>
+    <ul class="uses" style="--c:${l.color}">${l.uses.map(u=>`<li>${esc(u)}</li>`).join('')}</ul>
+    <div class="kantin-note" style="--c:${l.color}">${clay('store',l.color,'sm')}<p><b>Di dashboard kantin:</b> ${esc(l.kantin)}</p></div>
+    <div class="meta"><span class="pill">📜 ${l.lic}</span><span class="pill">🔗 ${l.site}</span></div>
+  </div>
+  <div class="lib-side">
+    <div class="code-card">
+      <div class="code-top"><span style="display:flex;align-items:center"><span class="dots"><i></i><i></i><i></i></span>contoh.js</span><button class="copy">Salin</button></div>
+      <pre><code class="snippet"></code></pre>
+    </div>
+    <div class="stage clay-card" data-demo="${l.id}">
+      <span class="stage-label">Demo langsung</span>
+      ${clay(l.icon,l.color,'md')}
+      <button class="cbtn btn-demo" style="--c:${l.color}">▶ Coba Demo</button>
+      <small>Membutuhkan internet · dimuat dari CDN</small>
+    </div>
+  </div>
+</div></div>`});
+});
+
+// 9 Library saling terhubung
+const fnode = (id,sub) => {const l=L(id);return `<button class="fnode" style="--c:${l.color}" data-go="${goLib(id)}">${clay(l.icon,l.color,'sm')}<span><b>${l.name}</b><small>${sub}</small></span></button>`;};
+slides.push({title:'Library Saling Terhubung',icon:['link','#3FA7A0'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Integrasi</span><h2>Library saling terhubung</h2>
+  <p>Kuncinya: <b>satu state</b> dan <b>satu fungsi <code>applyFilter()</code></b>. Filter hanya mengubah state; semua tampilan diperbarui dari satu tempat.</p></div>
+  <div class="flow clay-card">
+    <div class="fcol">
+      ${fnode('flatpickr','onChange → state.awal/akhir')}
+      ${fnode('tomselect','onChange → state.kategori')}
+      ${fnode('sweetalert','hapus → ubah array produk')}
+    </div>
+    <div class="farrow">➜</div>
+    <div class="fcore">${clay('code','#1E2A44','md')}<b>applyFilter()</b><small>baca state → saring transaksi → hitung ulang</small></div>
+    <div class="farrow">➜</div>
+    <div class="fcol">
+      ${fnode('chart','data baru + update()')}
+      ${fnode('tabulator','replaceData(rows)')}
+      <div class="fnode" style="--c:#9CA3AF">${clay('target','#9CA3AF','sm')}<span><b>Kartu KPI</b><small>textContent baru</small></span></div>
+    </div>
+  </div>
+  <div class="two">
+    ${codeCard('integrasi','app.js')}
+    <div class="box clay-card">
+      <h3>Yang berdiri sendiri</h3>
+      <div class="row" style="flex-wrap:nowrap">${clay('tooltip',L('floating').color,'md')}<p style="font-size:16px"><b style="color:var(--ink)">Floating UI</b> tidak ikut alur data. Ia hanya memosisikan tooltip saat ikon ⓘ di-hover.</p></div>
+      <div class="row" style="flex-wrap:nowrap">${clay('store','#9CA3AF','md')}<p style="font-size:16px"><b style="color:var(--ink)">Panel promo</b> cukup daftar HTML biasa. Isinya tetap, jadi tidak perlu library. Tiap library menambah beban halaman.</p></div>
+      <div class="row" style="flex-wrap:nowrap">${clay('bell',L('sweetalert').color,'md')}<p style="font-size:16px"><b style="color:var(--ink)">SweetAlert2</b> menunggu jawaban "Ya" dulu, baru data diubah dan <code>applyFilter()</code> dipanggil.</p></div>
+    </div>
+  </div>
+</div>`});
+
+// 10 Jebakan umum
+const trap = (id,title,text,key) => {const l=L(id);return `
+  <div class="trap clay-card">
+    <div class="trap-h">${clay('alert',l.color,'sm')}<div><span class="chip" style="--c:${l.color};padding:3px 10px;font-size:12px">${l.name}</span><h3>${title}</h3></div></div>
+    <p>${text}</p>
+    <pre class="mini"><code data-src="${key}"></code></pre>
+  </div>`;};
+slides.push({title:'Jebakan Umum',icon:['alert','#E8735A'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Hati-hati</span><h2>Jebakan yang sering bikin error</h2><p>Enam kesalahan paling sering saat library dipakai bersama dalam satu dashboard.</p></div>
+  <div class="traps">
+    ${trap('chart','Membuat grafik baru tiap filter','Membuat <code>new Chart()</code> di canvas yang sama akan error dan grafik menumpuk. Ubah datanya lalu <code>update()</code>, atau <code>destroy()</code> dulu.','t_chart')}
+    ${trap('floating','Tooltip "tertinggal" saat scroll','<code>computePosition</code> hanya menghitung sekali. Pakai <code>autoUpdate</code> saat tampil, dan panggil fungsi cleanup-nya saat disembunyikan.','t_float')}
+    ${trap('tabulator','Data diganti sebelum tabel siap','Tabulator dibangun secara asinkron. <code>replaceData()</code> sebelum event <code>tableBuilt</code> bisa gagal. Tunggu event itu dulu.','t_tab')}
+    ${trap('chart','Urutan script terbalik','Kode kita jalan sebelum library dimuat, hasilnya <code>Chart is not defined</code>. Library dulu, kode kita paling akhir.','t_order')}
+    ${trap('tomselect','Nilai onChange tidak sesuai','Tanpa atribut <code>multiple</code>, nilainya string. Dengan <code>multiple</code>, array. Amankan dengan <code>[].concat(nilai)</code>.','t_tom')}
+    ${trap('flatpickr','Mode range memberi array','<code>onChange</code> terpanggil di klik pertama juga (array berisi 1 tanggal). Cek <code>length === 2</code> sebelum memfilter.','t_flat')}
+  </div>
+</div>`});
+
+// 11 Demo dashboard jadi
+slides.push({title:'Demo Dashboard Jadi',icon:['monitor','#1E2A44'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Hasil Akhir</span><h2>Demo dashboard jadi</h2><p>Enam library bekerja bersama. Inilah gambaran hasil tugas kalian.</p></div>
+  <div class="stage clay-card wide" data-demo="dashboard">
+    <span class="stage-label">Demo langsung</span>
+    <div class="stack">${LIBS.map(l=>clay(l.icon,l.color,'md')).join('')}</div>
+    <h3>Dashboard Kantin HSI</h3>
+    <div class="row" style="justify-content:center"><button class="cbtn btn-demo">▶ Jalankan Dashboard</button><a class="cbtn ghost" href="dashboard-kantin.html" target="_blank" rel="noopener">Buka halaman penuh ↗</a></div>
+    <small>Memuat 6 library dari CDN · butuh internet</small>
+  </div>
+</div>`});
+
+// 12 Kuis
+const QUIZ = [
+  {q:'Admin kantin klik 🗑️ pada "Nasi Uduk". Sebelum benar-benar dihapus harus muncul dialog "Yakin?". Pakai apa?',a:'sweetalert',opts:['sweetalert','tabulator','chart','flatpickr']},
+  {q:'Ikon ⓘ di kartu "Omzet hari ini" butuh tooltip yang tidak terpotong tepi layar.',a:'floating',opts:['tabulator','floating','tomselect','sweetalert']},
+  {q:'Panel promo hanya berisi 4 teks promo yang tetap. Library apa yang perlu dipasang?',a:'Tidak perlu, cukup HTML & CSS',opts:['chart','Tidak perlu, cukup HTML & CSS','tabulator','sweetalert']},
+  {q:'Filter kategori: admin ingin memilih "Minuman" dan "Snack" sekaligus, dengan pencarian.',a:'tomselect',opts:['tomselect','floating','tabulator','chart']},
+  {q:'Laporan penjualan perlu dibatasi dari tanggal 1 sampai 15 Oktober.',a:'flatpickr',opts:['chart','flatpickr','sweetalert','tomselect']},
+  {q:'Kepala kantin ingin membandingkan omzet tiap hari dalam bentuk batang.',a:'chart',opts:['tabulator','chart','floating','tomselect']},
+  {q:'Daftar 50 produk harus bisa diurutkan, dicari per kolom, dan dibagi per halaman.',a:'tabulator',opts:['tabulator','tomselect','chart','sweetalert']},
+  {q:'Filter tanggal berubah. Cara yang benar memperbarui grafik Chart.js yang sudah ada adalah…',a:'Ubah data lalu chart.update()',opts:['Buat new Chart() lagi','Ubah data lalu chart.update()','location.reload()','Hapus elemen canvas']}
+];
+slides.push({title:'Kuis',icon:['question','#E89A2C'],html:`
+<div class="wrap">
+  <div style="text-align:center"><span class="eyebrow">Uji Pemahaman</span><h2>Kuis: Pilih library yang tepat!</h2></div>
+  <div class="quiz clay-card" id="quiz"></div>
+</div>`});
+
+// 13 Tugas
+const TUGAS = [
+  'Layout: header nama kantin + sidebar/menu',
+  'Minimal 3 kartu ringkasan dengan tooltip Floating UI',
+  'Panel promo (minimal 3 promo) dengan HTML & CSS biasa',
+  'Filter kategori dengan Tom Select',
+  'Filter tanggal Flatpickr (mode range)',
+  'Minimal 2 grafik Chart.js yang ikut berubah saat filter',
+  'Tabel produk dengan Tabulator',
+  'SweetAlert2 untuk konfirmasi hapus + toast sukses',
+  'Data dummy di array JavaScript'
+];
+slides.push({title:'Tugas',icon:['check','#D4A017'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Mini Project</span><h2>Tugas: Dashboard Kantin Sekolah</h2>
+  <p>Buat satu file HTML dashboard kantin memakai keenam library. Mulai dari starter di kanan, lalu centang fitur yang sudah selesai.</p></div>
+  <div class="two">
+    <div class="box clay-card">
+      <div class="row" style="justify-content:space-between"><div class="row">${clay('check','#D4A017','md')}<h3>Fitur wajib</h3></div><span class="chip" style="--c:#D4A017" id="tProg">0 / ${TUGAS.length}</span></div>
+      <div class="meter"><i id="tBar"></i></div>
+      <div class="checks">${TUGAS.map((t,i)=>`<label class="check"><input type="checkbox" data-t="${i}"><span>${t}</span></label>`).join('')}</div>
+      <h4>Bonus ⭐</h4>
+      <ul style="--dot:#5B8DEF">
+        <li>Simpan data di <code>localStorage</code> agar tidak hilang saat refresh</li>
+        <li>Tambah produk lewat form SweetAlert2 (<code>input</code>)</li>
+        <li>Mode gelap (dark mode)</li>
+        <li>Tampilan rapi di HP</li>
+      </ul>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+      ${codeCard('starter','starter-dashboard-kantin.html','<button class="dl" id="dlStarter">⬇ Unduh</button>',true)}
+      <div class="box clay-card">
+        <h3>Cara mulai</h3>
+        <ol class="steps">
+          <li>Klik <b>Salin</b> atau <b>Unduh</b>, simpan sebagai <code>index.html</code>.</li>
+          <li>Buka di browser. KPI sudah tampil, sisanya bertanda <code>TODO</code>.</li>
+          <li>Kerjakan TODO satu per satu, cek <b>Console</b> (F12) setiap kali.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>`});
+
+// 14 Penutup
+slides.push({title:'Penutup',icon:['trophy','#D4A017'],html:`
+<div class="wrap">
+  <div><span class="eyebrow">Ringkasan</span><h2>Enam library, satu dashboard</h2>
+  <p>Ingat polanya: filter mengubah <b>state</b>, <code>applyFilter()</code> memperbarui semuanya. Pakai library hanya jika memang dibutuhkan. Dokumentasi resmi adalah sumber belajar terbaik.</p></div>
+  <div class="docs">
+    ${LIBS.map(l=>`<div class="doc clay-card">${clay(l.icon,l.color,'md')}<div style="min-width:0"><b>${l.name}</b><p>${l.role}</p><a class="chip" style="--c:${l.color};margin-top:6px" href="${l.docs}" target="_blank" rel="noopener">Dokumentasi ↗</a></div></div>`).join('')}
+  </div>
+  <div style="text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center">
+    <h1 class="grad">Terima kasih!</h1>
+    <p>HSI Boarding School · Coders Club. Selamat membangun dashboard kantin kalian 🍱</p>
+    <button class="cbtn ghost" data-go="0">↺ Kembali ke awal</button>
+  </div>
+</div>`});
+
+/* ===================== RENDER ===================== */
+const deck = document.getElementById('deck');
+slides.forEach((s,i)=>{
+  const sec = document.createElement('section');
+  sec.className='slide';sec.dataset.index=i;sec.setAttribute('aria-label',s.title);
+  sec.innerHTML=s.html;
+  if(s.lib){ sec.querySelector('.snippet').textContent=s.lib.code; }
+  deck.appendChild(sec);
+});
+deck.querySelectorAll('code[data-src]').forEach(c=>c.textContent=CODES[c.dataset.src]);
+deck.querySelectorAll('.stage[data-demo]').forEach(st=>st._initial=st.innerHTML);
+const els = [...deck.children];
+let cur = 0;
+
+function go(n){
+  n=Math.max(0,Math.min(els.length-1,n));
+  if(n!==cur) resetSlide(cur);
+  els.forEach((el,i)=>{el.classList.toggle('active',i===n);el.classList.toggle('left',i<n);});
+  cur=n;
+  document.getElementById('counter').textContent=`${n+1} / ${els.length}`;
+  document.getElementById('progress').style.width=`${(n+1)/els.length*100}%`;
+  els[n].scrollTop=0;
+  history.replaceState(null,'','#'+(n+1));
+  renderOverview();
+}
+
+document.getElementById('btnPrev').onclick=()=>go(cur-1);
+document.getElementById('btnNext').onclick=()=>go(cur+1);
+document.getElementById('btnFull').onclick=()=>{
+  if(!document.fullscreenElement) document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.();
+};
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]'); if(g){go(+g.dataset.go);closeOverview();}
+  const c=e.target.closest('.copy');
+  if(c){const code=c.closest('.code-card').querySelector('code').textContent;
+    navigator.clipboard?.writeText(code).then(()=>{c.textContent='Tersalin ✓';setTimeout(()=>c.textContent='Salin',1500)}).catch(()=>{c.textContent='Gagal ✕';setTimeout(()=>c.textContent='Salin',1500)});}
+  if(e.target.closest('#dlStarter')){
+    const url=URL.createObjectURL(new Blob([CODES.starter],{type:'text/html'}));
+    const a=h('a',{href:url,download:'starter-dashboard-kantin.html'});document.body.append(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
+  const d=e.target.closest('.btn-demo'); if(d) runDemo(d.closest('.stage'));
+});
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('input:not([type=checkbox]),select,textarea,[contenteditable],.ts-wrapper,.flatpickr-calendar')) return;
+  if(document.querySelector('.swal2-container .swal2-popup:not(.swal2-toast)')) return;
+  if(['ArrowRight','PageDown'].includes(e.key)){e.preventDefault();go(cur+1);}
+  else if(['ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();go(cur-1);}
+  else if(e.key==='Home')go(0);
+  else if(e.key==='End')go(els.length-1);
+  else if(e.key.toLowerCase()==='o')toggleOverview();
+  else if(e.key.toLowerCase()==='f')document.getElementById('btnFull').click();
+  else if(e.key==='Escape')closeOverview();
+});
+// swipe
+let sx=null,sy=null;
+deck.addEventListener('touchstart',e=>{
+  if(e.target.closest('.stage,pre,.code-card,.mini,.wire,.flow')){sx=null;return;}
+  sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+deck.addEventListener('touchend',e=>{
+  if(sx===null)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5) go(cur+(dx<0?1:-1)); sx=null;});
+
+// overview
+const ov=document.getElementById('overview'),ovGrid=document.getElementById('ovGrid');
+function renderOverview(){
+  ovGrid.innerHTML=slides.map((s,i)=>`<button class="ov-item clay-card ${i===cur?'cur':''}" data-go="${i}">${clay(s.icon[0],s.icon[1],'sm')}<span><small style="color:var(--muted)">${i+1}</small><br>${s.title}</span></button>`).join('');
+}
+function toggleOverview(){ov.classList.toggle('open');}
+function closeOverview(){ov.classList.remove('open');}
+document.getElementById('btnOverview').onclick=toggleOverview;
+document.getElementById('ovClose').onclick=closeOverview;
+
+/* ===================== QUIZ ===================== */
+let qi=0,score=0;
+function renderQuiz(){
+  const box=document.getElementById('quiz');
+  box.dataset.done='0';
+  if(qi>=QUIZ.length){
+    box.innerHTML=`<div style="text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center">
+      ${clay('trophy','#D4A017','xl')}<h2>Skor kamu: ${score} / ${QUIZ.length}</h2>
+      <p>${score===QUIZ.length?'Sempurna! Kamu siap membangun dashboard 🎉':score>=5?'Bagus! Sedikit lagi jadi master.':'Tidak apa-apa, baca lagi slide library-nya lalu coba ulang ya.'}</p>
+      <button class="cbtn" id="qRestart">↺ Ulangi Kuis</button></div>`;
+    box.querySelector('#qRestart').onclick=()=>{qi=0;score=0;renderQuiz();};
+    return;
+  }
+  const q=QUIZ[qi];
+  const label=id=>{const l=L(id);return l?l.name:id;};
+  box.innerHTML=`
+    <div class="qfoot"><span class="chip" style="--c:#E89A2C">Soal ${qi+1} dari ${QUIZ.length}</span><span class="chip" style="--c:#3FA7A0">Skor: ${score}</span></div>
+    <div class="qtext">${q.q}</div>
+    <div class="opts">${q.opts.map((id,k)=>{const l=L(id);return `<button class="opt" data-k="${k}">${l?clay(l.icon,l.color,'sm'):clay('code','#9CA3AF','sm')}${esc(label(id))}</button>`}).join('')}</div>
+    <div class="qfoot"><span class="qfeedback" id="qfb"></span><button class="cbtn" id="qNext" style="visibility:hidden">Lanjut →</button></div>`;
+  box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+    if(box.dataset.done==='1')return; box.dataset.done='1';
+    const pick=q.opts[+b.dataset.k], ok=pick===q.a; if(ok)score++;
+    box.querySelectorAll('.opt').forEach(o=>{if(q.opts[+o.dataset.k]===q.a)o.classList.add('right');});
+    if(!ok)b.classList.add('wrong');
+    const fb=box.querySelector('#qfb');
+    fb.textContent=ok?'✅ Tepat sekali!':`❌ Jawaban yang tepat: ${label(q.a)}`;
+    fb.style.color=ok?'#2E8B57':'#C2412D';
+    const nx=box.querySelector('#qNext');nx.style.visibility='visible';
+    nx.onclick=()=>{qi++;renderQuiz();};
+  });
+}
+renderQuiz();
+
+/* ===================== CHECKLIST TUGAS ===================== */
+const TKEY='hsi-dashboard-kantin-checklist-v2';
+function loadChecks(){try{return JSON.parse(localStorage.getItem(TKEY))||[];}catch(e){return [];}}
+function saveChecks(a){try{localStorage.setItem(TKEY,JSON.stringify(a));}catch(e){}}
+function syncChecks(){
+  const boxes=[...deck.querySelectorAll('.check input')];
+  const done=boxes.filter(b=>b.checked).length;
+  document.getElementById('tProg').textContent=`${done} / ${boxes.length}`;
+  document.getElementById('tBar').style.width=`${done/boxes.length*100}%`;
+}
+(()=>{
+  const saved=loadChecks();
+  deck.querySelectorAll('.check input').forEach(b=>{
+    b.checked=saved.includes(+b.dataset.t);
+    b.onchange=()=>{saveChecks([...deck.querySelectorAll('.check input')].filter(x=>x.checked).map(x=>+x.dataset.t));syncChecks();};
+  });
+  syncChecks();
+})();
+
+/* ===================== DEMO LOADER ===================== */
+const cache={};
+function loadScript(src){return cache[src]??=new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>{delete cache[src];s.remove();rej(new Error('Gagal memuat '+src));};document.head.appendChild(s);});}
+function loadCSS(href){if(cache[href])return;cache[href]=1;const l=document.createElement('link');l.rel='stylesheet';l.href=href;document.head.appendChild(l);}
+const h=(tag,props={},kids=[])=>{const e=Object.assign(document.createElement(tag),props);kids.forEach(k=>e.append(k));return e;};
+const cbtn=(text,color,sm)=>{const b=h('button',{className:'cbtn'+(sm?' sm':''),textContent:text});if(color)b.style.setProperty('--c',color);return b;};
+
+const LIBJS={
+  sweetalert:{js:[JD+'sweetalert2@11']},
+  floating:{js:[JD+'@floating-ui/core@1/dist/floating-ui.core.umd.min.js',JD+'@floating-ui/dom@1/dist/floating-ui.dom.umd.min.js']},
+  tomselect:{css:[JD+'tom-select@2/dist/css/tom-select.css'],js:[JD+'tom-select@2/dist/js/tom-select.complete.min.js']},
+  flatpickr:{css:[JD+'flatpickr@4/dist/flatpickr.min.css'],js:[JD+'flatpickr@4/dist/flatpickr.min.js',JD+'flatpickr@4/dist/l10n/id.js']},
+  chart:{js:[JD+'chart.js@4/dist/chart.umd.js']},
+  tabulator:{css:[JD+'tabulator-tables@6/dist/css/tabulator.min.css'],js:[JD+'tabulator-tables@6/dist/js/tabulator.min.js']}
+};
+async function loadLibs(ids){
+  ids.forEach(id=>(LIBJS[id].css||[]).forEach(loadCSS));
+  // tiap library dimuat paralel, file di dalam satu library berurutan (core → dom)
+  await Promise.all(ids.map(async id=>{for(const s of LIBJS[id].js) await loadScript(s);}));
+}
+const toast=title=>Swal.fire({toast:true,position:'top-end',icon:'success',titleText:title,showConfirmButton:false,timer:2000,timerProgressBar:true});
+
+/* Tooltip Floating UI dengan autoUpdate + cleanup. Mengembalikan fungsi pembersih. */
+function attachTips(m,root,tip,selector){
+  let stop=null;
+  const hide=()=>{tip.style.opacity=0;stop?.();stop=null;};
+  root.querySelectorAll(selector).forEach(b=>{
+    const show=()=>{
+      stop?.();
+      tip.textContent=b.dataset.tip;tip.style.opacity=1;
+      stop=m.autoUpdate(b,tip,()=>m.computePosition(b,tip,{placement:'top',middleware:[m.offset(8),m.flip(),m.shift({padding:8})]})
+        .then(({x,y})=>Object.assign(tip.style,{left:x+'px',top:y+'px'})));
+    };
+    b.addEventListener('mouseenter',show);b.addEventListener('focus',show);
+    b.addEventListener('mouseleave',hide);b.addEventListener('blur',hide);
+  });
+  return hide;
+}
+const kpiCard=(key,label,tipText)=>`<div class="kpi"><div class="kpi-h"><span>${label}</span><button class="kinfo" data-tip="${esc(tipText)}" aria-label="Info ${label}">i</button></div><b data-k="${key}">-</b></div>`;
+
+const barChart=(cv,r)=>new Chart(cv,{type:'bar',
+  data:{labels:r.labels,datasets:[{label:'Omzet',data:r.perHari,backgroundColor:'#1F4E9E',hoverBackgroundColor:'#D4A017',borderRadius:10}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>rupiah(c.parsed.y)}}},
+    scales:{y:{beginAtZero:true,ticks:{callback:v=>(v/1000)+'rb'}},x:{grid:{display:false}}}}});
+const doughnutChart=(cv,r)=>new Chart(cv,{type:'doughnut',
+  data:{labels:KAT,datasets:[{data:r.perKat,backgroundColor:KAT.map(k=>KAT_COLOR[k]),borderWidth:3,borderColor:'#FFFDF8'}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{usePointStyle:true}}}}});
+
+/* Setiap run() boleh mengembalikan fungsi cleanup — dipanggil saat pindah slide. */
+const DEMOS={
+  sweetalert:{libs:['sweetalert'],run(st){
+    const b1=cbtn('🗑️ Hapus "Mie Ayam"','#E8735A');
+    b1.onclick=()=>Swal.fire({title:'Hapus Mie Ayam?',text:'Produk akan hilang dari daftar menu kantin.',icon:'warning',showCancelButton:true,
+      confirmButtonText:'Ya, hapus',cancelButtonText:'Batal',confirmButtonColor:'#E8735A',cancelButtonColor:'#9CA3AF',reverseButtons:true})
+      .then(r=>{if(r.isConfirmed)toast('Mie Ayam dihapus');});
+    const b2=cbtn('💾 Simpan Pesanan','#1F4E9E');b2.onclick=()=>toast('Pesanan tersimpan');
+    const b3=cbtn('➕ Tambah Produk','#D4A017');
+    b3.onclick=()=>Swal.fire({title:'Produk baru',input:'text',inputPlaceholder:'Nama produk, mis. Bakso',showCancelButton:true,cancelButtonText:'Batal',
+      confirmButtonText:'Tambah',confirmButtonColor:'#1F4E9E',inputValidator:v=>!v&&'Nama produk tidak boleh kosong'})
+      .then(r=>{if(r.isConfirmed)toast(`"${r.value}" ditambahkan`);});
+    st.append(h('div',{className:'row',style:'justify-content:center'},[b1,b2,b3]),h('small',{textContent:'Dialog konfirmasi, toast, dan form input singkat.'}));
+    return ()=>Swal.close();
+  }},
+  floating:{libs:['floating'],run(st){
+    const m=window.FloatingUIDOM;
+    const tip=h('div',{className:'tip'});
+    const pair=h('div',{className:'kpi-pair'});
+    pair.innerHTML=kpiCard('a','Omzet hari ini','Total uang masuk dari semua kategori sejak kantin buka pukul 06.30.')
+                  +kpiCard('b','Produk terlaris','Dihitung dari jumlah porsi terjual hari ini.');
+    pair.querySelector('[data-k=a]').textContent='Rp1.250.000';
+    pair.querySelector('[data-k=b]').textContent='Nasi Goreng';
+    st.append(tip,pair,h('small',{textContent:'Arahkan kursor (atau Tab) ke ikon i. Tooltip bergeser sendiri agar tidak terpotong.'}));
+    return attachTips(m,st,tip,'.kinfo');
+  }},
+  tomselect:{libs:['tomselect'],run(st){
+    const sel=h('select',{multiple:true});
+    KAT.forEach(k=>sel.append(h('option',{value:k,textContent:k})));
+    const out=h('small');
+    st.append(h('div',{className:'tomsel-wrap'},[sel]),out);
+    const show=v=>{v=toArr(v);const n=PRODUK.filter(p=>v.includes(p.kategori)).length;
+      out.textContent=v.length?`Nilai onChange: [${v.join(', ')}] → ${n} produk tampil`:'Belum ada kategori dipilih';};
+    const ts=new TomSelect(sel,{maxItems:null,plugins:['remove_button'],placeholder:'Pilih kategori...',items:['Makanan','Minuman'],onChange:show});
+    show(ts.getValue());
+    return ()=>ts.destroy();
+  }},
+  flatpickr:{libs:['flatpickr'],run(st){
+    const inp=h('input',{className:'demo-input',placeholder:'Pilih rentang tanggal laporan'});
+    const out=h('small');
+    st.append(inp,out);
+    const tampil=d=>{out.textContent=d.length===2
+      ?`📅 Laporan ${fmtTgl(d[0])} – ${fmtTgl(d[1])} · ${Math.round((d[1]-d[0])/864e5)+1} hari · array berisi 2 tanggal`
+      :'Klik pertama: array baru berisi 1 tanggal. Pilih tanggal akhir…';};
+    const fp=flatpickr(inp,{mode:'range',dateFormat:'d M Y',locale:'id',inline:true,maxDate:'today',defaultDate:[hariLalu(6),HARI_INI],onChange:tampil});
+    tampil(fp.selectedDates);
+    return ()=>fp.destroy();
+  }},
+  chart:{libs:['chart'],run(st){
+    const r=hitung(PRODUK,hariLalu(6),HARI_INI,KAT);
+    const c1=h('canvas'),c2=h('canvas');
+    st.append(h('div',{className:'chart-pair'},[h('div',{className:'chart-wrap'},[c1]),h('div',{className:'chart-wrap'},[c2])]));
+    const bar=barChart(c1,r),dn=doughnutChart(c2,r);
+    const b=cbtn('🎲 Simulasi hari ramai',null,true);
+    b.onclick=()=>{
+      bar.data.datasets[0].data=r.perHari.map(v=>Math.round(v*(.6+Math.random()*.9)/500)*500);bar.update();
+      dn.data.datasets[0].data=r.perKat.map(v=>Math.round(v*(.5+Math.random())));dn.update();
+    };
+    st.append(b,h('small',{textContent:'Data diubah lalu chart.update(), bukan membuat grafik baru.'}));
+    return ()=>{bar.destroy();dn.destroy();};
+  }},
+  tabulator:{libs:['tabulator'],run(st){
+    const r=hitung(PRODUK,hariLalu(6),HARI_INI,KAT);
+    const div=h('div');st.append(h('div',{className:'tab-wrap'},[div]));
+    const t=new Tabulator(div,{data:r.rows,layout:'fitColumns',pagination:true,paginationSize:5,columns:[
+      {title:'Produk',field:'nama',headerFilter:'input',headerFilterPlaceholder:'cari…',minWidth:130},
+      {title:'Kategori',field:'kategori',minWidth:90},
+      {title:'Harga',field:'harga',sorter:'number',formatter:c=>rupiah(c.getValue()),minWidth:90},
+      {title:'Terjual',field:'terjual',sorter:'number',hozAlign:'center',minWidth:80}]});
+    const b=cbtn('⬇️ Export CSV','#2C6E8F',true);b.onclick=()=>t.download('csv','produk-kantin.csv');
+    st.append(b,h('small',{textContent:'Ketik di kolom Produk untuk mencari, klik judul kolom untuk mengurutkan.'}));
+    return ()=>t.destroy();
+  }},
+  dashboard:{libs:LIBS.map(l=>l.id),run(st){
+    const m=window.FloatingUIDOM;
+    let produk=PRODUK.map(p=>({...p}));
+    const state={awal:hariLalu(6),akhir:HARI_INI,kategori:[...KAT]};
+    const root=h('div',{className:'dash'});
+    root.innerHTML=`
+      <aside class="dash-side">
+        <div class="dash-brand">${clay('store','#D4A017','sm')}<div>Kantin HSI<small>HSI Boarding School</small></div></div>
+        <nav><a class="on">📊 Dashboard</a><a>🍱 Produk</a><a>🧾 Laporan</a><a>⚙️ Pengaturan</a></nav>
+      </aside>
+      <div class="dash-main">
+        <div class="dash-top">
+          <div><h3>Dashboard Kantin</h3><small class="d-range"></small></div>
+          <div class="dash-filter">
+            <label>Tanggal<input class="demo-input f-date" placeholder="Pilih rentang"></label>
+            <label>Kategori<select class="f-kat" multiple>${KAT.map(k=>`<option value="${k}" selected>${k}</option>`).join('')}</select></label>
+          </div>
+        </div>
+        <div class="dash-kpis">
+          ${kpiCard('omzet','💰 Omzet','Total uang masuk (harga × jumlah) dalam rentang tanggal & kategori terpilih.')}
+          ${kpiCard('item','🧺 Item terjual','Jumlah porsi/barang yang terjual pada filter saat ini.')}
+          ${kpiCard('trx','🧾 Transaksi','Banyaknya catatan transaksi yang lolos filter.')}
+        </div>
+        <div class="dash-charts">
+          <div class="dpanel"><h5>Omzet per hari</h5><div class="chart-wrap"><canvas class="c-bar"></canvas></div></div>
+          <div class="dpanel"><h5>Item per kategori</h5><div class="chart-wrap"><canvas class="c-dn"></canvas></div></div>
+        </div>
+        <div class="dash-bottom">
+          <div class="dpanel"><h5>Produk</h5><div class="t-prod"></div></div>
+          <div class="dpanel"><h5>Promo minggu ini</h5>${promoList()}</div>
+        </div>
+      </div>
+      <div class="tip"></div>`;
+    st.append(root,h('small',{textContent:'Coba ubah tanggal atau kategori: KPI, grafik, dan tabel ikut berubah. Klik 🗑️ untuk menghapus produk.'}));
+    const $=s=>root.querySelector(s);
+
+    // Floating UI
+    const hideTip=attachTips(m,root,$('.tip'),'.kinfo');
+
+    // Chart.js
+    let r=hitung(produk,state.awal,state.akhir,state.kategori);
+    const bar=barChart($('.c-bar'),r), dn=doughnutChart($('.c-dn'),r);
+
+    // Tabulator + SweetAlert2
+    let ready=false;
+    const hapus=p=>Swal.fire({title:`Hapus ${p.nama}?`,text:'Produk dan transaksinya hilang dari laporan.',icon:'warning',showCancelButton:true,
+      confirmButtonText:'Ya, hapus',cancelButtonText:'Batal',confirmButtonColor:'#E8735A',cancelButtonColor:'#9CA3AF',reverseButtons:true})
+      .then(res=>{if(!res.isConfirmed)return;produk=produk.filter(x=>x.id!==p.id);applyFilter();toast(`${p.nama} dihapus`);});
+    const table=new Tabulator($('.t-prod'),{data:r.rows,index:'id',layout:'fitColumns',pagination:true,paginationSize:5,
+      placeholder:'Tidak ada produk',initialSort:[{column:'omzet',dir:'desc'}],columns:[
+      {title:'Produk',field:'nama',headerFilter:'input',headerFilterPlaceholder:'cari…',minWidth:130},
+      {title:'Kategori',field:'kategori',minWidth:90},
+      {title:'Terjual',field:'terjual',sorter:'number',hozAlign:'center',minWidth:80},
+      {title:'Omzet',field:'omzet',sorter:'number',formatter:c=>rupiah(c.getValue()),minWidth:100},
+      {title:'',field:'id',headerSort:false,hozAlign:'center',width:64,formatter:()=>'<button class="t-del" title="Hapus">🗑️</button>',
+        cellClick:(e,cell)=>hapus(cell.getRow().getData())}
+    ]});
+    table.on('tableBuilt',()=>{ready=true;});
+
+    // Fungsi pusat
+    function renderKPI(){
+      $('[data-k=omzet]').textContent=rupiah(r.omzet);
+      $('[data-k=item]').textContent=r.item+' item';
+      $('[data-k=trx]').textContent=r.trx+' transaksi';
+      $('.d-range').textContent=`${fmtTgl(state.awal)} – ${fmtTgl(state.akhir)} · ${state.kategori.length} kategori · ${produk.length} produk`;
+    }
+    function applyFilter(){
+      r=hitung(produk,state.awal,state.akhir,state.kategori);
+      bar.data.labels=r.labels;bar.data.datasets[0].data=r.perHari;bar.update();
+      dn.data.datasets[0].data=r.perKat;dn.update();
+      if(ready)table.replaceData(r.rows);
+      renderKPI();
+    }
+
+    // Filter: Flatpickr + Tom Select
+    const fp=flatpickr($('.f-date'),{mode:'range',dateFormat:'d M Y',locale:'id',maxDate:'today',static:true,defaultDate:[state.awal,state.akhir],
+      onChange:d=>{if(d.length===2){[state.awal,state.akhir]=d;applyFilter();}}});
+    const ts=new TomSelect($('.f-kat'),{maxItems:null,plugins:['remove_button'],placeholder:'Pilih kategori',
+      onChange:v=>{state.kategori=toArr(v);applyFilter();}});
+
+    renderKPI();
+    return ()=>{hideTip();Swal.close();bar.destroy();dn.destroy();table.destroy();ts.destroy();fp.destroy();};
+  }}
+};
+
+async function runDemo(st){
+  const d=DEMOS[st.dataset.demo]; if(!d||st.dataset.loading)return;
+  st.dataset.loading='1';
+  const token=st._token=(st._token||0)+1;
+  st.innerHTML='<span class="stage-label">Demo langsung</span><div class="spinner"></div><small>Memuat library…</small>';
+  try{
+    await loadLibs(d.libs);
+    if(st._token!==token)return;           // sudah pindah slide saat memuat
+    if(d.libs.includes('floating')&&!window.FloatingUIDOM) throw new Error('FloatingUIDOM tidak ditemukan');
+    st.innerHTML='<span class="stage-label">Demo langsung</span>';
+    st.dataset.ran='1';
+    const c=d.run(st);
+    st._cleanup=typeof c==='function'?c:null;
+  }catch(err){
+    if(st._token!==token)return;
+    console.error(err);
+    st.innerHTML='<span class="stage-label">Demo langsung</span><p class="err">Gagal memuat demo 😢</p><small>Pastikan perangkat terhubung ke internet, lalu coba lagi.</small>';
+    const b=cbtn('Coba lagi',null,true);b.onclick=()=>{delete st.dataset.loading;runDemo(st);};st.append(b);
+  }
+}
+/* Bersihkan instance saat meninggalkan slide: hindari memory leak & listener yatim */
+function resetStage(st){
+  st._token=(st._token||0)+1;
+  if(st._cleanup){try{st._cleanup();}catch(e){console.warn(e);}st._cleanup=null;}
+  if(st.dataset.ran||st.dataset.loading) st.innerHTML=st._initial;
+  delete st.dataset.loading;delete st.dataset.ran;
+}
+function resetSlide(i){
+  els[i]?.querySelectorAll('.stage[data-demo]').forEach(resetStage);
+  if(window.Swal&&Swal.isVisible())Swal.close();
+}
+
+/* start */
+const start=parseInt(location.hash.slice(1));
+go(Number.isFinite(start)?start-1:0);
+</script>
 </body>
 </html>
