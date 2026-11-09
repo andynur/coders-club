@@ -123,6 +123,27 @@ cd hsi-react
 npm install
 npm run dev`, lang: "bash", title: "Terminal" },
         { p: "Buka alamat lokal yang ditampilkan terminal." },
+        { tip: "**Opsional — kenalan dengan Bun.** Bun adalah JavaScript runtime modern yang sudah termasuk package manager. Proses install-nya jauh lebih cepat daripada npm. Di kelas kita tetap memakai **npm**, jadi bagian ini hanya untuk perkenalan. Kalau ingin mencoba, langkahnya ada di bawah.", kind: "tip" },
+        { p: "Install Bun (cukup sekali), lalu cek versinya di terminal baru:" },
+        { code: `# macOS & Linux
+curl -fsSL https://bun.com/install | bash
+
+# Windows (PowerShell)
+powershell -c "irm bun.sh/install.ps1|iex"
+
+# Cek instalasi
+bun --version`, lang: "bash", title: "Terminal" },
+        { p: "Buat proyek Vite yang sama, tetapi semua perintahnya memakai Bun:" },
+        { code: `bun create vite hsi-react --template react
+cd hsi-react
+bun install
+bun run dev`, lang: "bash", title: "Terminal" },
+        { list: [
+          "Hasilnya sama persis dengan proyek npm: React + Vite, struktur folder sama, `bun run build` tetap menghasilkan folder `dist/`.",
+          "Bedanya hanya di file lock: Bun membuat `bun.lock`, npm membuat `package-lock.json`. Pilih salah satu saja dalam satu proyek.",
+          "Muncul `command not found` setelah install? Tutup lalu buka lagi terminal, atau tambahkan `~/.bun/bin` ke `PATH`.",
+          "Bun juga punya template sendiri, `bun init --react` (full-stack, TypeScript). Struktur foldernya berbeda dari Vite, jadi untuk kelas ini tetap pakai template Vite.",
+        ] },
 
         { h: "1.5 Understanding Project Structure" },
         { code: `hsi-react/
@@ -1331,6 +1352,7 @@ setTasks(tasks);`,
     ["book-open", "React Official Documentation", "https://react.dev/learn"],
     ["book-marked", "React Documentation — Bahasa Indonesia", "https://id.react.dev/learn"],
     ["zap", "Vite Documentation", "https://vite.dev/guide/"],
+    ["package", "Bun Documentation (opsional)", "https://bun.com/docs/installation"],
     ["route", "React Router Documentation", "https://reactrouter.com/start/declarative/installation"],
     ["palette", "Tailwind CSS Documentation", "https://tailwindcss.com/docs/installation/using-vite"],
     ["code", "JavaScript MDN", "https://developer.mozilla.org/en-US/docs/Web/JavaScript"],

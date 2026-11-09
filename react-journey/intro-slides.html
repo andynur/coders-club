@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#2563eb">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <script>var t="light";try{t=localStorage.getItem("hsi-theme")||"light";}catch(e){}document.documentElement.setAttribute("data-theme",t);</script>
-<meta name="description" content="Slide pengantar React.js Fundamental — Student Learning Handbook Level 2, HSI Boarding School Purworejo.">
+<meta name="description" content="Slide pengantar React.js Fundamental — Student Learning Handbook kelas IT HSI Boarding School Purworejo: belajar React dari nol dalam 12 pertemuan.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -468,8 +468,8 @@ const fmt = s => esc(s).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^
 
 /* ===================== DATA HANDBOOK ===================== */
 const META = {
-  school:'HSI Boarding School Purworejo', program:'Web Development / Coders Club', year:'2026/2027',
-  mentor:'Kak Andy', level:'2 — React Fundamentals', duration:'12 Meetings × 120 Minutes', prereq:'JavaScript Fundamentals'
+  school:'HSI Boarding School Purworejo', program:'Kelas IT — Web Development', year:'2026/2027',
+  mentor:'Kak Andy', duration:'12 Meetings × 120 Minutes', prereq:'JavaScript Fundamentals'
 };
 
 const PHASES = [
@@ -631,9 +631,11 @@ const RESOURCES = [
   ['book','var(--blue)','React Docs','Dokumentasi resmi','https://react.dev/learn'],
   ['book','var(--teal)','React Docs (ID)','Bahasa Indonesia','https://id.react.dev/learn'],
   ['zap','var(--purple)','Vite','Build tool','https://vite.dev/guide/'],
+  ['package','var(--gold)','Bun','Opsional · runtime & package manager','https://bun.com/docs/installation'],
   ['route','var(--green)','React Router','Navigasi','https://reactrouter.com/start/declarative/installation'],
   ['palette','var(--red)','Tailwind CSS','Styling UI','https://tailwindcss.com/docs/installation/using-vite'],
-  ['code','var(--gold)','MDN JavaScript','Referensi JS','https://developer.mozilla.org/en-US/docs/Web/JavaScript']
+  ['code','var(--gold)','MDN JavaScript','Referensi JS','https://developer.mozilla.org/en-US/docs/Web/JavaScript'],
+  ['git','var(--text-2)','GitHub Docs','Version control & deploy','https://docs.github.com/']
 ];
 
 /* ===================== KODE PANJANG ===================== */
@@ -770,12 +772,12 @@ add('judul',{title:'Judul',icon:['atom','var(--teal)'],html:`
   <div style="display:flex;flex-direction:column;gap:22px">
     <div class="cover-logo">
       ${clay('school','var(--blue)','md')}
-      <div><b>${META.school}</b><small>Coders Club · Student Learning Handbook Level 2</small></div>
+      <div><b>${META.school}</b><small>${META.program} · React.js Fundamental</small></div>
     </div>
     <h1>Belajar <span class="grad">React.js</span> dari nol sampai deploy.</h1>
     <p>Dalam <b>12 pertemuan</b> kalian membangun aplikasi web beneran pakai React: dari komponen pertama, data dari API, sampai online di internet.</p>
     <div class="cover-meta">
-      <span class="pill">📚 <b>Level 2</b></span><span class="pill">⏱️ 12 × 120 menit</span><span class="pill">🧑‍🏫 Mentor: <b>${META.mentor}</b></span>
+      <span class="pill">📚 <b>12 Bab</b></span><span class="pill">⏱️ 12 × 120 menit</span><span class="pill">🧑‍🏫 Mentor: <b>${META.mentor}</b></span>
     </div>
     <div class="row"><button class="cbtn" data-goto="welcome">Mulai →</button><span class="hint">Navigasi: <kbd>←</kbd> <kbd>→</kbd> · <kbd>O</kbd> daftar · <kbd>F</kbd> layar penuh</span></div>
   </div>
@@ -798,7 +800,7 @@ add('welcome',{title:'Selamat Datang',icon:['school','var(--blue)'],html:`
       <ul style="--dot:var(--teal)">
         <li><b>Program:</b> ${META.program}</li>
         <li><b>Tahun ajaran:</b> ${META.year}</li>
-        <li><b>Level:</b> ${META.level}</li>
+        <li><b>Mentor:</b> ${META.mentor}</li>
         <li><b>Durasi:</b> ${META.duration}</li>
         <li><b>Prerequisite:</b> ${META.prereq}</li>
       </ul>
@@ -806,6 +808,7 @@ add('welcome',{title:'Selamat Datang',icon:['school','var(--blue)'],html:`
     <div class="box clay-card">
       <h3>Pendekatan belajar</h3>
       <p style="font-size:16px">React modern: <b>functional components</b>, JSX, Hooks dasar, Vite, dan praktik pengembangan aplikasi. Diselaraskan dengan dokumentasi resmi React, Vite, React Router, dan Tailwind CSS.</p>
+      <p style="font-size:14px;margin-top:8px"><span class="chip" style="--c:var(--green)">🧪 Kode sudah diuji</span> React 19 · React Router · Tailwind CSS 4</p>
       <div class="quote">“Don't just copy the code. Understand how it works, experiment with it, and build something of your own.”</div>
     </div>
   </div>
@@ -865,6 +868,7 @@ add('tools',{title:'Tools & Setup',icon:['terminal','var(--green)'],html:`
         <li><b>Buat proyek</b> dengan <code>npm create vite@latest</code>.</li>
         <li><b>Jalankan</b> <code>npm run dev</code> dan buka alamat lokal di browser.</li>
       </ol>
+      <p style="font-size:14px;margin-top:10px"><span class="chip">Opsional</span> Mau lebih cepat? Coba <b>Bun</b>: <code>bun create vite hsi-react --template react</code>, lalu <code>bun install</code> dan <code>bun run dev</code>.</p>
     </div>
     ${codeCard('setup','Terminal',true)}
   </div>
@@ -1050,7 +1054,7 @@ add('penutup',{title:'Penutup',icon:['rocket','var(--teal)'],html:`
   </div>
   <div style="text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center">
     <h1>Let's build with <span class="grad">React</span>!</h1>
-    <p>${META.school} · Coders Club ${META.year}</p>
+    <p>${META.school} · ${META.program} · ${META.year}</p>
     <div class="row" style="justify-content:center"><a class="cbtn" href="index.html#/mulai">📖 Buka Handbook</a><button class="cbtn ghost" data-go="0">↺ Kembali ke awal</button></div>
   </div>
 </div>`});
