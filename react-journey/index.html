@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HSI-BS React Journey — Belajar React.js dari Nol</title>
+  <meta name="description" content="Handbook kelas IT HSI Boarding School Purworejo: belajar React.js dari nol dalam 12 pertemuan, lengkap dengan demo interaktif, latihan, dan tracker progres." />
+  <meta name="keywords" content="belajar react, react.js pemula, tutorial react bahasa indonesia, useState, react router, tailwind, HSI Boarding School, kelas IT" />
+  <meta name="author" content="HSI Boarding School Purworejo" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://andynur.github.io/coders-club/react-journey/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <meta name="theme-color" content="#2563eb" />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="id_ID" />
+  <meta property="og:site_name" content="HSI-BS React Journey" />
+  <meta property="og:url" content="https://andynur.github.io/coders-club/react-journey/" />
+  <meta property="og:title" content="HSI-BS React Journey — React.js Fundamental" />
+  <meta property="og:description" content="Belajar React.js dari nol dalam 12 pertemuan, lengkap dengan demo interaktif. Handbook kelas IT HSI Boarding School Purworejo." />
+  <meta property="og:image" content="https://andynur.github.io/coders-club/react-journey/og.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="React Journey — belajar React dari nol dalam 12 pertemuan" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HSI-BS React Journey — React.js Fundamental" />
+  <meta name="twitter:description" content="Belajar React.js dari nol dalam 12 pertemuan, lengkap dengan demo interaktif." />
+  <meta name="twitter:image" content="https://andynur.github.io/coders-club/react-journey/og.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": "React.js Fundamental — HSI-BS React Journey",
+    "description": "Belajar React.js dari nol dalam 12 pertemuan: JSX, props, state, form, CRUD, fetch API, React Router, localStorage, dan Tailwind CSS.",
+    "url": "https://andynur.github.io/coders-club/react-journey/",
+    "inLanguage": "id",
+    "educationalLevel": "SMA",
+    "isAccessibleForFree": true,
+    "image": "https://andynur.github.io/coders-club/react-journey/og.png",
+    "provider": { "@type": "EducationalOrganization", "name": "HSI Boarding School Purworejo" },
+    "hasCourseInstance": { "@type": "CourseInstance", "courseMode": "online" }
+  }
+  </script>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="stylesheet" href="style.css?v=4" />
+  <script>
+    var t = "light";
+    try { t = localStorage.getItem("hsi-theme") || "light"; } catch (e) {}
+    document.documentElement.setAttribute("data-theme", t);
+  </script>
+</head>
+<body>
+  <div class="read-bar" aria-hidden="true"><i id="readBar"></i></div>
+  <header class="topbar">
+    <button class="icon-btn only-mobile" id="sideOpen" aria-label="Buka navigasi"><i data-lucide="panel-left"></i></button>
+    <a href="#/" class="brand">
+      <span class="brand-logo" aria-hidden="true"><i data-lucide="atom"></i></span>
+      <span class="brand-name">React Journey <em>HSI Boarding School</em></span>
+    </a>
+    <button class="search-trigger" id="searchOpen" aria-label="Cari materi">
+      <i data-lucide="search"></i><span>Cari materi…</span><kbd>Ctrl K</kbd>
+    </button>
+    <div class="top-actions">
+      <a href="#/tracker" class="top-progress" title="Progres belajar"><span class="tp-bar"><i id="topBar"></i></span><b id="topCount">0%</b></a>
+      <button class="btn-share" id="shareOpen" aria-label="Bagikan progres"><i data-lucide="send"></i><span>Bagikan progres</span></button>
+      <button class="icon-btn" id="themeToggle" aria-label="Ganti tema"><i data-lucide="moon"></i></button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar" aria-label="Navigasi materi">
+      <nav id="sideNav"></nav>
+      <div class="side-foot">
+        <span>HSI Boarding School</span>
+        <span>2026/2027</span>
+      </div>
+    </aside>
+    <div class="scrim" id="scrim"></div>
+
+    <main class="main" id="main">
+      <article class="page" id="page" aria-live="polite"></article>
+      <nav class="pager" id="pager" aria-label="Halaman sebelumnya dan berikutnya"></nav>
+      <div class="share-strip" id="shareStrip"></div>
+      <footer class="page-foot">
+        <span>HSI Boarding School Purworejo · React.js Fundamental — Student Learning Handbook</span>
+      </footer>
+    </main>
+
+    <aside class="toc" id="toc" aria-label="Di halaman ini"></aside>
+  </div>
+
+  <div class="search-modal" id="searchModal" role="dialog" aria-modal="true" aria-label="Pencarian" hidden>
+    <div class="search-box">
+      <div class="search-input"><i data-lucide="search"></i><input type="text" id="searchInput" placeholder="Cari bab, konsep, atau kode… (mis. useState)" autocomplete="off" /><kbd>Esc</kbd></div>
+      <div class="search-results" id="searchResults"></div>
+      <div class="search-hint"><span><kbd>↑</kbd><kbd>↓</kbd> pilih</span><span><kbd>Enter</kbd> buka</span></div>
+    </div>
+  </div>
+
+  <div class="search-modal share-modal" id="shareModal" role="dialog" aria-modal="true" aria-labelledby="shareTitle" hidden>
+    <div class="search-box share-box">
+      <div class="share-head"><b id="shareTitle"><i data-lucide="send"></i> Bagikan progres hari ini</b><button class="icon-btn" id="shareClose" aria-label="Tutup"><i data-lucide="x"></i></button></div>
+      <form class="share-form" id="shareForm" autocomplete="off">
+        <div class="form-row">
+          <label>Nama<input name="name" placeholder="Nama lengkap" maxlength="60" /></label>
+          <label>Rombel<input name="rombel" placeholder="mis. 1" maxlength="20" /></label>
+        </div>
+        <pre class="share-preview" id="sharePreview" aria-live="polite"></pre>
+        <p class="muted small share-note">Progres Awal = progres saat pertama membuka handbook hari ini. Nama & rombel disimpan di browser ini.</p>
+        <div class="form-actions"><button class="btn btn-primary" type="button" id="shareCopy"><i data-lucide="copy"></i> Copy teks</button><button class="btn" type="button" id="shareNative" hidden><i data-lucide="share-2"></i> Bagikan…</button></div>
+      </form>
+    </div>
+  </div>
+
+  <button class="to-top" id="toTop" aria-label="Kembali ke atas"><i data-lucide="arrow-up"></i></button>
+  <div class="toast" id="toast" role="status"></div>
+
+  <!-- Konten tampil dulu; ikon & syntax highlight (vendor/) menyusul. -->
+  <!-- Naikkan ?v= setiap kali ada update agar browser siswa memuat versi terbaru. -->
+  <script src="data.js?v=4"></script>
+  <script src="demos.js?v=4"></script>
+  <script src="previews.js?v=4"></script>
+  <script src="app.js?v=4"></script>
+  <script async src="vendor/lucide.min.js?v=0.460.0" onload="window.dispatchEvent(new Event('hsi:lib'))"></script>
+  <script async src="vendor/highlight.min.js?v=11.9.0" onload="window.dispatchEvent(new Event('hsi:lib'))"></script>
+</body>
+</html>
