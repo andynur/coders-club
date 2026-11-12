@@ -36,6 +36,12 @@
   }
   const done = () => store.get("done", []);
   const isDone = (n) => done().includes(n);
+  /* Kuis per bab: bab baru bisa ditandai selesai setelah lulus kuis (lihat quizzes.js). */
+  const QZ = typeof QUIZZES !== "undefined" ? QUIZZES : {};
+  const QZ_PASS = typeof QUIZ_PASS !== "undefined" ? QUIZ_PASS : 4;
+  const hasQuiz = (n) => Array.isArray(QZ[n]) && QZ[n].length > 0;
+  const quizState = (n) => store.get("quiz-" + n, null);
+  const quizPassed = (n) => !hasQuiz(n) || !!(quizState(n) || {}).passed;
 
   /* ---------- progress (%) ----------
      Tiap bab bernilai sama (1/12). Bab yang ditandai selesai = penuh.
@@ -242,6 +248,9 @@
       if (b.steps) return `<ol class="steps">${b.steps.map(([t, d], i) => `<li><b>Step ${i + 1} — ${esc(t)}</b><span>${esc(d)}</span></li>`).join("")}</ol>`;
       if (b.features) return `<div class="grid">${b.features.map(([ic, t, items], i) => `<div class="tile"><span class="t-ico${i % 2 ? " gold" : ""}"><i data-lucide="${ic}"></i></span><div><b>${esc(t)}</b><ul>${items.map((x) => `<li>${fmt(x)}</li>`).join("")}</ul></div></div>`).join("")}</div>`;
       if (b.banner) return callout("🏆", "gold", `<p>${esc(b.text)}</p>`, esc(b.banner.replace(/^🏆\s*/, "")));
+      if (b.viz) return typeof VISUALS !== "undefined" ? VISUALS.render(b.viz) : "";
+      if (b.analogy) return `<div class="analogy"><span class="an-ico" aria-hidden="true">${b.icon || "🧠"}</span><div><span class="an-tag">Analogi gampangnya</span>${b.title ? `<b>${fmt(b.title)}</b>` : ""}<p>${fmt(b.analogy)}</p></div></div>`;
+      if (b.recap) return `<div class="recap"><div class="recap-head"><span aria-hidden="true">⚡</span> Ringkasan kilat</div><ul>${b.recap.map((x) => `<li>${fmt(x)}</li>`).join("")}</ul></div>`;
       if (b.checklist) {
         const saved = store.get("check-" + b.key, []);
         return `<ul class="checklist" data-checklist="${b.key}">${b.checklist.map((x, i) => checkItem(fmt(x), saved[i])).join("")}</ul>`;
@@ -474,10 +483,14 @@
       <p class="muted small">Jujur sama diri sendiri: centang yang benar-benar sudah kamu pahami, bukan yang sekadar pernah kamu baca.</p>
       <ul class="checklist" data-assess="${c.num}">${c.assess.map((x, i) => checkItem(fmt(x), savedA[i])).join("")}</ul>
       ${c.milestone ? `<div class="deliv milestone">🏅 ${esc(c.milestone)}</div>` : `<div class="deliv">📦 Deliverable: ${output}</div>`}
+      ${hasQuiz(c.num) ? `${h2("Kuis Pemahaman", "kuis-pemahaman")}
+      <p>Jawab ${QZ[c.num].length} soal pilihan ganda berikut. Kamu perlu minimal <strong>${QZ_PASS} jawaban benar</strong> untuk membuka tombol <em>Tandai selesai</em>. Urutan soal dan pilihan diacak setiap percobaan.</p>
+      <div class="cquiz" id="cquiz"></div>` : ""}
       ${finishCard(c)}`;
     return {
       html,
       mount(root) {
+        if (hasQuiz(c.num)) mountQuiz($("#cquiz", root), c);
         const host = $("#demoHost", root);
         const fn = DEMOS[c.demo];
         return fn ? fn(host) || null : null;
@@ -485,9 +498,99 @@
     };
   }
 
+  function shuffle(a) {
+    const r = a.slice();
+    for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; }
+    return r;
+  }
+  const LETTERS = "ABCD";
+
+  function mountQuiz(box, c) {
+    const n = c.num, qs = QZ[n];
+    const refreshFinish = () => { const fin = $("#finish"); if (fin) { fin.outerHTML = finishCard(c); icons(); } };
+
+    function summary() {
+      const st = quizState(n);
+      box.innerHTML = `<div class="cq-done">
+        <div class="cq-badge" aria-hidden="true"><i data-lucide="badge-check"></i></div>
+        <div><b>Kuis Bab ${pad(n)} lulus</b><span class="muted small">Skor terbaik ${st.best}/${qs.length} · ${st.tries} kali percobaan</span></div>
+        <button class="btn btn-sm" type="button" data-cq-retry><i data-lucide="rotate-ccw"></i> Ulangi kuis</button></div>`;
+      icons();
+    }
+
+    function attempt() {
+      const order = shuffle(qs.map((_, i) => i)).map((qi) => ({ qi, opts: shuffle(qs[qi].opts.map((_, oi) => oi)) }));
+      box.innerHTML = `<div class="cq-top"><span><i data-lucide="list-checks"></i> ${qs.length} soal · lulus minimal ${QZ_PASS} benar</span><span class="tag" id="cqCount">0/${qs.length} terjawab</span></div>
+        <ol class="cq-list">${order.map((o, k) => `<li class="cq-item" data-qi="${o.qi}">
+          <p class="cq-q"><span class="cq-n">${k + 1}</span>${fmt(qs[o.qi].q)}</p>
+          <div class="cq-opts" role="radiogroup" aria-label="Pilihan soal ${k + 1}">${o.opts.map((oi, m) => `<label class="cq-opt"><input type="radio" name="cq-${n}-${k}" value="${oi}"><span class="cq-key">${LETTERS[m]}</span><span class="cq-txt">${fmt(qs[o.qi].opts[oi])}</span></label>`).join("")}</div>
+          <div class="cq-fb"></div></li>`).join("")}</ol>
+        <div class="cq-foot"><div class="cq-result" aria-live="polite"></div><button class="btn btn-primary" type="button" data-cq-submit disabled><i data-lucide="send"></i> Periksa jawaban</button></div>`;
+      icons();
+    }
+
+    function submit() {
+      const items = $$(".cq-item", box);
+      let score = 0;
+      const res = items.map((li) => {
+        const qi = +li.dataset.qi, pick = $("input:checked", li), ok = pick && +pick.value === qs[qi].a;
+        if (ok) score++;
+        return { li, qi, ok, pick };
+      });
+      const passed = score >= QZ_PASS;
+      const prev = quizState(n) || { best: 0, tries: 0, passed: false };
+      store.set("quiz-" + n, { passed: prev.passed || passed, best: Math.max(prev.best, score), tries: prev.tries + 1, at: Date.now() });
+
+      $$("input", box).forEach((x) => (x.disabled = true));
+      res.forEach(({ li, qi, ok, pick }) => {
+        li.classList.add(ok ? "is-right" : "is-wrong");
+        if (pick) pick.closest(".cq-opt").classList.add(ok ? "right" : "wrong");
+        if (passed) {
+          // Kunci jawaban & pembahasan hanya dibuka setelah lulus.
+          $$("input", li).forEach((x) => { if (+x.value === qs[qi].a) x.closest(".cq-opt").classList.add("right"); });
+          $(".cq-fb", li).innerHTML = `<p><strong>${ok ? "Benar." : "Kurang tepat."}</strong> ${fmt(qs[qi].why)}</p>`;
+        } else {
+          $(".cq-fb", li).innerHTML = `<p><strong>${ok ? "Benar." : "Belum tepat."}</strong>${ok ? "" : " Baca ulang materi terkait, lalu coba lagi."}</p>`;
+        }
+      });
+      const foot = $(".cq-foot", box);
+      foot.innerHTML = passed
+        ? callout("🎉", "green", `<p><strong>Lulus! Skor ${score}/${qs.length}.</strong> Pembahasan tiap soal sudah terbuka di atas. Sekarang kamu bisa menandai Bab ${pad(n)} selesai.</p><p style="margin-top:.6rem"><button class="btn btn-sm btn-primary" type="button" data-target="finish"><i data-lucide="flag"></i> Ke tombol selesai</button> <button class="btn btn-sm" type="button" data-cq-retry><i data-lucide="rotate-ccw"></i> Ulangi kuis</button></p>`)
+        : callout("🤔", "red", `<p><strong>Skor ${score}/${qs.length}.</strong> Minimal ${QZ_PASS} benar untuk lulus. Soal yang salah ditandai merah. Pelajari lagi bagian materinya, lalu coba lagi. Soal dan pilihan akan diacak ulang.</p><p style="margin-top:.6rem"><button class="btn btn-sm btn-primary" type="button" data-cq-retry><i data-lucide="rotate-ccw"></i> Coba lagi</button></p>`);
+      icons();
+      if (passed) {
+        toast(`Kuis Bab ${pad(n)} lulus (${score}/${qs.length}) ✓`);
+        confetti(foot);
+        refreshFinish();
+      } else toast(`Skor ${score}/${qs.length}. Belum lulus, ayo coba lagi!`);
+    }
+
+    box.addEventListener("change", (e) => {
+      if (!e.target.matches("input[type=radio]")) return;
+      const items = $$(".cq-item", box), answered = items.filter((li) => $("input:checked", li)).length;
+      $("#cqCount", box).textContent = `${answered}/${items.length} terjawab`;
+      $("#cqCount", box).classList.toggle("blue", answered === items.length);
+      $("[data-cq-submit]", box).disabled = answered < items.length;
+    });
+    box.addEventListener("click", (e) => {
+      if (e.target.closest("[data-cq-submit]")) { submit(); return; }
+      if (e.target.closest("[data-cq-retry]")) { attempt(); box.scrollIntoView({ block: "start", behavior: calm() ? "auto" : "smooth" }); }
+    });
+
+    if ((quizState(n) || {}).passed) summary(); else attempt();
+  }
+
   function finishCard(c) {
     const next = CH[c.num];
     const d = isDone(c.num);
+    if (!d && !quizPassed(c.num)) {
+      const st = quizState(c.num);
+      return `<div class="finish is-locked" id="finish">
+      <div class="finish-ico" aria-hidden="true"><i data-lucide="lock"></i></div>
+      <div class="finish-txt"><b>Lulus kuis dulu untuk menyelesaikan Bab ${pad(c.num)}</b>
+        <span>Jawab minimal ${QZ_PASS} dari ${QZ[c.num].length} soal Kuis Pemahaman dengan benar.${st ? ` Skor terbaikmu: ${st.best}/${QZ[c.num].length}.` : ""}</span></div>
+      <div class="finish-act"><button class="btn" type="button" data-target="kuis-pemahaman"><i data-lucide="list-checks"></i> Kerjakan kuis</button></div></div>`;
+    }
     return `<div class="finish${d ? " is-done" : ""}" id="finish">
       <div class="finish-ico" aria-hidden="true"><i data-lucide="${d ? "party-popper" : "flag"}"></i></div>
       <div class="finish-txt"><b>${d ? `Bab ${pad(c.num)} sudah selesai.` : `Sudah paham isi Bab ${pad(c.num)}?`}</b>
@@ -652,8 +755,8 @@
         <svg class="ring" viewBox="0 0 96 96"><circle class="bg" cx="48" cy="48" r="40"/><circle class="fg" cx="48" cy="48" r="40" style="stroke-dasharray:${C};stroke-dashoffset:${C}" data-off="${C * (1 - pct / 100)}"/></svg>
         <div><span class="ring-num"><span id="ringNum">0</span>%</span><span class="muted">${n} dari ${CH.length} pertemuan selesai</span><p id="trackMsg" style="margin:.3rem 0 0;color:var(--text)">${msgFor(n)}</p></div>
       </div>
-      ${callout("💡", "blue", "<p><strong>Cara menghitung progres:</strong> tiap bab bernilai sama. Bab yang sudah ditandai selesai dihitung penuh. Bab yang belum selesai ikut bertambah sedikit demi sedikit setiap kamu mencentang <em>Self-Assessment</em> di bab itu.</p>")}
-      ${D.phases.map((p) => `${h2(p.name, slug(p.name))}<ul class="checklist" data-tracker>${CH.filter((c) => c.phase === p.id).map((c) => checkItem(`<strong>${pad(c.num)}</strong> — ${esc(c.short)} <a href="#/${chRoute(c)}" class="muted small" style="margin-left:.3rem">buka →</a>`, d.includes(c.num), `data-n="${c.num}"`)).join("")}</ul>`).join("")}
+      ${callout("💡", "blue", "<p><strong>Cara menghitung progres:</strong> tiap bab bernilai sama. Bab yang sudah ditandai selesai dihitung penuh. Bab baru bisa ditandai selesai setelah kamu lulus <em>Kuis Pemahaman</em> di bab itu. Bab yang belum selesai ikut bertambah sedikit demi sedikit setiap kamu mencentang <em>Self-Assessment</em> di bab itu.</p>")}
+      ${D.phases.map((p) => `${h2(p.name, slug(p.name))}<ul class="checklist" data-tracker>${CH.filter((c) => c.phase === p.id).map((c) => checkItem(`<strong>${pad(c.num)}</strong> — ${esc(c.short)} ${hasQuiz(c.num) ? (quizPassed(c.num) ? `<span class="tag green cq-tag">Kuis ${quizState(c.num).best}/${QZ[c.num].length}</span>` : `<span class="tag cq-tag">🔒 Kuis belum lulus</span>`) : ""} <a href="#/${chRoute(c)}" class="muted small" style="margin-left:.3rem">buka →</a>`, d.includes(c.num), `data-n="${c.num}"`)).join("")}</ul>`).join("")}
       ${h2("Simpan & Pindahkan Progres", "backup")}
       <p>Progres, self-check, kuis, dan jurnal hanya tersimpan di browser ini. Simpan file cadangan sebelum ganti HP/laptop, lalu impor di perangkat baru. Kalau memakai komputer lab bergantian, reset progres setelah selesai belajar.</p>
       <div class="form-actions backup-actions">
@@ -703,6 +806,11 @@
         });
         $$("[data-tracker]", root).forEach((ul) => ul.addEventListener("change", (e) => {
           const num = +e.target.dataset.n;
+          if (e.target.checked && !quizPassed(num)) {
+            e.target.checked = false;
+            toast(`Kerjakan & lulus Kuis Bab ${pad(num)} dulu`);
+            return;
+          }
           setDone(num, e.target.checked);
           if (e.target.checked) { toast(`Pertemuan ${pad(num)} selesai ✓`); confetti(e.target.closest(".check")); }
           const k = done().length;
@@ -920,8 +1028,9 @@
     $("#shareStrip").className = "share-strip" + (out.wide ? " wide" : "");
     const c1 = out.mount ? out.mount(page) || null : null;
     const c2 = mountRuns(page);
-    cleanup = () => { if (c1) c1(); c2(); };
-    if (!out.wide) $$(":scope > .code, :scope > .callout, :scope > .compare, :scope > .grid, :scope > .tbl, :scope > .steps, :scope > .flow, :scope > #demoHost, :scope > .finish", page).forEach((el) => el.classList.add("reveal", "soft"));
+    const c3 = typeof VISUALS !== "undefined" ? VISUALS.mount(page) : () => {};
+    cleanup = () => { if (c1) c1(); c2(); c3(); };
+    if (!out.wide) $$(":scope > .code, :scope > .callout, :scope > .compare, :scope > .grid, :scope > .tbl, :scope > .steps, :scope > .flow, :scope > .viz, :scope > .analogy, :scope > .recap, :scope > #demoHost, :scope > .finish", page).forEach((el) => el.classList.add("reveal", "soft"));
     highlight(page);
     renderSidebar(r.id);
     updateTop();
@@ -963,7 +1072,7 @@
       let cur = null;
       c.blocks.forEach((b) => {
         if (b.h) { cur = { route: chRoute(c), title: plain(b.h), sub: `Bab ${pad(c.num)} · ${c.short}`, icon: "hash", target: slug(b.h), text: "" }; INDEX.push(cur); }
-        else if (cur) cur.text += " " + plain(b.p || b.tip || (b.list || b.olist || []).join(" ") || b.code || "");
+        else if (cur) cur.text += " " + plain(b.p || b.tip || b.analogy || (b.list || b.olist || b.recap || []).join(" ") || b.code || "");
       });
       ["coba-langsung|Coba Langsung (demo)", "hands-on-practice|Hands-On Practice", "student-challenge|Challenge", "self-assessment|Self-Assessment"].forEach((s) => {
         const [t, n] = s.split("|");
@@ -1122,6 +1231,7 @@
       const st = e.target.closest("[data-status]");
       if (st) {
         const n = +st.dataset.status, val = !isDone(n);
+        if (val && !quizPassed(n)) { toast(`Lulus Kuis Bab ${pad(n)} dulu (minimal ${QZ_PASS} benar)`); scrollToId("kuis-pemahaman"); return; }
         setDone(n, val);
         st.classList.toggle("green", val);
         st.innerHTML = statusLabel(val); icons();
@@ -1133,6 +1243,7 @@
       const fb = e.target.closest("[data-finish]");
       if (fb) {
         const n = +fb.dataset.finish, next = CH[n];
+        if (!quizPassed(n)) { toast(`Lulus Kuis Bab ${pad(n)} dulu`); scrollToId("kuis-pemahaman"); return; }
         setDone(n, true);
         confetti(fb);
         toast(next ? `Bab ${pad(n)} selesai ✓ Lanjut ke Bab ${pad(next.num)}…` : `Bab ${pad(n)} selesai ✓ Semua bab tuntas!`);
@@ -1150,7 +1261,7 @@
         const n = vals.filter(Boolean).length;
         const prop = $("#assessProp");
         if (prop) prop.textContent = `${n}/${vals.length} tercentang`;
-        if (n === vals.length && !isDone(num)) toast("Semua self-check tercentang! Tandai bab ini selesai di bagian Status ↑");
+        if (n === vals.length && !isDone(num)) toast(quizPassed(num) ? "Semua self-check tercentang! Tandai bab ini selesai di bagian Status ↑" : "Semua self-check tercentang! Lanjut kerjakan Kuis Pemahaman ↓");
       }
       const cl = e.target.closest("[data-checklist]");
       if (cl) store.set("check-" + cl.dataset.checklist, $$("input", cl).map((x) => x.checked));

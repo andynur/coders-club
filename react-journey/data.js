@@ -64,6 +64,7 @@ const HANDBOOK = {
         { list: ["Navbar", "Sidebar", "Profile Card", "Student List", "Statistics Card", "Footer"], cols: true },
         { p: "Pada HTML biasa, kita dapat membuat semuanya dalam satu dokumen panjang. Tetapi semakin kompleks aplikasi, semakin sulit mengelola dan menggunakan kembali bagian-bagian UI tersebut." },
         { p: "Dengan React, kita bisa membaginya menjadi komponen kecil." },
+        { analogy: "Bayangkan React seperti main **LEGO**. Kamu tidak memahat satu patung besar sekaligus. Kamu membuat balok-balok kecil (komponen), lalu menyusunnya menjadi rumah, mobil, atau apa saja. Balok yang sama bisa dipakai berkali-kali.", title: "React = LEGO untuk tampilan website", icon: "🧱" },
         { code: `App
 ├── Navbar
 ├── Sidebar
@@ -73,6 +74,7 @@ const HANDBOOK = {
 │   └── TaskList
 └── Footer`, lang: "plaintext", title: "Component Tree" },
         { p: "Setiap komponen dapat memiliki tampilan dan logikanya sendiri." },
+        { viz: "uiTree" },
 
         { h: "1.2 React vs Vanilla JavaScript" },
         { compare: [
@@ -100,7 +102,9 @@ function Counter() {
 export default Counter;`, run: "counter" },
         ] },
         { p: "Pada React, kita mendeskripsikan tampilan berdasarkan data. Ketika state diperbarui, React membantu memperbarui tampilan." },
+        { analogy: "Vanilla JS itu seperti memandu teman memasak: *ambil wajan, nyalakan kompor, tuang minyak…* satu per satu. React itu seperti **memesan dari menu**: kamu cukup bilang hasil akhirnya (\"nasi goreng, pedas\"), dapurnya yang mengurus langkah-langkahnya.", title: "Menyuruh langkah vs memesan hasil", icon: "🍳" },
         { tip: "**Key Concept:** UI = Function of State.", kind: "key" },
+        { viz: "uiFormula" },
 
         { h: "1.3 Development Tools" },
         { p: "Tools yang digunakan:" },
@@ -145,6 +149,7 @@ bun run dev`, lang: "bash", title: "Terminal" },
           "Bun juga punya template sendiri, `bun init --react` (full-stack, TypeScript). Struktur foldernya berbeda dari Vite, jadi untuk kelas ini tetap pakai template Vite.",
         ] },
 
+        { tip: "**Kalau error di awal itu wajar.** Baca pesan di terminal pelan-pelan, cek ejaan perintah, dan pastikan kamu sudah `cd` ke folder proyek sebelum `npm install`.", kind: "tip" },
         { h: "1.5 Understanding Project Structure" },
         { code: `hsi-react/
 ├── public/
@@ -165,6 +170,13 @@ bun run dev`, lang: "bash", title: "Terminal" },
           "`index.css` — Global stylesheet.",
           "`package.json` — Project configuration dan dependencies.",
           "`node_modules` — Paket hasil instalasi npm.",
+        ] },
+
+        { recap: [
+          "React = library untuk membangun UI dari **komponen** kecil yang bisa dipakai ulang.",
+          "Di React kamu mengubah **data**, lalu React yang memperbarui tampilan: **UI = f(state)**.",
+          "Proyek dibuat dengan `npm create vite@latest`, dijalankan dengan `npm run dev`.",
+          "Kamu akan paling sering bekerja di folder `src/`, terutama `App.jsx`.",
         ] },
       ],
       practice: {
@@ -217,6 +229,7 @@ function Greeting() {
   return <h1>Hello, {name}!</h1>;
 }`, lang: "javascript", run: "greeting" },
         { p: "Kurung kurawal `{}` digunakan untuk memasukkan ekspresi JavaScript ke dalam JSX." },
+        { viz: "jsxAnatomy" },
 
         { h: "2.2 Important JSX Rules" },
         { rule: "Rule 1 — Return a single parent element" },
@@ -238,6 +251,8 @@ function Greeting() {
 </>`, lang: "javascript", run: "selfClosing" },
         { rule: "Rule 4 — Use camelCase for many JSX attributes" },
         { p: "Contoh: `onClick`, `onChange`, dan `htmlFor`." },
+        { rule: "Rule 5 — Nama komponen diawali huruf kapital" },
+        { p: "Tulis `<StudentCard />`, bukan `<studentCard />`. Tag yang diawali huruf kecil dianggap tag HTML biasa, jadi komponenmu tidak akan muncul." },
 
         { h: "2.3 Creating Your First Component" },
         { p: "Buat file `src/components/StudentCard.jsx`:" },
@@ -267,6 +282,8 @@ function App() {
 
 export default App;`, lang: "javascript", title: "src/App.jsx", run: "appCards" },
         { p: "Perhatikan bahwa satu komponen dapat digunakan beberapa kali!" },
+        { analogy: "Komponen itu seperti **cetakan kue**. Cetakannya dibuat sekali (function `StudentCard`), lalu bisa dipakai untuk mencetak kue sebanyak yang kamu mau (`<StudentCard />` berkali-kali).", title: "Cetakan kue", icon: "🍪" },
+        { viz: "componentStamp" },
 
         { h: "2.4 Component Composition" },
         { p: "Component composition adalah cara menyusun komponen kecil menjadi antarmuka yang lebih besar." },
@@ -276,6 +293,13 @@ export default App;`, lang: "javascript", title: "src/App.jsx", run: "appCards" 
 ├── StudentInformation
 └── SkillsBadge`, lang: "plaintext", title: "Component Tree" },
         { tip: "Prinsipnya sederhana: **Build small, combine later.**", kind: "key" },
+
+        { recap: [
+          "JSX = tulisan mirip HTML di dalam JavaScript. `{ }` adalah pintu masuk JavaScript.",
+          "Aturan JSX: satu parent, `className`, semua tag ditutup, atribut camelCase.",
+          "Komponen = function yang mengembalikan JSX. Namanya diawali huruf kapital.",
+          "Bangun kecil-kecil, lalu gabungkan: **Build small, combine later**.",
+        ] },
       ],
       practice: {
         intro: "Bangun **Student ID Card** dengan:",
@@ -307,6 +331,7 @@ export default App;`, lang: "javascript", title: "src/App.jsx", run: "appCards" 
       blocks: [
         { h: "3.1 What are Props?" },
         { p: "Props adalah data yang dikirim dari parent component ke child component." },
+        { analogy: "Props seperti **titipan dari orang tua** untuk anaknya di asrama. Anak menerima dan memakai titipan itu, tapi tidak bisa mengubah isi kiriman yang sudah dikirim. Kalau mau isinya beda, orang tua yang mengirim ulang.", title: "Titipan dari orang tua", icon: "🎁" },
         { p: "Contoh:" },
         { code: `function StudentCard({ name, grade }) {
   return (
@@ -327,6 +352,7 @@ export default function App() {
 }`, lang: "javascript", run: "props" },
         { p: "Kita cukup membuat satu `StudentCard`, lalu menggunakannya dengan data berbeda." },
         { tip: "**Remember:** Props bersifat read-only. Child component tidak boleh mengubah props yang diterimanya secara langsung.", kind: "tip" },
+        { viz: "propsFlow" },
 
         { h: "3.2 Rendering Arrays with map()" },
         { code: `const students = [
@@ -350,6 +376,8 @@ function StudentList() {
 }`, lang: "javascript", run: "list" },
         { p: "`key` membantu React mengidentifikasi item dalam sebuah daftar." },
         { p: "Gunakan identifier yang unik dan stabil, seperti ID siswa." },
+        { viz: "mapConveyor" },
+        { tip: "Hindari memakai index array sebagai `key` kalau urutan data bisa berubah (dihapus, diurutkan, disisipi). Pakai `id` dari data.", kind: "warn" },
 
         { h: "3.3 Conditional Rendering" },
         { p: "Contoh:" },
@@ -361,6 +389,14 @@ function StudentList() {
   );
 }`, lang: "javascript", run: "badge" },
         { p: "Dengan conditional rendering, tampilan dapat berubah berdasarkan kondisi data." },
+        { p: "Kalau hanya ingin menampilkan sesuatu saat kondisinya `true`, pakai `&&`. Contoh: `{isActive && <span>Online</span>}`. Kalau `isActive` bernilai `false`, tidak ada yang tampil." },
+
+        { recap: [
+          "Props = data dari parent ke child. Sifatnya **read-only**.",
+          "`array.map()` mengubah setiap data menjadi satu komponen.",
+          "Setiap item di daftar butuh `key` yang unik dan stabil, misalnya `id`.",
+          "Conditional rendering: `kondisi ? A : B` atau `kondisi && A`.",
+        ] },
       ],
       practice: {
         intro: "Bangun **Student Directory** menggunakan array berisi minimal enam data siswa fiktif. Setiap card menampilkan:",
@@ -394,6 +430,7 @@ function StudentList() {
       blocks: [
         { h: "4.1 What is State?" },
         { p: "State adalah data yang disimpan oleh komponen React dan dapat berubah seiring interaksi pengguna atau proses aplikasi." },
+        { analogy: "State seperti **papan skor** di lapangan. Ketika ada gol, petugas mengganti angka di papan skor, dan semua penonton langsung melihat skor baru. `setCount` adalah petugas yang mengganti angka itu.", title: "Papan skor pertandingan", icon: "🏟️" },
         { p: "Contoh:" },
         { code: `import { useState } from "react";
 
@@ -422,6 +459,7 @@ export default Counter;`, lang: "javascript", run: "counter4" },
           "`setCount`: function untuk meminta pembaruan state.",
           "`useState(0)`: membuat state dengan nilai awal 0.",
         ] },
+        { viz: "renderCycle" },
 
         { h: "4.2 Why Not Update Variables Directly?" },
         { p: "Contoh yang tidak tepat:" },
@@ -432,6 +470,7 @@ function increase() {
 }`, lang: "javascript", bad: true },
         { p: "Mengubah variabel biasa seperti ini tidak memberi tahu React bahwa komponen perlu dirender ulang." },
         { p: "Gunakan setter dari `useState`." },
+        { viz: "varVsState" },
 
         { h: "4.3 Handling Events" },
         { code: `function GreetingButton() {
@@ -451,6 +490,14 @@ function increase() {
           ["bad", "`onClick={handleClick()}`"],
         ] },
         { p: "Bentuk kedua langsung menjalankan function ketika ekspresi JSX dievaluasi." },
+        { analogy: "`onClick={handleClick}` itu seperti **memberi nomor HP** ke temanmu: dia akan menelepon nanti, saat tombol diklik. `onClick={handleClick()}` itu seperti **langsung menelepon sekarang**, padahal belum ada yang klik.", title: "Simpan nomornya, jangan langsung telepon", icon: "📞" },
+
+        { recap: [
+          "State = data yang bisa berubah dan memicu render ulang.",
+          "`const [count, setCount] = useState(0)`: nilai + setter + nilai awal.",
+          "Variabel biasa tidak membuat layar berubah. Pakai setter.",
+          "Berikan function ke event: `onClick={handleClick}`, bukan `handleClick()`.",
+        ] },
       ],
       practice: {
         intro: "Buat **Student Voting App**. Fitur:",
@@ -485,6 +532,7 @@ function increase() {
       blocks: [
         { h: "5.1 Controlled Components" },
         { p: "Controlled input adalah elemen form yang nilainya dikendalikan oleh React state." },
+        { analogy: "Bayangkan **sekretaris kelas** yang mencatat setiap kata ketua kelas di buku notulen (state). Papan pengumuman (input) selalu menampilkan isi buku itu. Jadi isi papan dan isi buku tidak pernah berbeda.", title: "Sekretaris dan buku notulen", icon: "📝" },
         { code: `import { useState } from "react";
 
 function StudentForm() {
@@ -521,13 +569,22 @@ function StudentForm() {
 
 export default StudentForm;`, lang: "javascript", title: "StudentForm.jsx", run: "form" },
 
+        { viz: "controlledLoop" },
         { h: "5.2 Why preventDefault()?" },
         { p: "Secara default, browser dapat melakukan navigasi atau memuat ulang halaman ketika form HTML disubmit." },
         { p: "`event.preventDefault()` mencegah perilaku default tersebut sehingga kita dapat menangani submit melalui JavaScript." },
+        { p: "Tanpa `preventDefault()`, halaman akan reload dan semua isi state hilang sebelum kamu sempat memprosesnya." },
 
         { h: "5.3 Form Validation" },
         { p: "Validasi sederhana meliputi:" },
         { list: ["Required fields.", "Minimum text length.", "Valid email format.", "Selecting predefined options.", "Showing error messages."] },
+
+        { recap: [
+          "Controlled input: `value` dari state, `onChange` mengubah state.",
+          "`event.target.value` berisi teks yang sedang diketik.",
+          "`event.preventDefault()` mencegah halaman reload saat submit.",
+          "Validasi dulu sebelum memproses data, dan tampilkan pesan error yang jelas.",
+        ] },
       ],
       practice: {
         intro: "Buat **Student Registration Form**. Fields:",
@@ -632,6 +689,8 @@ function TaskManager() {
 
 export default TaskManager;`, lang: "javascript", title: "TaskManager.jsx", run: "tasks" },
 
+        { analogy: "Mengubah state itu seperti **Save As** di Word: buat salinan baru yang sudah diedit, lalu serahkan ke React. Jangan mencoret dokumen asli (mutasi), karena React hanya mengecek *apakah dokumennya baru*.", title: "Save As, bukan coret-coret", icon: "📄" },
+        { viz: "immutable" },
         { h: "6.3 What is Lifting State Up?" },
         { p: "Ketika dua komponen membutuhkan data yang sama, state biasanya ditempatkan di parent terdekat yang menaungi keduanya." },
         { p: "Contoh:" },
@@ -645,6 +704,15 @@ export default TaskManager;`, lang: "javascript", title: "TaskManager.jsx", run:
     ├── onComplete()
     └── onDelete()`, lang: "plaintext", title: "Lifting State Up" },
         { p: "Parent menjadi pemilik state, sementara child menerima data dan callback melalui props." },
+        { analogy: "Seperti **wali kelas** yang memegang buku absen. Ketua kelas (TaskForm) melapor ke wali kelas kalau ada yang baru. Wali kelas mencatat, lalu memberi salinan daftar terbaru ke papan kelas (TaskList).", title: "Wali kelas pegang buku absen", icon: "👩‍🏫" },
+        { viz: "liftState" },
+
+        { recap: [
+          "CRUD = Create, Read, Update, Delete.",
+          "Jangan ubah array state secara langsung. Buat array baru: `[...tasks, baru]`, `map()`, `filter()`.",
+          "Kalau beberapa komponen butuh data yang sama, simpan state di parent terdekat.",
+          "Data turun lewat props, perubahan naik lewat callback.",
+        ] },
       ],
       practice: {
         intro: "Bangun **Student Task Manager**. Minimum features:",
@@ -679,6 +747,7 @@ export default TaskManager;`, lang: "javascript", title: "TaskManager.jsx", run:
       blocks: [
         { h: "7.1 What is an API?" },
         { p: "API (*Application Programming Interface*) memungkinkan aplikasi berkomunikasi dengan sistem lain." },
+        { analogy: "API seperti **pelayan restoran**. Kamu (aplikasi React) tidak masuk ke dapur (server). Kamu memesan lewat pelayan (HTTP request), lalu pelayan membawakan makanan (data JSON). Kadang pesanan lama datang, kadang gagal, jadi aplikasi harus siap dengan *loading* dan *error*.", title: "Pelayan restoran", icon: "🍽️" },
         { p: "Contoh alur:" },
         { flow: ["React Application", "HTTP Request", "Public API", "JSON Response", "React State", "Rendered UI"] },
 
@@ -738,11 +807,20 @@ function UserList() {
 
 export default UserList;`, lang: "javascript", title: "UserList.jsx", run: "users" },
 
+        { viz: "fetchStates" },
         { h: "7.3 Understanding useEffect" },
         { p: "`useEffect` digunakan untuk menyinkronkan komponen dengan sistem eksternal, misalnya permintaan jaringan." },
         { p: "Tiga hal yang perlu dipahami:" },
         { olist: ["Effect function.", "Dependency array.", "Cleanup function."] },
+        { viz: "effectLife" },
         { tip: "Jangan menggunakan `useEffect` untuk setiap perhitungan biasa. Jika nilai dapat dihitung langsung dari props atau state saat render, biasanya tidak perlu Effect.", kind: "warn" },
+
+        { recap: [
+          "API = cara aplikasi meminta data ke server. Hasilnya biasanya JSON.",
+          "Selalu siapkan tiga keadaan: **loading**, **success**, **error**.",
+          "`useEffect` berjalan setelah render, dan diulang hanya jika dependency berubah.",
+          "Cleanup membatalkan pekerjaan lama sebelum effect diulang atau komponen hilang.",
+        ] },
       ],
       practice: {
         intro: "Buat **Public API Explorer** menggunakan JSONPlaceholder atau API publik lainnya. Fitur:",
@@ -778,6 +856,8 @@ export default UserList;`, lang: "javascript", title: "UserList.jsx", run: "user
         { h: "8.1 What is SPA?" },
         { p: "SPA berarti **Single Page Application**." },
         { p: "Dalam aplikasi React, perpindahan antarhalaman dapat dilakukan melalui client-side routing tanpa selalu memuat ulang seluruh dokumen HTML." },
+        { analogy: "Website biasa seperti **membuka file presentasi baru** setiap pindah topik. SPA seperti **pindah slide** di file yang sama: cepat, dan semua yang sudah terbuka tetap di tempatnya.", title: "Pindah slide, bukan buka file baru", icon: "🎞️" },
+        { viz: "spaVsMpa" },
 
         { h: "8.2 Install React Router" },
         { code: `npm install react-router`, lang: "bash", title: "Terminal" },
@@ -846,6 +926,14 @@ export default App;`, lang: "javascript", title: "src/App.jsx", run: "router" },
 /students/2
 /students/3`, lang: "plaintext", title: "URL" },
         { p: "Gunakan route parameter untuk mengidentifikasi siswa berdasarkan ID." },
+        { viz: "routeMatch" },
+
+        { recap: [
+          "SPA mengganti konten tanpa memuat ulang seluruh halaman.",
+          "`<BrowserRouter>` membungkus aplikasi, `<Routes>` + `<Route>` memetakan URL ke komponen.",
+          "Pakai `<Link>` untuk pindah halaman, bukan `<a href>`.",
+          "`/students/:id` + `useParams()` untuk halaman detail.",
+        ] },
       ],
       practice: {
         intro: "Buat aplikasi dengan empat halaman:",
@@ -880,6 +968,7 @@ export default App;`, lang: "javascript", title: "src/App.jsx", run: "router" },
       blocks: [
         { h: "9.1 What is Local Storage?" },
         { p: "Local Storage adalah fitur browser yang menyimpan data berbentuk string pada perangkat pengguna untuk origin website tertentu." },
+        { analogy: "State itu seperti **tulisan di papan tulis**: dihapus setiap kali kelas selesai (halaman di-refresh). Local Storage seperti **buku catatan di laci meja**: besok masih ada. Karena laci hanya muat teks, array dan object harus \"dilipat\" dulu jadi teks dengan `JSON.stringify`.", title: "Papan tulis vs buku di laci", icon: "🗄️" },
         { p: "Contoh:" },
         { code: `localStorage.setItem("name", "Ahmad");
 
@@ -926,8 +1015,10 @@ function Notes() {
 export default Notes;`, lang: "javascript", title: "Notes.jsx", run: "notes" },
         { p: "Lazy initialization membantu membaca nilai awal ketika state dibuat." },
 
+        { viz: "storageCycle" },
         { h: "9.3 Introduction to Custom Hooks" },
         { p: "Custom hooks adalah function yang diawali dengan `use` dan menggunakan React Hooks untuk membagikan logic antarkomponen." },
+        { analogy: "Custom hook seperti **resep andalan** yang ditulis sekali, lalu bisa dipakai di dapur mana saja. Komponen `Notes`, `Tasks`, atau `Settings` cukup memanggil `useLocalStorage` tanpa menulis ulang logic simpan-baca.", title: "Resep yang bisa dipakai ulang", icon: "📒" },
         { p: "Contoh `useLocalStorage`:" },
         { code: `import { useEffect, useState } from "react";
 
@@ -955,6 +1046,13 @@ export function useLocalStorage(key, initialValue) {
 }`, lang: "javascript", title: "src/hooks/useLocalStorage.js" },
         { p: "Contoh ini digunakan untuk memperkenalkan reusable logic pada aplikasi browser sederhana." },
         { tip: "Jangan menyimpan password, token rahasia, atau informasi sensitif pada Local Storage. Data juga tidak otomatis tersinkron antarperangkat.", kind: "warn" },
+
+        { recap: [
+          "State hilang saat refresh. Local Storage tetap ada di browser.",
+          "Simpan dengan `JSON.stringify`, baca dengan `JSON.parse`.",
+          "Lazy initialization `useState(() => …)` membaca data hanya sekali saat awal.",
+          "Custom hook (`useSesuatu`) = logic yang dibungkus supaya bisa dipakai ulang. Jangan simpan data rahasia di Local Storage.",
+        ] },
       ],
       practice: {
         intro: "Bangun **Student Notes App**. Fitur:",
@@ -1024,6 +1122,7 @@ export default defineConfig({
 
 export default WelcomeCard;`, lang: "javascript", title: "WelcomeCard.jsx", run: "welcome" },
 
+        { viz: "utilityAnatomy" },
         { h: "10.4 Responsive Design" },
         { p: "Contoh:" },
         { code: `<div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -1032,6 +1131,7 @@ export default WelcomeCard;`, lang: "javascript", title: "WelcomeCard.jsx", run:
   <div>Card 3</div>
 </div>`, lang: "javascript", run: "grid" },
         { list: ["Mobile: satu kolom.", "Medium screen dan lebih besar: tiga kolom."] },
+        { p: "Awalan `md:` artinya: berlaku mulai layar medium (lebar 768px ke atas). Tailwind berpikir **mobile-first**: tulis gaya untuk HP dulu, lalu tambahkan awalan seperti `md:` atau `lg:` untuk layar yang lebih besar." },
 
         { h: "10.5 Recommended Folder Structure" },
         { code: `src/
@@ -1052,6 +1152,13 @@ export default WelcomeCard;`, lang: "javascript", title: "WelcomeCard.jsx", run:
 ├── index.css
 └── main.jsx`, lang: "plaintext", title: "Folder Structure" },
         { p: "Struktur ini adalah contoh yang dapat disesuaikan. Tidak semua proyek harus memiliki folder yang sama." },
+
+        { recap: [
+          "Tailwind = utility class kecil yang digabung langsung di `className`.",
+          "Mobile-first: gaya tanpa awalan untuk HP, `md:` / `lg:` untuk layar besar.",
+          "Buat komponen UI yang reusable, misalnya `StatCard`.",
+          "Rapikan folder: `components/`, `pages/`, `hooks/`, `data/`.",
+        ] },
       ],
       practice: {
         intro: "Buat dashboard layout:",
@@ -1094,6 +1201,7 @@ export default WelcomeCard;`, lang: "javascript", title: "WelcomeCard.jsx", run:
           ["smartphone", "Responsive Design", ["Mobile-friendly.", "Desktop-friendly.", "Consistent styling."]],
         ] },
 
+        { viz: "projectMap" },
         { h: "11.2 Project Architecture" },
         { code: `HSI-BS School Dashboard
 │
@@ -1138,6 +1246,13 @@ export default WelcomeCard;`, lang: "javascript", title: "WelcomeCard.jsx", run:
           "No unnecessary console errors.",
           "No sensitive credentials in source code.",
         ], key: "quality" },
+
+        { recap: [
+          "Final project menggabungkan semua bab, tanpa materi baru.",
+          "Rencanakan dulu: fitur, halaman, komponen, dan data.",
+          "Kerjakan sedikit demi sedikit, commit sesering mungkin.",
+          "Cek checklist kualitas kode sebelum Demo Day.",
+        ] },
       ],
       practice: {
         intro: "Bangun **HSI-BS School Dashboard** mengikuti 7 langkah Project Workflow di atas — dari planning hingga refactor.",
@@ -1169,6 +1284,8 @@ export default WelcomeCard;`, lang: "javascript", title: "WelcomeCard.jsx", run:
         { p: "Jalankan:" },
         { code: `npm run build`, lang: "bash", title: "Terminal" },
         { p: "Vite akan menghasilkan folder `dist/` berisi hasil production build." },
+        { analogy: "`npm run dev` itu seperti **dapur saat memasak**: berantakan tapi enak untuk mencoba-coba. `npm run build` itu **mengemas makanan ke kotak** yang rapi dan ringan, siap dikirim ke pembeli (hosting).", title: "Dapur vs kotak bekal", icon: "🍱" },
+        { viz: "buildShrink" },
         { p: "Untuk memeriksa secara lokal:" },
         { code: `npm run preview`, lang: "bash", title: "Terminal" },
         { p: "Pastikan seluruh fitur berjalan sebelum deployment." },
@@ -1225,6 +1342,13 @@ npm run dev
           "Challenges and lessons learned.",
         ] },
         { tip: "**Recommended presentation time:** 5–7 menit per kelompok.", kind: "tip" },
+
+        { recap: [
+          "`npm run build` menghasilkan folder `dist/` yang siap online. Cek dulu dengan `npm run preview`.",
+          "Deploy: push ke GitHub → hubungkan ke Vercel/Netlify → build `npm run build`, output `dist`.",
+          "Aplikasi dengan router butuh pengaturan rewrite supaya deep link tidak 404.",
+          "README yang baik + presentasi yang jelas = proyekmu mudah dipahami orang lain.",
+        ] },
       ],
       practice: {
         intro: "Build, preview, dan deploy **HSI-BS School Dashboard** ke Vercel atau Netlify. Lengkapi dengan README.md yang memuat screenshot, fitur utama, dan link demo.",
